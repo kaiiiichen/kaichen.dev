@@ -44,7 +44,7 @@ export default function Home() {
           </div>
           <div className="flex gap-4">
             <dt className="w-24 shrink-0 font-mono text-xs uppercase tracking-widest text-zinc-400 dark:text-zinc-600 pt-0.5">
-              Listening
+              Spotify
             </dt>
             <dd className="text-zinc-700 dark:text-zinc-300">
               <NowPlaying />

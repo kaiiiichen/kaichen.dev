@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { NowPlayingResult } from "@/lib/spotify";
 
 function formatMs(ms: number): string {
@@ -13,6 +13,14 @@ function formatMs(ms: number): string {
 export default function NowPlaying() {
   const [data, setData] = useState<NowPlayingResult | null>(null);
   const [progress, setProgress] = useState(0);
+  const [displaySong, setDisplaySong] = useState<{
+    title: string;
+    artist: string;
+    songUrl: string;
+  } | null>(null);
+  const [slideClass, setSlideClass] = useState("");
+  const pollRef = useRef<() => void>(() => {});
+  const prevTitleRef = useRef<string | null>(null);
 
   // Poll API every 30s, seed local progress on each response
   useEffect(() => {
@@ -26,17 +34,52 @@ export default function NowPlaying() {
         .catch(() => setData({ isPlaying: false }));
     };
 
+    pollRef.current = poll;
     poll();
-    const id = setInterval(poll, 30_000);
+    const id = setInterval(poll, 1_000);
     return () => clearInterval(id);
   }, []);
 
-  // Tick progress locally every second
+  // Animate song title changes
+  useEffect(() => {
+    if (!data?.isPlaying) {
+      prevTitleRef.current = null;
+      setDisplaySong(null);
+      return;
+    }
+    const { title, artist, songUrl } = data;
+    if (prevTitleRef.current === null) {
+      prevTitleRef.current = title;
+      setDisplaySong({ title, artist, songUrl });
+      return;
+    }
+    if (prevTitleRef.current === title) return;
+
+    prevTitleRef.current = title;
+    const timers: ReturnType<typeof setTimeout>[] = [];
+    setSlideClass("slide-exit");
+    timers.push(
+      setTimeout(() => {
+        setDisplaySong({ title, artist, songUrl });
+        setSlideClass("slide-enter");
+        timers.push(setTimeout(() => setSlideClass(""), 250));
+      }, 200)
+    );
+    return () => timers.forEach(clearTimeout);
+  }, [data]);
+
+  // Tick progress locally every second; refetch when track ends
   useEffect(() => {
     if (!data?.isPlaying) return;
     const { duration_ms } = data;
     const id = setInterval(() => {
-      setProgress((p) => Math.min(p + 1000, duration_ms));
+      setProgress((p) => {
+        if (p + 1000 >= duration_ms) {
+          pollRef.current();
+          return duration_ms;
+        }
+        return p + 1000;
+      });
     }, 1000);
     return () => clearInterval(id);
   }, [data]);
@@ -55,7 +98,7 @@ export default function NowPlaying() {
 
   return (
     <div className="space-y-2">
-      <span className="inline-flex items-center gap-2">
+      <span className={`inline-flex items-center gap-2 ${slideClass}`}>
         <span className="relative inline-flex w-2 h-2 shrink-0">
           <span
             className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
@@ -66,15 +109,21 @@ export default function NowPlaying() {
             style={{ backgroundColor: "#1DB954" }}
           />
         </span>
-        <a
-          href={data.songUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="hover:underline underline-offset-4"
-        >
-          {data.title}
-        </a>
-        <span className="text-zinc-400 dark:text-zinc-600">{data.artist}</span>
+        {displaySong && (
+          <>
+            <a
+              href={displaySong.songUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:underline underline-offset-4"
+            >
+              {displaySong.title}
+            </a>
+            <span className="text-zinc-400 dark:text-zinc-600">
+              {displaySong.artist}
+            </span>
+          </>
+        )}
       </span>
 
       <div className="space-y-1">

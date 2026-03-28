@@ -2,7 +2,14 @@ const TOKEN_URL = "https://accounts.spotify.com/api/token";
 const NOW_PLAYING_URL =
   "https://api.spotify.com/v1/me/player/currently-playing";
 
+// Module-level cache — survives across requests within the same server instance
+let cachedToken: string | null = null;
+let tokenExpiresAt = 0; // epoch ms
+
 async function getAccessToken(): Promise<string | null> {
+  // Return cached token if it has more than 60s left
+  if (cachedToken && Date.now() < tokenExpiresAt - 60_000) return cachedToken;
+
   const clientId = process.env.SPOTIFY_CLIENT_ID;
   const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
   const refreshToken = process.env.SPOTIFY_REFRESH_TOKEN;
@@ -25,7 +32,12 @@ async function getAccessToken(): Promise<string | null> {
 
   if (!res.ok) return null;
   const data = await res.json();
-  return (data.access_token as string) ?? null;
+
+  cachedToken = (data.access_token as string) ?? null;
+  // Spotify returns expires_in in seconds (typically 3600)
+  tokenExpiresAt = Date.now() + (data.expires_in as number) * 1000;
+
+  return cachedToken;
 }
 
 export type NowPlayingResult =
