@@ -32,25 +32,52 @@ export function useNowPlaying(): UseNowPlayingReturn {
   const [displayItem, setDisplayItem] = useState<DisplayItem>(null);
   const [dotPlaying, setDotPlaying] = useState(false);
   const [slideClass, setSlideClass] = useState("");
-  const pollRef = useRef<() => void>(() => {});
+  const fallbackFetchRef = useRef<() => void>(() => {});
   const prevUrlRef = useRef<string | null>(null);
   const slideTimers = useRef<ReturnType<typeof setTimeout>[]>([]);
 
-  // Poll API every second
+  // Connect to SSE stream; auto-reconnects via EventSource default behaviour
   useEffect(() => {
-    const poll = () => {
+    let es: EventSource | null = null;
+    let retryTimer: ReturnType<typeof setTimeout> | null = null;
+
+    function connect() {
+      es = new EventSource("/api/spotify/stream");
+      es.onmessage = (e) => {
+        try {
+          const d: NowPlayingResult = JSON.parse(e.data as string);
+          setData(d);
+          if (d.isPlaying) setProgress(d.progress_ms);
+        } catch {
+          // ignore malformed frames
+        }
+      };
+      es.onerror = () => {
+        es?.close();
+        es = null;
+        // Manual reconnect after 3 s (browser default is also ~3 s but we
+        // want explicit control so we can clean up properly)
+        retryTimer = setTimeout(connect, 3_000);
+      };
+    }
+
+    connect();
+
+    // Fallback: called when the progress ticker detects track end
+    fallbackFetchRef.current = () => {
       fetch("/api/spotify/now-playing")
-        .then((res) => res.json())
+        .then((r) => r.json())
         .then((d: NowPlayingResult) => {
           setData(d);
           if (d.isPlaying) setProgress(d.progress_ms);
         })
-        .catch(() => setData({ isPlaying: false }));
+        .catch(() => {});
     };
-    pollRef.current = poll;
-    poll();
-    const id = setInterval(poll, 10_000);
-    return () => clearInterval(id);
+
+    return () => {
+      es?.close();
+      if (retryTimer !== null) clearTimeout(retryTimer);
+    };
   }, []);
 
   // Sync display state when data changes
@@ -98,7 +125,7 @@ export function useNowPlaying(): UseNowPlayingReturn {
     const id = setInterval(() => {
       setProgress((p) => {
         if (p + 1000 >= duration_ms) {
-          pollRef.current();
+          fallbackFetchRef.current();
           return duration_ms;
         }
         return p + 1000;
