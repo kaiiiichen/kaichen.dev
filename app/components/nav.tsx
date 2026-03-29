@@ -2,11 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import ThemeToggle from "./theme-toggle";
 
 const links = [
   { href: "/about", label: "About" },
   { href: "/projects", label: "Projects" },
-  { href: "/now", label: "Now" },
 ];
 
 export default function Nav() {
@@ -21,22 +21,25 @@ export default function Nav() {
         >
           Kai Chen
         </Link>
-        <ul className="flex gap-6 text-sm">
-          {links.map(({ href, label }) => (
-            <li key={href}>
-              <Link
-                href={href}
-                className={`transition-colors hover:text-foreground ${
-                  pathname === href
-                    ? "text-foreground"
-                    : "text-zinc-400 dark:text-zinc-500"
-                }`}
-              >
-                {label}
-              </Link>
-            </li>
-          ))}
-        </ul>
+        <div className="flex items-center gap-6 text-sm">
+          <ul className="flex gap-6">
+            {links.map(({ href, label }) => (
+              <li key={href}>
+                <Link
+                  href={href}
+                  className={`transition-colors hover:text-foreground ${
+                    pathname === href
+                      ? "text-foreground"
+                      : "text-zinc-400 dark:text-zinc-500"
+                  }`}
+                >
+                  {label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+          <ThemeToggle />
+        </div>
       </div>
     </nav>
   );
