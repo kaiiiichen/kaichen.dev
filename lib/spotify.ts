@@ -71,7 +71,10 @@ export async function getNowPlaying(): Promise<NowPlayingResult> {
     headers: { Authorization: `Bearer ${accessToken}` },
   });
 
-  // 204 = nothing playing, >400 = error
+  // 204 = nothing playing, 429 = rate limited, >400 = error
+  if (res.status === 429) {
+    return { isPlaying: false, recentTrack: currentTrack ?? undefined };
+  }
   if (res.status === 204 || res.status > 400) {
     return { isPlaying: false, recentTrack: currentTrack ?? previousTrack ?? undefined };
   }

@@ -49,7 +49,7 @@ export function useNowPlaying(): UseNowPlayingReturn {
     };
     pollRef.current = poll;
     poll();
-    const id = setInterval(poll, 1_000);
+    const id = setInterval(poll, 10_000);
     return () => clearInterval(id);
   }, []);
 
