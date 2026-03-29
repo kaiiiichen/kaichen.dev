@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Chiron+GoRound+TC&display=swap');
 @import "tailwindcss";
 
 /* Use .dark class for dark mode (next-themes) instead of media query */
@@ -8,6 +9,7 @@
   --foreground: #171717;
   --dot-idle: #a1a1aa;
   --contribution-empty: #e4e4e7;
+  --font-chinese: 'Chiron GoRound TC', 'Ma Shan Zheng', serif;
 }
 
 .dark {
@@ -22,6 +24,10 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-serif: var(--font-lora);
+}
+
+* {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
 body {

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 
 type Day = { date: string; count: number };
+type LastCommit = { message: string; repo: string; sha: string; url: string; timeAgo: string };
 
 function getColor(count: number): string {
   if (count === 0) return "var(--contribution-empty)";
@@ -11,7 +12,6 @@ function getColor(count: number): string {
   if (count <= 9) return "#239a3b";
   return "#196127";
 }
-
 
 function getMonthLabels(weeks: Day[][]): { label: string; colIndex: number }[] {
   const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
@@ -43,34 +43,30 @@ const STEP = CELL + GAP; // 13px per column
 const MONTH_ROW_H = 12;
 const MONTH_ROW_MB = 4;
 const DAY_LABEL_W = 24 + 4; // width + margin-right
-const DAY_LABEL_MT = MONTH_ROW_H + MONTH_ROW_MB;
 
 export default function GitHubActivity() {
   const [allWeeks, setAllWeeks] = useState<Day[][]>([]);
   const [total, setTotal] = useState(0);
-  const [lastCommit, setLastCommit] = useState<{ repo: string; message: string; ago: string } | null>(null);
-  const [maxCols, setMaxCols] = useState<number | null>(null);
+  const [lastCommit, setLastCommit] = useState<LastCommit | null>(null);
+  const [containerWidth, setContainerWidth] = useState<number>(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetch("/api/github/contributions")
       .then((r) => r.json())
-      .then((data: { weeks?: Day[][]; lastCommit?: { repo: string; message: string; ago: string } | null }) => {
+      .then((data: { weeks?: Day[][]; totalContributions?: number; lastCommit?: LastCommit | null }) => {
         if (!data.weeks) return;
         setAllWeeks(data.weeks);
-        setTotal(data.weeks.flat().reduce((s, d) => s + d.count, 0));
+        setTotal(data.totalContributions ?? data.weeks.flat().reduce((s, d) => s + d.count, 0));
         if (data.lastCommit) setLastCommit(data.lastCommit);
       })
       .catch(() => {});
   }, []);
 
-  // Measure container to know how many columns fit
   useEffect(() => {
     if (!containerRef.current) return;
     const ro = new ResizeObserver((entries) => {
-      const width = entries[0].contentRect.width;
-      const available = width - DAY_LABEL_W;
-      setMaxCols(Math.floor((available + GAP) / STEP));
+      setContainerWidth(entries[0].contentRect.width);
     });
     ro.observe(containerRef.current);
     return () => ro.disconnect();
@@ -78,85 +74,107 @@ export default function GitHubActivity() {
 
   if (allWeeks.length === 0) return null;
 
-  // Keep the most recent N columns (right side fixed)
-  const weeks =
-    maxCols !== null && maxCols < allWeeks.length
-      ? allWeeks.slice(-maxCols)
-      : allWeeks;
+  const naturalWidth = DAY_LABEL_W + allWeeks.length * STEP - GAP;
+  const scale = containerWidth > 0 ? Math.min(1, containerWidth / naturalWidth) : 1;
+  const gridHeight = MONTH_ROW_H + MONTH_ROW_MB + 7 * STEP - GAP;
 
-  const monthLabels = getMonthLabels(weeks);
+  const monthLabels = getMonthLabels(allWeeks);
 
   return (
     <div className="space-y-2" ref={containerRef}>
-      <div className="flex items-start">
-        {/* Day-of-week labels */}
+      {/* Outer container clips to container width; inner scales to fit */}
+      <div style={{ width: "100%", overflow: "hidden", height: gridHeight * scale }}>
         <div
-          className="flex flex-col shrink-0 mr-1"
-          style={{ gap: GAP, width: 24, marginTop: DAY_LABEL_MT }}
+          style={{
+            width: naturalWidth,
+            transformOrigin: "top left",
+            transform: `scale(${scale})`,
+          }}
         >
-          {ROW_LABELS.map((label, i) => (
+          <div className="flex items-start">
+            {/* Day-of-week labels */}
             <div
-              key={i}
-              style={{ height: CELL, lineHeight: `${CELL}px`, fontSize: 9 }}
-              className="font-mono text-zinc-400 dark:text-zinc-600 select-none"
+              className="flex flex-col shrink-0 mr-1"
+              style={{ gap: GAP, width: 24, marginTop: MONTH_ROW_H + MONTH_ROW_MB }}
             >
-              {label}
+              {ROW_LABELS.map((label, i) => (
+                <div
+                  key={i}
+                  style={{ height: CELL, lineHeight: `${CELL}px`, fontSize: 9 }}
+                  className="font-mono text-zinc-400 dark:text-zinc-600 select-none"
+                >
+                  {label}
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
 
-        {/* Month labels + grid */}
-        <div className="min-w-0 flex-1">
-          {/* Month labels row */}
-          <div
-            className="relative select-none overflow-hidden"
-            style={{ height: MONTH_ROW_H, marginBottom: MONTH_ROW_MB }}
-          >
-            {monthLabels.map(({ label, colIndex }) => (
-              <span
-                key={label + colIndex}
-                className="absolute font-mono text-zinc-400 dark:text-zinc-600"
-                style={{ fontSize: 9, left: colIndex * STEP, lineHeight: `${MONTH_ROW_H}px` }}
+            {/* Month labels + grid */}
+            <div>
+              {/* Month labels row */}
+              <div
+                className="relative select-none"
+                style={{ height: MONTH_ROW_H, marginBottom: MONTH_ROW_MB, width: allWeeks.length * STEP - GAP }}
               >
-                {label}
-              </span>
-            ))}
-          </div>
-
-          {/* Contribution grid */}
-          <div className="flex gap-[3px]">
-            {weeks.map((week, wi) => (
-              <div key={wi} className="flex flex-col gap-[3px]">
-                {week.map((day) => (
-                  <div
-                    key={day.date}
-                    title={`${day.date}: ${day.count} contribution${day.count !== 1 ? "s" : ""}`}
-                    style={{
-                      width: CELL,
-                      height: CELL,
-                      borderRadius: 2,
-                      backgroundColor: getColor(day.count),
-                    }}
-                  />
+                {monthLabels.map(({ label, colIndex }) => (
+                  <span
+                    key={label + colIndex}
+                    className="absolute font-mono text-zinc-400 dark:text-zinc-600"
+                    style={{ fontSize: 9, left: colIndex * STEP, lineHeight: `${MONTH_ROW_H}px` }}
+                  >
+                    {label}
+                  </span>
                 ))}
               </div>
-            ))}
+
+              {/* Contribution grid */}
+              <div className="flex gap-[3px]">
+                {allWeeks.map((week, wi) => (
+                  <div key={wi} className="flex flex-col gap-[3px]">
+                    {week.map((day) => (
+                      <div
+                        key={day.date}
+                        title={`${day.date}: ${day.count} contribution${day.count !== 1 ? "s" : ""}`}
+                        style={{
+                          width: CELL,
+                          height: CELL,
+                          borderRadius: 2,
+                          backgroundColor: getColor(day.count),
+                        }}
+                      />
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <p
-        className="font-mono text-zinc-400 dark:text-zinc-600"
-        style={{ fontSize: 12 }}
-      >
+      <p className="font-mono text-zinc-400 dark:text-zinc-600" style={{ fontSize: 12 }}>
         {total.toLocaleString()} contributions in the last year
       </p>
       {lastCommit && (
-        <p
-          className="font-mono text-zinc-400 dark:text-zinc-600 truncate"
-          style={{ fontSize: 12 }}
-        >
-          last commit · {lastCommit.repo} · &ldquo;{lastCommit.message}&rdquo; · {lastCommit.ago}
+        <p className="font-mono text-zinc-400 dark:text-zinc-600 truncate" style={{ fontSize: 12 }}>
+          last commit ·{" "}
+          <a
+            href={`https://github.com/${lastCommit.repo}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors"
+          >
+            {lastCommit.repo}
+          </a>
+          {" "}·{" "}
+          &ldquo;{lastCommit.message}&rdquo;{" "}
+          <a
+            href={lastCommit.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors"
+          >
+            {lastCommit.sha}
+          </a>
+          {" "}· {lastCommit.timeAgo}
         </p>
       )}
     </div>

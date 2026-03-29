@@ -12,7 +12,7 @@ const projects = [
       "A personal notes initiative covering math and CS courses at SUSTech, inspired by Cambridge Notes. 20+ courses from 2024–2025.",
     tags: ["Math", "CS", "Open Source"],
     github: "https://github.com/kaiiiichen/SUSTech-Kai-Notes",
-    stars: 10,
+    repo: "kaiiiichen/SUSTech-Kai-Notes",
     status: "active",
   },
   {
@@ -21,6 +21,7 @@ const projects = [
       "A terminal-style Sudoku experience for iOS. Minimalist, focus-driven, built for logical purists who want the Linux terminal aesthetic on their iPhone.",
     tags: ["iOS", "Swift", "Game"],
     github: "https://github.com/kaiiiichen/SudoSodoku",
+    repo: "kaiiiichen/SudoSodoku",
     status: "active",
   },
   {
@@ -28,18 +29,44 @@ const projects = [
     description: "Previous personal website, v1. Static.",
     tags: ["Web", "Personal"],
     github: "https://github.com/kaiiiichen/kai-chen.xyz",
+    repo: "kaiiiichen/kai-chen.xyz",
     status: "archived",
   },
 ];
 
 const statusStyles: Record<string, string> = {
-  active:
-    "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900",
-  archived:
-    "bg-zinc-100 text-zinc-400 dark:bg-zinc-800 dark:text-zinc-600",
+  active: "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900",
+  archived: "bg-zinc-100 text-zinc-400 dark:bg-zinc-800 dark:text-zinc-600",
 };
 
-export default function Projects() {
+async function fetchStars(repos: string[]): Promise<Record<string, number>> {
+  const token = process.env.GITHUB_TOKEN;
+  const headers: Record<string, string> = token
+    ? { Authorization: `Bearer ${token}` }
+    : {};
+
+  const results = await Promise.allSettled(
+    repos.map((repo) =>
+      fetch(`https://api.github.com/repos/${repo}`, {
+        headers,
+        next: { revalidate: 3600 },
+      }).then((r) => r.json())
+    )
+  );
+
+  const map: Record<string, number> = {};
+  repos.forEach((repo, i) => {
+    const result = results[i];
+    if (result.status === "fulfilled") {
+      map[repo] = result.value.stargazers_count ?? 0;
+    }
+  });
+  return map;
+}
+
+export default async function Projects() {
+  const stars = await fetchStars(projects.map((p) => p.repo));
+
   return (
     <div className="max-w-2xl mx-auto px-6 py-20">
       <h1 className="font-serif text-4xl font-bold mb-4 tracking-tight">
@@ -61,9 +88,9 @@ export default function Projects() {
               >
                 GitHub ↗
               </Link>
-              {project.stars !== undefined && (
+              {stars[project.repo] !== undefined && (
                 <p className="font-mono text-xs text-zinc-300 dark:text-zinc-700">
-                  ★ {project.stars}
+                  ★ {stars[project.repo]}
                 </p>
               )}
             </div>

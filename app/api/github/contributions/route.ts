@@ -1,10 +1,13 @@
 import { NextResponse } from "next/server";
 
+export const dynamic = "force-dynamic";
+
 const QUERY = `
   query($login: String!, $from: DateTime!, $to: DateTime!) {
     user(login: $login) {
       contributionsCollection(from: $from, to: $to) {
         contributionCalendar {
+          totalContributions
           weeks {
             contributionDays {
               date
@@ -35,9 +38,10 @@ export async function GET() {
   const from = new Date(now);
   from.setFullYear(now.getFullYear() - 1);
 
-  const [graphqlRes, commitsRes, eventsRes] = await Promise.all([
+  const [graphqlRes, commitsRes] = await Promise.all([
     fetch("https://api.github.com/graphql", {
       method: "POST",
+      cache: "no-store",
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
@@ -51,12 +55,16 @@ export async function GET() {
         },
       }),
     }),
-    fetch("https://api.github.com/repos/kaiiiichen/kaichen-dev/commits?per_page=1", {
-      headers: { Authorization: `Bearer ${token}` },
-    }),
-    fetch("https://api.github.com/users/kaiiiichen/events?per_page=10", {
-      headers: { Authorization: `Bearer ${token}` },
-    }),
+    fetch(
+      "https://api.github.com/search/commits?q=author:kaiiiichen&sort=author-date&order=desc&per_page=1",
+      {
+        cache: "no-store",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/vnd.github.cloak-preview",
+        },
+      }
+    ),
   ]);
 
   if (!graphqlRes.ok) {
@@ -64,44 +72,42 @@ export async function GET() {
   }
 
   const data = await graphqlRes.json();
+  const calendar =
+    data?.data?.user?.contributionsCollection?.contributionCalendar;
   const rawWeeks: { contributionDays: { date: string; contributionCount: number }[] }[] =
-    data?.data?.user?.contributionsCollection?.contributionCalendar?.weeks ?? [];
+    calendar?.weeks ?? [];
+  const totalContributions: number = calendar?.totalContributions ?? 0;
 
   const weeks = rawWeeks.map((w) =>
     w.contributionDays.map((d) => ({ date: d.date, count: d.contributionCount }))
   );
 
-  // Try direct repo commits first, fall back to events PushEvent
-  let lastCommit: { repo: string; message: string; ago: string } | null = null;
+  let lastCommit: {
+    message: string;
+    repo: string;
+    sha: string;
+    url: string;
+    timeAgo: string;
+  } | null = null;
 
   if (commitsRes.ok) {
-    const commits = await commitsRes.json();
-    const c = commits?.[0];
-    if (c) {
-      const msg = (c.commit?.message ?? "").split("\n")[0].trim() || "(no message)";
+    const result = await commitsRes.json();
+    const item = result?.items?.[0];
+    if (item) {
+      const sha = (item.sha as string).slice(0, 7);
+      const repo: string = item.repository?.full_name ?? "";
       lastCommit = {
-        repo: "kaiiiichen/kaichen-dev",
-        message: msg.slice(0, 72),
-        ago: timeAgo(c.commit?.author?.date ?? c.commit?.committer?.date),
-      };
-    }
-  }
-
-  if (!lastCommit && eventsRes.ok) {
-    const events = await eventsRes.json();
-    const push = events.find((e: { type: string }) => e.type === "PushEvent");
-    if (push) {
-      const msg = (push.payload?.commits?.[0]?.message ?? "").split("\n")[0].trim() || "(no message)";
-      lastCommit = {
-        repo: push.repo?.name ?? "",
-        message: msg.slice(0, 72),
-        ago: timeAgo(push.created_at),
+        message: ((item.commit?.message ?? "") as string).split("\n")[0].trim().slice(0, 72) || "(no message)",
+        repo,
+        sha,
+        url: `https://github.com/${repo}/commit/${item.sha}`,
+        timeAgo: timeAgo(item.commit?.author?.date ?? item.commit?.committer?.date),
       };
     }
   }
 
   return NextResponse.json(
-    { weeks, lastCommit },
+    { weeks, totalContributions, lastCommit },
     { headers: { "Cache-Control": "no-store" } }
   );
 }

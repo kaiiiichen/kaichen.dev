@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Lora, Chiron_GoRound_TC } from "next/font/google";
+import { Geist, Geist_Mono, Lora } from "next/font/google";
 import "./globals.css";
 import Nav from "./components/nav";
 import Providers from "./components/providers";
@@ -23,12 +23,6 @@ const lora = Lora({
   weight: ["400", "700"],
 });
 
-const chironGoRoundTC = Chiron_GoRound_TC({
-  variable: "--font-zcool",
-  subsets: ["chinese-traditional"],
-  weight: "400",
-});
-
 export const metadata: Metadata = {
   title: "Kai Chen",
   description: "Personal site",
@@ -42,7 +36,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${lora.variable} ${chironGoRoundTC.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${lora.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col font-sans">

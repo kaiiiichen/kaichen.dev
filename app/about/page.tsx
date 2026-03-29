@@ -50,7 +50,7 @@ export default function About() {
           <p className="text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed">
             Kai Chen. Math major at Southern University of Science and
             Technology (SUSTech), currently visiting UC Berkeley (2026). Fields
-            class student. Previously attended a summer program in Deep
+            Honours Program student. Previously attended a summer program in Deep
             Unsupervised Learning at the University of Oxford (2025).
           </p>
         </div>
@@ -70,7 +70,7 @@ export default function About() {
             >
               Giving What We Can
             </Link>{" "}
-            pledge #10986.
+            pledger #10986.
           </p>
         </div>
 

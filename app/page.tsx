@@ -1,5 +1,6 @@
 import NowPlaying from "./components/now-playing";
-import GitHubActivity from "./components/github-activity";
+import GitHubActivity from "./components/GitHubActivity";
+import LocalTime from "./components/local-time";
 
 export default function Home() {
   return (
@@ -7,7 +8,7 @@ export default function Home() {
       <div className="flex items-end gap-4 mb-4">
         <h1 className="font-serif text-4xl font-bold tracking-tight">
           Kai Chen{" "}
-          <span className="font-normal" style={{ fontFamily: "var(--font-zcool)" }}>
+          <span className="font-normal" style={{ fontFamily: "'Chiron GoRound TC', sans-serif" }}>
             陈恺
           </span>
         </h1>
@@ -65,6 +66,14 @@ export default function Home() {
           </div>
           <div className="flex gap-4">
             <dt className="w-24 shrink-0 font-mono text-xs uppercase tracking-widest text-zinc-400 dark:text-zinc-600 pt-0.5">
+              Local Time
+            </dt>
+            <dd className="text-zinc-700 dark:text-zinc-300">
+              <LocalTime />
+            </dd>
+          </div>
+          <div className="flex gap-4">
+            <dt className="w-24 shrink-0 font-mono text-xs uppercase tracking-widest text-zinc-400 dark:text-zinc-600 pt-0.5">
               Focus
             </dt>
             <dd className="text-zinc-700 dark:text-zinc-300">
@@ -91,11 +100,9 @@ export default function Home() {
 
       <div className="mt-10">
         <p className="font-mono text-xs uppercase tracking-widest text-zinc-400 dark:text-zinc-600 mb-4">
-          GitHub Activity
+          GitHub Contribution
         </p>
-        <div className="overflow-hidden w-full">
-          <GitHubActivity />
-        </div>
+        <GitHubActivity />
       </div>
     </div>
   );
