@@ -1,36 +1,97 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# kaichen.dev
 
-## Getting Started
+Second personal site for **Kai Chen** — Next.js App Router, deployed on Vercel.
 
-First, run the development server:
+**Live:** [kaichen.dev](https://kaichen.dev)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+The first personal site was static: [kai-chen.xyz](https://kai-chen.xyz) ([repo](https://github.com/kaiiiichen/kai-chen.xyz)). **kaichen.dev** is the second iteration — dynamic APIs, third-party integrations, and this repository.
+
+## Stack
+
+| Layer | Choice |
+|--------|--------|
+| Framework | [Next.js 16](https://nextjs.org) (App Router, Turbopack build) |
+| UI | React 19, [Tailwind CSS v4](https://tailwindcss.com) |
+| Fonts | Geist, Geist Mono, Lora, Chiron GoRound TC (Chinese) |
+| Data | [Supabase](https://supabase.com) (message form), GitHub GraphQL, Spotify Web API, Open-Meteo |
+| Analytics | Vercel Analytics, Speed Insights |
+
+## Features
+
+- **Home** — Bio, local time, weather (Berkeley area via Open-Meteo), GitHub contribution grid, Spotify now playing / last played (with album art).
+- **About / Projects** — Static content; projects page optionally shows GitHub star counts.
+- **Message** (`/guestbook`) — Private contact form (POST only; no public feed). Persists rows in Supabase.
+- **Theme** — Light / dark via `class` on `<html>`, `beforeInteractive` init script + client `ThemeProvider` (no `next-themes`).
+- **Subpage entrance** — Non-home routes get a short gradient + fade-in animation.
+
+## Repository layout
+
+```
+app/
+  api/              # Route handlers
+    guestbook/      # POST → Supabase insert
+    github/         # Contributions + last commit (GraphQL)
+    spotify/        # Now playing
+    weather/        # Open-Meteo proxy
+  components/       # Nav, theme-provider, subpage-enter, Spotify bar, Weather, …
+  hooks/            # e.g. use-now-playing
+  guestbook/        # “Message” page (URL remains /guestbook)
+  about/ , projects/
+lib/
+  spotify.ts        # Token + currently-playing + recent track cache
+  supabase.ts       # Supabase client (NEXT_PUBLIC_*)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Scripts
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run dev      # Dev server (Turbopack)
+npm run build    # Production build
+npm run start    # Run production build locally
+npm run lint     # ESLint
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Environment variables
 
-## Learn More
+Copy `.env.example` to `.env.local` and fill in values. On Vercel, add the same keys under **Project → Settings → Environment Variables** for Preview and Production.
 
-To learn more about Next.js, take a look at the following resources:
+| Variable | Required for | Notes |
+|----------|----------------|-------|
+| `NEXT_PUBLIC_SUPABASE_URL` | Message form | Omit locally if you skip testing `/guestbook` POST |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Message form | RLS: allow anon **insert** on `guestbook` only if messages stay private |
+| `SPOTIFY_CLIENT_ID` | Spotify (optional) | Without Spotify env, now-playing UI stays empty / idle |
+| `SPOTIFY_CLIENT_SECRET` | Spotify | |
+| `SPOTIFY_REFRESH_TOKEN` | Spotify | Scope: `user-read-currently-playing` |
+| `GITHUB_TOKEN` | GitHub heatmap / API | Without it, `/api/github/contributions` errors and the home grid is hidden |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Weather uses the public Open-Meteo API only — **no API key**.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Supabase: `guestbook` table
 
-## Deploy on Vercel
+Example shape (adjust to match your migration):
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+| Column | Type |
+|--------|------|
+| `id` | `bigint` / `uuid`, primary key |
+| `email` | `text` |
+| `message` | `text` |
+| `created_at` | `timestamptz`, default `now()` |
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Configure RLS so anonymous clients can **insert** only (no public `select` if messages are private).
+
+## Deployment
+
+1. Connect the repo to Vercel.
+2. Set environment variables for Production (and Preview if you test PRs).
+3. `npm run build` must pass locally before merging.
+
+## Docs for automation
+
+- [`AGENTS.md`](./AGENTS.md) — Notes for AI coding agents (Next.js 16, layout of this repo).
+- [`CLAUDE.md`](./CLAUDE.md) — Points editors at `AGENTS.md`.
+- [`CONTRIBUTING.md`](./CONTRIBUTING.md) — Short PR / branch notes.
+- [`SECURITY.md`](./SECURITY.md) — Secrets and reporting.
+
+## License
+
+Private / personal project unless you add an explicit license file.
