@@ -6,6 +6,7 @@ export type RecentTrack = {
   title: string;
   artist: string;
   songUrl: string;
+  albumArt: string;
 };
 
 export type NowPlayingResult =
@@ -77,7 +78,7 @@ export async function getNowPlaying(): Promise<NowPlayingResult> {
 
   const data = await res.json();
 
-  if (!data?.is_playing || data?.currently_playing_type !== "track") {
+  if (data?.currently_playing_type !== "track" || !data?.item) {
     return { isPlaying: false, recentTrack: currentTrack ?? previousTrack ?? undefined };
   }
 
@@ -85,19 +86,24 @@ export async function getNowPlaying(): Promise<NowPlayingResult> {
     title: data.item.name,
     artist: data.item.artists.map((a: { name: string }) => a.name).join(", "),
     songUrl: data.item.external_urls.spotify,
+    albumArt: data.item.album.images[0]?.url ?? "",
   };
 
-  // Update track history when the song changes
+  // Update track history when the song changes (covers playing and paused so we keep album art)
   if (currentTrack?.songUrl !== incoming.songUrl) {
     previousTrack = currentTrack;
     currentTrack = incoming;
+  }
+
+  if (!data.is_playing) {
+    return { isPlaying: false, recentTrack: currentTrack ?? previousTrack ?? undefined };
   }
 
   return {
     isPlaying: true,
     title: data.item.name,
     artist: incoming.artist,
-    albumArt: data.item.album.images[0]?.url ?? "",
+    albumArt: incoming.albumArt,
     songUrl: incoming.songUrl,
     progress_ms: data.progress_ms ?? 0,
     duration_ms: data.item.duration_ms,

@@ -1,6 +1,9 @@
 import NowPlaying from "./components/now-playing";
 import GitHubActivity from "./components/GitHubActivity";
 import LocalTime from "./components/local-time";
+import Weather from "./components/Weather";
+
+const DT = "w-24 shrink-0 font-mono text-xs uppercase tracking-widest text-zinc-400 dark:text-zinc-600 pt-0.5";
 
 export default function Home() {
   return (
@@ -56,54 +59,51 @@ export default function Home() {
       </p>
 
       <dl className="mt-10 space-y-4 text-sm">
-          <div className="flex gap-4">
-            <dt className="w-24 shrink-0 font-mono text-xs uppercase tracking-widest text-zinc-400 dark:text-zinc-600 pt-0.5">
-              Location
-            </dt>
-            <dd className="text-zinc-700 dark:text-zinc-300">
-              Berkeley, CA — UC Berkeley visiting
-            </dd>
-          </div>
-          <div className="flex gap-4">
-            <dt className="w-24 shrink-0 font-mono text-xs uppercase tracking-widest text-zinc-400 dark:text-zinc-600 pt-0.5">
-              Local Time
-            </dt>
-            <dd className="text-zinc-700 dark:text-zinc-300">
-              <LocalTime />
-            </dd>
-          </div>
-          <div className="flex gap-4">
-            <dt className="w-24 shrink-0 font-mono text-xs uppercase tracking-widest text-zinc-400 dark:text-zinc-600 pt-0.5">
-              Focus
-            </dt>
-            <dd className="text-zinc-700 dark:text-zinc-300">
-              CS61A, Data100, CogSci175
-            </dd>
-          </div>
-          <div className="flex gap-4">
-            <dt className="w-24 shrink-0 font-mono text-xs uppercase tracking-widest text-zinc-400 dark:text-zinc-600 pt-0.5">
-              Thinking
-            </dt>
-            <dd className="text-zinc-700 dark:text-zinc-300">
-              AI governance, what it means to do research that matters
-            </dd>
-          </div>
-          <div className="flex gap-4">
-            <dt className="w-24 shrink-0 font-mono text-xs uppercase tracking-widest text-zinc-400 dark:text-zinc-600 pt-0.5">
-              Spotify
-            </dt>
-            <dd className="text-zinc-700 dark:text-zinc-300">
-              <NowPlaying />
-            </dd>
-          </div>
+        <div className="flex gap-4 fade-up" style={{ animationDelay: "0ms" }}>
+          <dt className={DT}>Location</dt>
+          <dd className="text-zinc-700 dark:text-zinc-300">
+            Berkeley, CA — UC Berkeley visiting
+          </dd>
+        </div>
+        <div className="flex gap-4 fade-up" style={{ animationDelay: "80ms" }}>
+          <dt className={DT}>Local Time</dt>
+          <dd className="text-zinc-700 dark:text-zinc-300">
+            <LocalTime />
+          </dd>
+        </div>
+        <div className="flex gap-4 fade-up" style={{ animationDelay: "160ms" }}>
+          <dt className={DT}>Weather</dt>
+          <dd className="text-zinc-700 dark:text-zinc-300">
+            <Weather />
+          </dd>
+        </div>
+        <div className="flex gap-4 fade-up" style={{ animationDelay: "240ms" }}>
+          <dt className={DT}>Focus</dt>
+          <dd className="text-zinc-700 dark:text-zinc-300">
+            CS61A, Data100, CogSci175
+          </dd>
+        </div>
+        <div className="flex gap-4 fade-up" style={{ animationDelay: "320ms" }}>
+          <dt className={DT}>Thinking</dt>
+          <dd className="text-zinc-700 dark:text-zinc-300">
+            AI governance, what it means to do research that matters
+          </dd>
+        </div>
+        <div className="flex gap-4 fade-up" style={{ animationDelay: "400ms" }}>
+          <dt className={DT}>Spotify</dt>
+          <dd className="text-zinc-700 dark:text-zinc-300">
+            <NowPlaying />
+          </dd>
+        </div>
       </dl>
 
-      <div className="mt-10">
+      <div className="mt-10 fade-up" style={{ animationDelay: "480ms" }}>
         <p className="font-mono text-xs uppercase tracking-widest text-zinc-400 dark:text-zinc-600 mb-4">
           GitHub Contribution
         </p>
         <GitHubActivity />
       </div>
+
     </div>
   );
 }

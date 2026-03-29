@@ -2,10 +2,12 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Lora } from "next/font/google";
 import "./globals.css";
 import Nav from "./components/nav";
+import SubpageEnter from "./components/subpage-enter";
 import Providers from "./components/providers";
 import SpotifyBarWrapper from "./components/spotify-bar-wrapper";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import Script from "next/script";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -40,9 +42,14 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col font-sans">
+        <Script id="theme-init" strategy="beforeInteractive">
+          {`(function(){try{var d=document.documentElement;var t=localStorage.getItem('theme');var dark;if(t==='dark')dark=true;else if(t==='light')dark=false;else dark=window.matchMedia('(prefers-color-scheme: dark)').matches;d.classList.toggle('dark',dark);d.style.colorScheme=dark?'dark':'light';}catch(e){}})();`}
+        </Script>
         <Providers>
           <Nav />
-          <main className="flex-1 pb-16">{children}</main>
+          <main className="flex-1 pb-16">
+            <SubpageEnter>{children}</SubpageEnter>
+          </main>
           <SpotifyBarWrapper />
         </Providers>
         <Analytics />
