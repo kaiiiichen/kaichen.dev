@@ -7,6 +7,7 @@ import ThemeToggle from "./theme-toggle";
 const links = [
   { href: "/about", label: "About" },
   { href: "/projects", label: "Projects" },
+  { href: "/guestbook", label: "Message" },
 ];
 
 export default function Nav() {

@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Chiron+GoRound+TC&display=swap');
 @import "tailwindcss";
 
-/* Use .dark class for dark mode (next-themes) instead of media query */
+/* Dark mode: .dark on <html> (see theme-init script + theme-provider) */
 @variant dark (.dark &);
 
 :root {
@@ -35,6 +35,15 @@ body {
   color: var(--foreground);
 }
 
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fade-up {
+  opacity: 0;
+  animation: fade-up 0.4s ease forwards;
+}
+
 @keyframes slide-out-left {
   from { transform: translateX(0);    opacity: 1; }
   to   { transform: translateX(-10px); opacity: 0; }
@@ -45,3 +54,62 @@ body {
 }
 .slide-exit { animation: slide-out-left 200ms ease forwards; }
 .slide-enter { animation: slide-in-right 250ms ease forwards; }
+
+/* Non-home routes: gradient veil + content entrance */
+.subpage-enter {
+  position: relative;
+  isolation: isolate;
+}
+.subpage-enter::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    165deg,
+    rgba(113, 113, 122, 0.16) 0%,
+    rgba(113, 113, 122, 0.06) 38%,
+    transparent 72%
+  );
+  opacity: 1;
+  animation: subpage-veil 0.85s ease forwards;
+}
+.dark .subpage-enter::before {
+  background: linear-gradient(
+    165deg,
+    rgba(161, 161, 170, 0.14) 0%,
+    rgba(161, 161, 170, 0.05) 40%,
+    transparent 72%
+  );
+}
+@keyframes subpage-veil {
+  to {
+    opacity: 0;
+  }
+}
+.subpage-enter-inner {
+  opacity: 0;
+  animation: subpage-enter 0.65s cubic-bezier(0.22, 1, 0.36, 1) 0.05s forwards;
+}
+@keyframes subpage-enter {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .subpage-enter::before {
+    animation: none;
+    opacity: 0;
+  }
+  .subpage-enter-inner {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
