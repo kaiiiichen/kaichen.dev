@@ -94,4 +94,4 @@ Configure RLS so anonymous clients can **insert** only (no public `select` if me
 
 ## License
 
-Private / personal project unless you add an explicit license file.
+Not yet.
