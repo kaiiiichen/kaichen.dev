@@ -1,97 +1,157 @@
 # kaichen.dev
 
-Second personal site for **Kai Chen** — Next.js App Router, deployed on Vercel.
+Personal website of Kai Chen — a living, dynamic digital identity system.
 
-**Live:** [kaichen.dev](https://kaichen.dev)
+> Not just a résumé. Not just a blog. A real-time interface to my intellectual and creative trajectory.
 
-The first personal site was static: [kai-chen.xyz](https://kai-chen.xyz) ([repo](https://github.com/kaiiiichen/kai-chen.xyz)). **kaichen.dev** is the second iteration — dynamic APIs, third-party integrations, and this repository.
+---
 
-## Stack
+## Tech Stack
 
-| Layer | Choice |
-|--------|--------|
-| Framework | [Next.js 16](https://nextjs.org) (App Router, Turbopack build) |
-| UI | React 19, [Tailwind CSS v4](https://tailwindcss.com) |
-| Fonts | Geist, Geist Mono, Lora, Chiron GoRound TC (Chinese) |
-| Data | [Supabase](https://supabase.com) (message form), GitHub GraphQL, Spotify Web API, Open-Meteo |
-| Analytics | Vercel Analytics, Speed Insights |
+### Frontend
+- **Framework**: Next.js 15 (App Router)
+- **Styling**: Tailwind CSS
+- **Language**: TypeScript
+- **Theme**: Dark / Light mode with system preference detection + manual toggle
 
-## Features
+### Backend & APIs
+- **Hosting**: Vercel (serverless)
+- **Database**: Supabase (PostgreSQL) — guestbook
+- **Spotify Proxy**: Railway (persistent Node.js process)
+  - Polls Spotify API every 1 second
+  - Serves `/now-playing` and `/stream` endpoints
+  - Prevents rate limiting by centralizing all Spotify requests
+- **GitHub API**: GraphQL — contribution graph & last commit
+- **Weather API**: Open-Meteo (free, no API key required)
 
-- **Home** — Bio, local time, weather (Berkeley area via Open-Meteo), GitHub contribution grid, Spotify now playing / last played (with album art).
-- **About / Projects** — Static content; projects page optionally shows GitHub star counts.
-- **Message** (`/guestbook`) — Private contact form (POST only; no public feed). Persists rows in Supabase.
-- **Theme** — Light / dark via `class` on `<html>`, `beforeInteractive` init script + client `ThemeProvider` (no `next-themes`).
-- **Subpage entrance** — Non-home routes get a short gradient + fade-in animation.
+### External Integrations
+- **Spotify Web API** — real-time now playing, album art, playback progress
+- **GitHub GraphQL API** — contribution graph (past year), last commit info
+- **Open-Meteo API** — Berkeley weather, temperature, precipitation forecast
 
-## Repository layout
+---
+
+## Architecture
 
 ```
-app/
-  api/              # Route handlers
-    guestbook/      # POST → Supabase insert
-    github/         # Contributions + last commit (GraphQL)
-    spotify/        # Now playing
-    weather/        # Open-Meteo proxy
-  components/       # Nav, theme-provider, subpage-enter, Spotify bar, Weather, …
-  hooks/            # e.g. use-now-playing
-  guestbook/        # “Message” page (URL remains /guestbook)
-  about/ , projects/
-lib/
-  spotify.ts        # Token + currently-playing + recent track cache
-  supabase.ts       # Supabase client (NEXT_PUBLIC_*)
+Browser (kaichen.dev)
+  ├── Vercel (Next.js)
+  │     ├── /api/github/contributions  →  GitHub GraphQL API
+  │     ├── /api/weather               →  Open-Meteo API
+  │     ├── /api/guestbook             →  Supabase (PostgreSQL)
+  │     └── /api/spotify/now-playing   →  fallback only
+  │
+  └── Railway (spotify-proxy)
+        └── polls Spotify API every 1s
+              └── serves /now-playing to browser directly
 ```
 
-## Scripts
+Key design decision: the Spotify proxy runs as a **persistent Node.js process** on Railway, not a serverless function. This allows a single polling loop to serve all visitors, keeping Spotify API usage constant regardless of traffic.
+
+---
+
+## Pages
+
+| Route | Description |
+|-------|-------------|
+| `/` | Home — live status, Spotify now playing, GitHub activity, weather, guestbook preview |
+| `/about` | Background, experience, contact |
+| `/projects` | Projects with active/archived status tags |
+| `/guestbook` | Public guestbook powered by Supabase |
+
+---
+
+## Deploy
+
+### Vercel (Main Site)
+- Connected to GitHub repo `kaiiiichen/kaichen-dev`
+- Auto-deploys on push to `main`
+
+**Environment variables required:**
+
+```
+SPOTIFY_CLIENT_ID=
+SPOTIFY_CLIENT_SECRET=
+SPOTIFY_REFRESH_TOKEN=
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+GITHUB_TOKEN=
+NEXT_PUBLIC_SPOTIFY_PROXY_URL=
+```
+
+### Railway (Spotify Proxy)
+- Root directory: `spotify-proxy/`
+- Auto-deploys on push to `main`
+- Live at: `https://kaichendev-production.up.railway.app`
+
+**Environment variables required:**
+
+```
+SPOTIFY_CLIENT_ID=
+SPOTIFY_CLIENT_SECRET=
+SPOTIFY_REFRESH_TOKEN=
+```
+
+---
+
+## Local Development
 
 ```bash
-npm run dev      # Dev server (Turbopack)
-npm run build    # Production build
-npm run start    # Run production build locally
-npm run lint     # ESLint
+# Install dependencies
+npm install
+
+# Set up environment variables
+cp .env.example .env.local
+# Fill in your own keys
+
+# Run dev server
+npm run dev
+
+# Run Spotify proxy locally (separate terminal)
+cd spotify-proxy
+npm install
+SPOTIFY_CLIENT_ID=xxx SPOTIFY_CLIENT_SECRET=xxx SPOTIFY_REFRESH_TOKEN=xxx node index.js
 ```
 
-## Environment variables
+---
 
-Copy `.env.example` to `.env.local` and fill in values. On Vercel, add the same keys under **Project → Settings → Environment Variables** for Preview and Production.
+## Project Structure
 
-| Variable | Required for | Notes |
-|----------|----------------|-------|
-| `NEXT_PUBLIC_SUPABASE_URL` | Message form | Omit locally if you skip testing `/guestbook` POST |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Message form | RLS: allow anon **insert** on `guestbook` only if messages stay private |
-| `SPOTIFY_CLIENT_ID` | Spotify (optional) | Without Spotify env, now-playing UI stays empty / idle |
-| `SPOTIFY_CLIENT_SECRET` | Spotify | |
-| `SPOTIFY_REFRESH_TOKEN` | Spotify | Scope: `user-read-currently-playing` |
-| `GITHUB_TOKEN` | GitHub heatmap / API | Without it, `/api/github/contributions` errors and the home grid is hidden |
+```
+kaichen-dev/
+├── app/
+│   ├── page.tsx                  # Home page
+│   ├── about/page.tsx            # About page
+│   ├── projects/page.tsx         # Projects page
+│   ├── guestbook/page.tsx        # Guestbook page
+│   ├── api/
+│   │   ├── spotify/              # Spotify API routes (fallback)
+│   │   ├── github/               # GitHub contributions & last commit
+│   │   ├── weather/              # Weather data from Open-Meteo
+│   │   └── guestbook/            # Guestbook CRUD via Supabase
+│   └── layout.tsx                # Root layout (nav, SpotifyBar, providers)
+├── components/
+│   ├── SpotifyBar.tsx            # Global bottom Spotify bar (non-home pages)
+│   ├── GitHubActivity.tsx        # Contribution graph + last commit
+│   ├── ThemeToggle.tsx           # Dark/light mode toggle
+│   └── ...
+├── lib/
+│   ├── spotify.ts                # Spotify token refresh & API helpers
+│   └── supabase.ts               # Supabase client
+├── hooks/
+│   └── use-now-playing.ts        # Spotify polling hook (1s interval)
+├── spotify-proxy/                # Railway service (separate Node.js app)
+│   ├── index.js                  # Persistent polling server
+│   └── package.json
+├── .env.example                  # Environment variable template
+└── README.md
+```
 
-Weather uses the public Open-Meteo API only — **no API key**.
+---
 
-### Supabase: `guestbook` table
+## Guiding Principles
 
-Example shape (adjust to match your migration):
-
-| Column | Type |
-|--------|------|
-| `id` | `bigint` / `uuid`, primary key |
-| `email` | `text` |
-| `message` | `text` |
-| `created_at` | `timestamptz`, default `now()` |
-
-Configure RLS so anonymous clients can **insert** only (no public `select` if messages are private).
-
-## Deployment
-
-1. Connect the repo to Vercel.
-2. Set environment variables for Production (and Preview if you test PRs).
-3. `npm run build` must pass locally before merging.
-
-## Docs for automation
-
-- [`AGENTS.md`](./AGENTS.md) — Notes for AI coding agents (Next.js 16, layout of this repo).
-- [`CLAUDE.md`](./CLAUDE.md) — Points editors at `AGENTS.md`.
-- [`CONTRIBUTING.md`](./CONTRIBUTING.md) — Short PR / branch notes.
-- [`SECURITY.md`](./SECURITY.md) — Secrets and reporting.
-
-## License
-
-Not yet.
+- Don't overbuild early — ship first, polish later
+- Separate experimentation from production
+- The site should reflect life, not just achievements
+- Every data point on the page should be real and live
