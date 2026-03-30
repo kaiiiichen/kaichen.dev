@@ -12,10 +12,10 @@ const STEP = CELL + GAP;
 
 function getColor(count: number): string {
   if (count === 0) return "var(--contribution-empty)";
-  if (count <= 2) return "#c6e48b";
-  if (count <= 5) return "#7bc96f";
-  if (count <= 9) return "#239a3b";
-  return "#196127";
+  if (count <= 2) return "var(--contribution-l1)";
+  if (count <= 5) return "var(--contribution-l2)";
+  if (count <= 9) return "var(--contribution-l3)";
+  return "var(--contribution-l4)";
 }
 
 function getMonthLabels(weeks: Day[][]): { label: string; col: number }[] {

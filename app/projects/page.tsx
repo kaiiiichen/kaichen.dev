@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import Link from "next/link";
 
 export const metadata: Metadata = {
@@ -6,6 +7,16 @@ export const metadata: Metadata = {
 };
 
 const projects = [
+  {
+    name: "kaichen.dev",
+    description:
+      "Personal website and living digital identity system. Built with Next.js, Supabase, and a Railway-hosted Spotify proxy for real-time now-playing.",
+    tags: ["Next.js", "TypeScript", "Supabase", "Railway"],
+    github: "https://github.com/kaiiiichen/kaichen-dev",
+    repo: "kaiiiichen/kaichen-dev",
+    demo: "https://kaichen.dev",
+    status: "active",
+  },
   {
     name: "SUSTech Kai Notes",
     description:
@@ -39,33 +50,24 @@ const statusStyles: Record<string, string> = {
   archived: "bg-zinc-100 text-zinc-400 dark:bg-zinc-800 dark:text-zinc-600",
 };
 
-async function fetchStars(repos: string[]): Promise<Record<string, number>> {
-  const token = process.env.GITHUB_TOKEN;
-  const headers: Record<string, string> = token
-    ? { Authorization: `Bearer ${token}` }
-    : {};
-
-  const results = await Promise.allSettled(
-    repos.map((repo) =>
-      fetch(`https://api.github.com/repos/${repo}`, {
-        headers,
-        next: { revalidate: 3600 },
-      }).then((r) => r.json())
-    )
-  );
-
-  const map: Record<string, number> = {};
-  repos.forEach((repo, i) => {
-    const result = results[i];
-    if (result.status === "fulfilled") {
-      map[repo] = result.value.stargazers_count ?? 0;
-    }
-  });
-  return map;
-}
-
 export default async function Projects() {
-  const stars = await fetchStars(projects.map((p) => p.repo));
+  const hdrs = await headers();
+  const host = hdrs.get("host") ?? "localhost:3000";
+  const protocol = host.startsWith("localhost") ? "http" : "https";
+
+  let stars: Record<string, number> = {};
+  try {
+    const res = await fetch(
+      `${protocol}://${host}/api/github/contributions`,
+      { cache: "no-store" }
+    );
+    if (res.ok) {
+      const data = await res.json();
+      stars = data.stars ?? {};
+    }
+  } catch {
+    // stars stay empty; counts simply won't render
+  }
 
   return (
     <div className="max-w-2xl mx-auto px-6 py-20">
@@ -88,9 +90,19 @@ export default async function Projects() {
               >
                 GitHub ↗
               </Link>
-              {stars[project.repo] !== undefined && (
+              {"demo" in project && project.demo && (
+                <Link
+                  href={project.demo}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block font-mono text-xs text-zinc-400 dark:text-zinc-600 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors"
+                >
+                  Demo ↗
+                </Link>
+              )}
+              {stars[project.repo.split("/")[1]] !== undefined && (
                 <p className="font-mono text-xs text-zinc-300 dark:text-zinc-700">
-                  ★ {stars[project.repo]}
+                  ★ {stars[project.repo.split("/")[1]]}
                 </p>
               )}
             </div>

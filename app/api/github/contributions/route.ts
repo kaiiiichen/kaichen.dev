@@ -38,7 +38,14 @@ export async function GET() {
   const from = new Date(now);
   from.setFullYear(now.getFullYear() - 1);
 
-  const [graphqlRes, commitsRes] = await Promise.all([
+  const STAR_REPOS = [
+    "kaiiiichen/kaichen-dev",
+    "kaiiiichen/SUSTech-Kai-Notes",
+    "kaiiiichen/SudoSodoku",
+    "kaiiiichen/kai-chen.xyz",
+  ];
+
+  const [graphqlRes, commitsRes, ...starResults] = await Promise.all([
     fetch("https://api.github.com/graphql", {
       method: "POST",
       cache: "no-store",
@@ -64,6 +71,12 @@ export async function GET() {
           Accept: "application/vnd.github.cloak-preview",
         },
       }
+    ),
+    ...STAR_REPOS.map((repo) =>
+      fetch(`https://api.github.com/repos/${repo}`, {
+        cache: "no-store",
+        headers: { Authorization: `Bearer ${token}` },
+      })
     ),
   ]);
 
@@ -106,8 +119,19 @@ export async function GET() {
     }
   }
 
+  const stars: Record<string, number> = {};
+  await Promise.all(
+    starResults.map(async (res, i) => {
+      const repoName = STAR_REPOS[i].split("/")[1];
+      if (res.ok) {
+        const json = await res.json();
+        stars[repoName] = json.stargazers_count ?? 0;
+      }
+    })
+  );
+
   return NextResponse.json(
-    { weeks, totalContributions, lastCommit },
+    { weeks, totalContributions, lastCommit, stars },
     { headers: { "Cache-Control": "no-store" } }
   );
 }

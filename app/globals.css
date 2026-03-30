@@ -5,17 +5,27 @@
 @variant dark (.dark &);
 
 :root {
-  --background: #ffffff;
+  --background: #fafaf8;
   --foreground: #171717;
   --dot-idle: #a1a1aa;
+  --accent: #2d8c78;
   --contribution-empty: #e4e4e7;
+  --contribution-l1: #c6e48b;
+  --contribution-l2: #7bc96f;
+  --contribution-l3: #239a3b;
+  --contribution-l4: #196127;
   --font-chinese: 'Chiron GoRound TC', 'Ma Shan Zheng', serif;
 }
 
 .dark {
-  --background: #0a0a0a;
+  --background: #0a0a0f;
   --foreground: #ededed;
+  --accent: #5bbfa0;
   --contribution-empty: #2d333b;
+  --contribution-l1: rgba(91,191,160,0.15);
+  --contribution-l2: rgba(91,191,160,0.3);
+  --contribution-l3: rgba(91,191,160,0.5);
+  --contribution-l4: rgba(91,191,160,0.8);
 }
 
 @theme inline {
@@ -24,10 +34,17 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-serif: var(--font-lora);
+  --font-instrument-serif: var(--font-instrument-serif);
+  --font-dm-sans: var(--font-dm-sans);
+  --font-jetbrains-mono: var(--font-jetbrains-mono);
 }
 
 * {
   transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {

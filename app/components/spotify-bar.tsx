@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useNowPlaying, formatMs } from "@/app/hooks/use-now-playing";
 
 export default function SpotifyBar() {
@@ -36,6 +37,15 @@ export default function SpotifyBar() {
               }}
             />
           </span>
+          {displayItem.albumArt && (
+            <Image
+              src={displayItem.albumArt}
+              alt={displayItem.title}
+              width={20}
+              height={20}
+              className="shrink-0 rounded-[3px]"
+            />
+          )}
           <a
             href={displayItem.songUrl}
             target="_blank"
