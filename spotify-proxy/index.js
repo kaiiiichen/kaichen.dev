@@ -115,7 +115,7 @@ async function poll() {
 
 // Fetch immediately on startup, then every 10 s
 poll();
-setInterval(poll, 1_000);
+setInterval(poll, 2_000);
 
 // ── CORS ──────────────────────────────────────────────────────────────────────
 app.use(
