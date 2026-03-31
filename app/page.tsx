@@ -231,24 +231,25 @@ export default async function Home() {
               <div className="space-y-3">
                 {(() => {
                   const SUSTECH = "https://www.sustech.edu.cn/en/";
-                  const linkCls = "no-underline hover:text-[var(--accent)] transition-colors duration-150";
+                  const linkCls = "no-underline hover:text-[var(--accent)] group-hover:text-[var(--accent)] transition-colors duration-150";
                   const expItems = [
                     { role: "Member", org: "Project Reboot", period: "2026–present", url: "https://www.projectreboot.club/" },
                     { role: "Member", org: "Effective Altruism at UC Berkeley", period: "2026–present", url: "https://eaberkeley.com/" },
                     { role: "First Aider", org: "SUSTech Emergency Rescue Association", period: "2023–2025" },
                     { role: "Peer Mentor", org: "Southern University of Science and Technology", period: "2024–2025", url: SUSTECH },
                     { role: "President", org: "SUSTech Psychology Society", period: "2024–2025" },
-                    { role: "Research Assistant", org: "Neuro Computing & Control Lab (NCC Lab), SUSTech", period: "2024" },
+                    { role: "Research Assistant", org: "Neuro Computing & Control Lab, SUSTech", period: "2024" },
                     { role: "Teaching Assistant", org: "Lingnan University", period: "2024", url: "https://www.ln.edu.hk/" },
                     { role: "Student Organization Coordinator", org: "Zhicheng College, SUSTech", period: "2023–2024" },
                   ];
+                  const orgCls = "group-hover:text-[var(--accent)] transition-colors duration-150";
                   const renderOrg = (item: { org: string; url?: string }) => {
                     if (item.url) return <a href={item.url} target="_blank" rel="noopener noreferrer" className={linkCls}>{item.org}</a>;
-                    if (!item.org.includes("SUSTech")) return <>{item.org}</>;
+                    if (!item.org.includes("SUSTech")) return <span className={orgCls}>{item.org}</span>;
                     const parts = item.org.split("SUSTech");
-                    return <>{parts.map((part, i) => (
+                    return <span className={orgCls}>{parts.map((part, i) => (
                       <span key={i}>{part}{i < parts.length - 1 && <a href={SUSTECH} target="_blank" rel="noopener noreferrer" className={linkCls}>SUSTech</a>}</span>
-                    ))}</>;
+                    ))}</span>;
                   };
                   return expItems.map((item) => (
                     <div key={`${item.role}-${item.org}`} className="group flex gap-4 px-2 py-1.5 rounded-md hover:bg-[rgba(45,140,120,0.04)] transition-colors duration-150 ease">
