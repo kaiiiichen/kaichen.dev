@@ -10,8 +10,8 @@ const projects = [
   {
     name: "kaichen.dev",
     description:
-      "Personal website and living digital identity system. Built with Next.js, Supabase, and a Railway-hosted Spotify proxy for real-time now-playing.",
-    tags: ["Next.js", "TypeScript", "Supabase", "Railway"],
+      "Personal website and living digital identity system. Built with Next.js, Supabase, and real-time Spotify integration.",
+    tags: ["Next.js", "TypeScript", "Supabase", "Vercel"],
     github: "https://github.com/kaiiiichen/kaichen-dev",
     repo: "kaiiiichen/kaichen-dev",
     demo: "https://kaichen.dev",
