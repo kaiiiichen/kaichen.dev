@@ -26,10 +26,8 @@ export function useNowPlaying(): UseNowPlayingReturn {
   const slideTimers = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   useEffect(() => {
-    const base = process.env.NEXT_PUBLIC_SPOTIFY_PROXY_URL ?? "/api/spotify";
-
     const poll = () => {
-      fetch(`${base}/now-playing`)
+      fetch("/api/spotify/now-playing")
         .then((r) => r.json())
         .then((d: NowPlayingResult) => setData(d))
         .catch(() => setData({ isPlaying: false }));
