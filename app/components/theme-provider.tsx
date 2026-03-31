@@ -42,6 +42,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       const s = localStorage.getItem(STORAGE_KEY) as Theme | null;
       if (s === "light" || s === "dark" || s === "system") {
         setThemeState(s);
+      } else {
+        setThemeState("dark");
       }
     } catch {
       /* ignore */
