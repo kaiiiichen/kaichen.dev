@@ -54,8 +54,8 @@ const STATUS_STYLES: Record<string, string> = {
 };
 
 const COURSES = [
-  { date: "Spring 26", title: "CS61A", desc: "Structure and Interpretation of Computer Programs" },
-  { date: "Spring 26", title: "Data100", desc: "Principles and Techniques of Data Science" },
+  { date: "Spring 26", title: "CS61A", desc: "Structure and Interpretation of Computer Programs", url: "https://cs61a.org/" },
+  { date: "Spring 26", title: "Data100", desc: "Principles and Techniques of Data Science", url: "https://ds100.org/sp26/" },
   { date: "Spring 26", title: "CogSci175", desc: "Mind, Machine and Meaning" },
 ];
 
@@ -314,7 +314,7 @@ export default async function Home() {
               Focus
             </p>
             <div className="space-y-1">
-              {COURSES.map(({ date, title, desc }) => (
+              {COURSES.map(({ date, title, desc, url }) => (
                 <div
                   key={title}
                   className="group flex gap-6 px-2 py-2 rounded-md hover:bg-[rgba(45,140,120,0.04)] transition-colors duration-200"
@@ -330,7 +330,16 @@ export default async function Home() {
                       style={{ fontFamily: "var(--font-dm-sans)", fontSize: 14 }}
                       className="text-zinc-800 dark:text-zinc-200 font-medium group-hover:text-[var(--accent)] transition-colors duration-200"
                     >
-                      {title}
+                      {url ? (
+                        <a
+                          href={url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="underline underline-offset-4 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors"
+                        >
+                          {title}
+                        </a>
+                      ) : title}
                     </p>
                     <p style={{ fontFamily: "var(--font-dm-sans)", fontSize: 13 }} className="text-zinc-500">
                       {desc}
