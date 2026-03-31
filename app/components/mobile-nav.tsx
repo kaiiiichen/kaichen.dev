@@ -1,13 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
-
 const NAV_LINKS = [
-  { href: "/", label: "Home" },
-  { href: "/about", label: "About" },
-  { href: "/projects", label: "Projects" },
-  { href: "/guestbook", label: "Guestbook" },
+  { href: "#about", label: "About" },
+  { href: "#experience", label: "Experience" },
+  { href: "#volunteering", label: "Volunteering" },
+  { href: "#focus", label: "Focus" },
+  { href: "#projects", label: "Projects" },
+  { href: "#github", label: "GitHub" },
 ];
 
 export default function MobileNav() {
@@ -60,7 +60,7 @@ export default function MobileNav() {
         {/* Links */}
         <nav className="flex flex-col gap-6">
           {NAV_LINKS.map(({ href, label }) => (
-            <Link
+            <a
               key={href}
               href={href}
               onClick={() => setOpen(false)}
@@ -68,7 +68,7 @@ export default function MobileNav() {
               className="uppercase text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors"
             >
               {label}
-            </Link>
+            </a>
           ))}
         </nav>
       </div>
