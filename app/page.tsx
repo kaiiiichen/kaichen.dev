@@ -235,7 +235,6 @@ export default async function Home() {
                   const expItems = [
                     { role: "Member", org: "Project Reboot", period: "2026–present", url: "https://www.projectreboot.club/" },
                     { role: "Member", org: "Effective Altruism at UC Berkeley", period: "2026–present", url: "https://eaberkeley.com/" },
-                    { role: "First Aider", org: "SUSTech Emergency Rescue Association", period: "2023–2025" },
                     { role: "Peer Mentor", org: "Southern University of Science and Technology", period: "2024–2025", url: SUSTECH },
                     { role: "President", org: "SUSTech Psychology Society", period: "2024–2025" },
                     { role: "Teaching Assistant", org: "Lingnan University", period: "2024", url: "https://www.ln.edu.hk/" },
@@ -278,6 +277,7 @@ export default async function Home() {
               <div className="space-y-3">
                 {[
                   { role: "Member #10986", org: "Giving What We Can", period: "2026–present", url: "https://www.givingwhatwecan.org/" },
+                  { role: "First Aider", org: "SUSTech Emergency Rescue Association", period: "2023 Oct–2025" },
                 ].map((item) => (
                   <div key={`${item.role}-${item.org}`} className="group flex gap-4 px-2 py-1.5 rounded-md hover:bg-[rgba(45,140,120,0.04)] transition-colors duration-150 ease">
                     <span
@@ -289,7 +289,10 @@ export default async function Home() {
                     <p style={{ fontFamily: "var(--font-dm-sans)", fontSize: 13, lineHeight: 1.7 }} className="text-zinc-600 dark:text-zinc-400">
                       <span className="font-medium text-zinc-800 dark:text-zinc-200 group-hover:text-[var(--accent)] transition-colors duration-150 ease">{item.role}</span>
                       {", "}
-                      <a href={item.url} target="_blank" rel="noopener noreferrer" className="no-underline hover:text-[var(--accent)] transition-colors duration-150">{item.org}</a>
+                      {"url" in item && item.url
+                        ? <a href={item.url} target="_blank" rel="noopener noreferrer" className="no-underline hover:text-[var(--accent)] group-hover:text-[var(--accent)] transition-colors duration-150">{item.org}</a>
+                        : <span className="group-hover:text-[var(--accent)] transition-colors duration-150">{item.org}</span>
+                      }
                     </p>
                   </div>
                 ))}
