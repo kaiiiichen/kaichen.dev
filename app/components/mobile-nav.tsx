@@ -59,13 +59,23 @@ export default function MobileNav() {
 
         {/* Links */}
         <nav className="flex flex-col gap-6">
-          {NAV_LINKS.map(({ href, label }) => (
+          {NAV_LINKS.map(({ href, label }, i) => (
             <a
               key={href}
               href={href}
               onClick={() => setOpen(false)}
-              style={{ fontFamily: "var(--font-dm-sans)", fontSize: 15, letterSpacing: "0.04em" }}
-              className="uppercase text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors"
+              style={{
+                fontFamily: "var(--font-dm-sans)",
+                fontSize: 15,
+                letterSpacing: "0.04em",
+                transitionProperty: "opacity, transform, color",
+                transitionDuration: "250ms",
+                transitionTimingFunction: "cubic-bezier(0.4, 0, 0.2, 1)",
+                transitionDelay: open ? `${i * 40 + 80}ms` : "0ms",
+                opacity: open ? 1 : 0,
+                transform: open ? "translateX(0)" : "translateX(-12px)",
+              }}
+              className="uppercase text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100"
             >
               {label}
             </a>
