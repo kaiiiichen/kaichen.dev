@@ -238,7 +238,6 @@ export default async function Home() {
                     { role: "First Aider", org: "SUSTech Emergency Rescue Association", period: "2023–2025" },
                     { role: "Peer Mentor", org: "Southern University of Science and Technology", period: "2024–2025", url: SUSTECH },
                     { role: "President", org: "SUSTech Psychology Society", period: "2024–2025" },
-                    { role: "Research Assistant", org: "Neuro Computing & Control Lab, SUSTech", period: "2024" },
                     { role: "Teaching Assistant", org: "Lingnan University", period: "2024", url: "https://www.ln.edu.hk/" },
                     { role: "Student Organization Coordinator", org: "Zhicheng College, SUSTech", period: "2023–2024" },
                   ];
