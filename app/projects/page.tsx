@@ -70,7 +70,7 @@ export default async function Projects() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-6 py-20">
+    <div className="max-w-2xl mx-auto px-6 py-12 md:py-20">
       <h1 className="font-serif text-4xl font-bold mb-4 tracking-tight">
         Projects
       </h1>

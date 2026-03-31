@@ -89,29 +89,18 @@ export default async function Home() {
     <>
       <MouseHalo />
 
-      <div
-        style={{
-          maxWidth: 1180,
-          margin: "0 auto",
-          padding: "5rem 3rem",
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          gap: "4rem",
-          alignItems: "start",
-        }}
-      >
+      <div className="max-w-[1180px] mx-auto px-6 py-12 md:px-12 md:py-20 grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 items-start">
         {/* ── LEFT COLUMN (sticky) ──────────────────────────────── */}
-        <aside style={{ position: "sticky", top: "5rem" }}>
+        <aside className="md:sticky md:top-20">
           {/* Name */}
           <h1
             style={{
               fontFamily: "var(--font-instrument-serif)",
-              fontSize: 52,
               fontWeight: 400,
               letterSpacing: "-0.02em",
               lineHeight: 1.1,
             }}
-            className="text-zinc-900 dark:text-zinc-100 mb-1"
+            className="text-[40px] md:text-[52px] text-zinc-900 dark:text-zinc-100 mb-1"
           >
             Kai Chen
           </h1>

@@ -38,7 +38,7 @@ const label = "w-24 shrink-0 font-mono text-xs uppercase tracking-widest text-zi
 
 export default function About() {
   return (
-    <div className="max-w-2xl mx-auto px-6 py-20">
+    <div className="max-w-2xl mx-auto px-6 py-12 md:py-20">
       <h1 className="font-serif text-4xl font-bold mb-12 tracking-tight">
         About
       </h1>
