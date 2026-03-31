@@ -6,8 +6,8 @@ type Day = { date: string; count: number };
 type LastCommit = { message: string; repo: string; sha: string; url: string; timeAgo: string };
 
 const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-const CELL = 10;
-const GAP = 2;
+const CELL = 8;
+const GAP = 1.5;
 const STEP = CELL + GAP;
 
 function getColor(count: number): string {
