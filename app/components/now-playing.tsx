@@ -1,7 +1,12 @@
 "use client";
 
 import Image from "next/image";
-import { useNowPlaying, formatMs } from "@/app/hooks/use-now-playing";
+import { useNowPlaying } from "@/app/hooks/use-now-playing";
+
+function formatMs(ms: number) {
+  const s = Math.floor(ms / 1000);
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+}
 
 export default function NowPlaying() {
   const { data, displayItem, dotPlaying, slideClass, progress, pct } =
