@@ -335,7 +335,7 @@ export default async function Home() {
                           href={url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="underline underline-offset-4 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors"
+                          className="no-underline hover:text-[var(--accent)] transition-colors duration-150"
                         >
                           {title}
                         </a>
