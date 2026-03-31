@@ -231,7 +231,7 @@ export default async function Home() {
               <div className="space-y-3">
                 {(() => {
                   const SUSTECH = "https://www.sustech.edu.cn/en/";
-                  const linkCls = "no-underline hover:text-[var(--accent)] group-hover:text-[var(--accent)] transition-colors duration-150";
+                  const linkCls = "no-underline hover:text-[var(--accent)] transition-colors duration-150";
                   const expItems = [
                     { role: "Member", org: "Project Reboot", period: "2026–present", url: "https://www.projectreboot.club/" },
                     { role: "Member", org: "Effective Altruism at UC Berkeley", period: "2026–present", url: "https://eaberkeley.com/" },
@@ -240,7 +240,7 @@ export default async function Home() {
                     { role: "Teaching Assistant", org: "Lingnan University", period: "2024", url: "https://www.ln.edu.hk/" },
                     { role: "Student Organization Coordinator", org: "Zhicheng College, SUSTech", period: "2023–2024" },
                   ];
-                  const orgCls = "group-hover:text-[var(--accent)] transition-colors duration-150";
+                  const orgCls = "transition-colors duration-150";
                   const renderOrg = (item: { org: string; url?: string }) => {
                     if (item.url) return <a href={item.url} target="_blank" rel="noopener noreferrer" className={linkCls}>{item.org}</a>;
                     if (!item.org.includes("SUSTech")) return <span className={orgCls}>{item.org}</span>;
@@ -290,8 +290,8 @@ export default async function Home() {
                       <span className="font-medium text-zinc-800 dark:text-zinc-200 group-hover:text-[var(--accent)] transition-colors duration-150 ease">{item.role}</span>
                       {", "}
                       {"url" in item && item.url
-                        ? <a href={item.url} target="_blank" rel="noopener noreferrer" className="no-underline hover:text-[var(--accent)] group-hover:text-[var(--accent)] transition-colors duration-150">{item.org}</a>
-                        : <span className="group-hover:text-[var(--accent)] transition-colors duration-150">{item.org}</span>
+                        ? <a href={item.url} target="_blank" rel="noopener noreferrer" className="no-underline hover:text-[var(--accent)] transition-colors duration-150">{item.org}</a>
+                        : <span>{item.org}</span>
                       }
                     </p>
                   </div>
