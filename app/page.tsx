@@ -140,7 +140,7 @@ export default async function Home() {
                 target={href.startsWith("http") ? "_blank" : undefined}
                 rel={href.startsWith("http") ? "noopener noreferrer" : undefined}
                 style={{ fontFamily: "var(--font-dm-sans)", fontSize: 13 }}
-                className="text-zinc-400 dark:text-zinc-500 hover:text-[#2d8c78] dark:text-[#3aaa90] transition-colors duration-200"
+                className="text-zinc-400 dark:text-zinc-500 hover:text-[#2d8c78] dark:hover:text-[#3aaa90] transition-colors duration-200"
               >
                 {label}
               </a>
@@ -168,7 +168,7 @@ export default async function Home() {
             <Link
               href="/gallery"
               style={LABEL_STYLE}
-              className="uppercase text-zinc-400 dark:text-zinc-600 hover:text-[#2d8c78] dark:text-[#3aaa90] [transition:color_0.15s_ease] mb-3 block"
+              className="uppercase text-zinc-400 dark:text-zinc-600 hover:text-[#2d8c78] dark:hover:text-[#3aaa90] [transition:color_0.15s_ease] mb-3 block"
             >
               Gallery
             </Link>
@@ -231,7 +231,7 @@ export default async function Home() {
               <div className="space-y-3">
                 {(() => {
                   const SUSTECH = "https://www.sustech.edu.cn/";
-                  const linkCls = "no-underline hover:text-[#2d8c78] dark:text-[#3aaa90] transition-colors duration-150";
+                  const linkCls = "no-underline hover:text-[#2d8c78] dark:hover:text-[#3aaa90] transition-colors duration-150";
                   const expItems = [
                     { role: "Member", org: "Project Reboot", period: "2026–present", url: "https://www.projectreboot.club/" },
                     { role: "Member", org: "Effective Altruism at UC Berkeley", period: "2026–present", url: "https://eaberkeley.com/" },
@@ -290,7 +290,7 @@ export default async function Home() {
                       <span className="font-medium text-[#2d8c78] dark:text-[#3aaa90]">{item.role}</span>
                       {", "}
                       {"url" in item && item.url
-                        ? <a href={item.url} target="_blank" rel="noopener noreferrer" className="no-underline hover:text-[#2d8c78] dark:text-[#3aaa90] transition-colors duration-150">{item.org}</a>
+                        ? <a href={item.url} target="_blank" rel="noopener noreferrer" className="no-underline hover:text-[#2d8c78] dark:hover:text-[#3aaa90] transition-colors duration-150">{item.org}</a>
                         : <span>{item.org}</span>
                       }
                     </p>
@@ -360,7 +360,7 @@ export default async function Home() {
                         target="_blank"
                         rel="noopener noreferrer"
                         style={{ fontFamily: "var(--font-jetbrains-mono)", fontSize: 11 }}
-                        className="block text-zinc-400 dark:text-zinc-600 hover:text-[#2d8c78] dark:text-[#3aaa90] transition-colors"
+                        className="block text-zinc-400 dark:text-zinc-600 hover:text-[#2d8c78] dark:hover:text-[#3aaa90] transition-colors"
                       >
                         GitHub ↗
                       </Link>
