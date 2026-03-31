@@ -25,7 +25,13 @@ export type NowPlayingResult =
 let currentTrack: RecentTrack | null = null;
 let previousTrack: RecentTrack | null = null;
 
+// In-memory token cache — avoids redundant refresh calls within the same instance
+let cachedToken: string | null = null;
+let tokenExpiresAt = 0;
+
 async function getAccessToken(): Promise<string | null> {
+  if (cachedToken && Date.now() < tokenExpiresAt - 60_000) return cachedToken;
+
   const clientId = process.env.SPOTIFY_CLIENT_ID;
   const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
   const refreshToken = process.env.SPOTIFY_REFRESH_TOKEN;
@@ -34,8 +40,6 @@ async function getAccessToken(): Promise<string | null> {
 
   const basic = Buffer.from(`${clientId}:${clientSecret}`).toString("base64");
 
-  // Cache token in Next.js Data Cache for 50 minutes (tokens last 1 hour)
-  // This survives across serverless cold starts on Vercel
   const res = await fetch(TOKEN_URL, {
     method: "POST",
     headers: {
@@ -46,13 +50,16 @@ async function getAccessToken(): Promise<string | null> {
       grant_type: "refresh_token",
       refresh_token: refreshToken,
     }),
-    next: { revalidate: 3000 }, // 50 minutes
+    cache: "no-store",
   });
 
   if (!res.ok) return null;
   const data = await res.json();
 
-  return (data.access_token as string) ?? null;
+  cachedToken = (data.access_token as string) ?? null;
+  tokenExpiresAt = Date.now() + (data.expires_in ?? 3600) * 1000;
+
+  return cachedToken;
 }
 
 export async function getNowPlaying(): Promise<NowPlayingResult> {
