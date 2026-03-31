@@ -8,7 +8,7 @@ const NAV_ITEMS = [
   { id: "volunteering", label: "Volunteering" },
   { id: "focus", label: "Focus" },
   { id: "projects", label: "Projects" },
-  { id: "github", label: "GitHub" },
+  { id: "github", label: "GitHub Activity" },
 ] as const;
 
 type SectionId = typeof NAV_ITEMS[number]["id"];

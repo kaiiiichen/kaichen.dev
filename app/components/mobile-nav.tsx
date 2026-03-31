@@ -7,7 +7,7 @@ const NAV_LINKS = [
   { href: "#volunteering", label: "Volunteering" },
   { href: "#focus", label: "Focus" },
   { href: "#projects", label: "Projects" },
-  { href: "#github", label: "GitHub" },
+  { href: "#github", label: "GitHub Activity" },
 ];
 
 export default function MobileNav() {
