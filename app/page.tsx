@@ -277,7 +277,7 @@ export default async function Home() {
               <div className="space-y-3">
                 {[
                   { role: "Member #10986", org: "Giving What We Can", period: "2026–present", url: "https://www.givingwhatwecan.org/" },
-                  { role: "First Aider", org: "SUSTech Emergency Rescue Association", period: "2023 Oct–2025" },
+                  { role: "First Aider", org: "SUSTech Emergency Rescue Association", period: "2023–2025" },
                 ].map((item) => (
                   <div key={`${item.role}-${item.org}`} className="group flex gap-4 px-2 py-1.5 rounded-md hover:bg-[rgba(45,140,120,0.04)] transition-colors duration-150 ease">
                     <span
