@@ -13,8 +13,8 @@ const PROJECTS = [
   {
     name: "kaichen.dev",
     description:
-      "Personal website and living digital identity system. Built with Next.js, Supabase, and a Railway-hosted Spotify proxy for real-time now-playing.",
-    tags: ["Next.js", "TypeScript", "Supabase", "Railway"],
+      "Personal website and living digital identity system. Built with Next.js, Supabase, and real-time Spotify integration.",
+    tags: ["Next.js", "TypeScript", "Supabase", "Vercel"],
     github: "https://github.com/kaiiiichen/kaichen.dev",
     repo: "kaiiiichen/kaichen.dev",
     demo: "https://kaichen.dev",
@@ -320,18 +320,20 @@ export default async function Home() {
                   <div>
                     <p
                       style={{ fontFamily: "var(--font-dm-sans)", fontSize: 14 }}
-                      className="text-zinc-800 dark:text-zinc-200 font-medium group-hover:text-[var(--accent)] transition-colors duration-200"
+                      className="text-zinc-800 dark:text-zinc-200 font-medium transition-colors duration-200"
                     >
                       {url ? (
                         <a
                           href={url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="no-underline hover:text-[var(--accent)] transition-colors duration-150"
+                          className="no-underline group-hover:text-[var(--accent)] hover:text-[var(--accent)] transition-colors duration-150"
                         >
                           {title}
                         </a>
-                      ) : title}
+                      ) : (
+                        <span className="group-hover:text-[var(--accent)] transition-colors duration-200">{title}</span>
+                      )}
                     </p>
                     <p style={{ fontFamily: "var(--font-dm-sans)", fontSize: 13 }} className="text-zinc-500">
                       {desc}
