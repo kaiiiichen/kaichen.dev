@@ -49,7 +49,7 @@ export default function GitHubActivity() {
       .catch(() => {});
   }, []);
 
-  if (weeks.length === 0) return null;
+  if (weeks.length === 0) return <div style={{ height: 108 }} />;
 
   const monthLabels = getMonthLabels(weeks);
 
