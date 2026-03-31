@@ -406,7 +406,9 @@ export default async function Home() {
             <p style={LABEL_STYLE} className="uppercase text-zinc-400 dark:text-zinc-600 mb-4">
               GitHub Activity
             </p>
-            <GitHubActivity />
+            <div className="overflow-x-auto -mx-2 px-2">
+              <GitHubActivity />
+            </div>
           </section>
 
           {/* ── GUESTBOOK ─────────────────────────────────────────── */}
