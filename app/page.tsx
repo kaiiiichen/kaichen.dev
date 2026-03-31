@@ -258,7 +258,7 @@ export default async function Home() {
                         {item.period}
                       </span>
                       <p style={{ fontFamily: "var(--font-dm-sans)", fontSize: 13, lineHeight: 1.7 }} className="text-zinc-600 dark:text-zinc-400">
-                        <span className="font-medium text-zinc-800 dark:text-zinc-200 group-hover:text-[#2d8c78] transition-colors duration-150 ease">{item.role}</span>
+                        <span className="font-medium text-[#2d8c78]">{item.role}</span>
                         {", "}
                         {renderOrg(item)}
                       </p>
@@ -287,7 +287,7 @@ export default async function Home() {
                       {item.period}
                     </span>
                     <p style={{ fontFamily: "var(--font-dm-sans)", fontSize: 13, lineHeight: 1.7 }} className="text-zinc-600 dark:text-zinc-400">
-                      <span className="font-medium text-zinc-800 dark:text-zinc-200 group-hover:text-[#2d8c78] transition-colors duration-150 ease">{item.role}</span>
+                      <span className="font-medium text-[#2d8c78]">{item.role}</span>
                       {", "}
                       {"url" in item && item.url
                         ? <a href={item.url} target="_blank" rel="noopener noreferrer" className="no-underline hover:text-[#2d8c78] transition-colors duration-150">{item.org}</a>
@@ -320,20 +320,18 @@ export default async function Home() {
                   <div>
                     <p
                       style={{ fontFamily: "var(--font-dm-sans)", fontSize: 14 }}
-                      className="text-zinc-800 dark:text-zinc-200 font-medium transition-colors duration-200"
+                      className="text-[#2d8c78] font-medium"
                     >
                       {url ? (
                         <a
                           href={url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="no-underline group-hover:text-[#2d8c78] hover:text-[#2d8c78] transition-colors duration-150"
+                          className="no-underline"
                         >
                           {title}
                         </a>
-                      ) : (
-                        <span className="group-hover:text-[#2d8c78] transition-colors duration-200">{title}</span>
-                      )}
+                      ) : title}
                     </p>
                     <p style={{ fontFamily: "var(--font-dm-sans)", fontSize: 13 }} className="text-zinc-500">
                       {desc}
@@ -375,7 +373,7 @@ export default async function Home() {
                     {/* Right: name + status + description + tags */}
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <h3 style={{ fontFamily: "var(--font-dm-sans)", fontSize: 14 }} className="font-medium text-zinc-900 dark:text-zinc-100 group-hover:text-[#2d8c78] transition-colors duration-150 ease">
+                        <h3 style={{ fontFamily: "var(--font-dm-sans)", fontSize: 14 }} className="font-medium text-[#2d8c78]">
                           {project.name}
                         </h3>
                         <span
