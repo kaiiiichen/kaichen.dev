@@ -17,10 +17,9 @@ Personal website of Kai Chen — a living, dynamic digital identity system.
 ### Backend & APIs
 - **Hosting**: Vercel (serverless)
 - **Database**: Supabase (PostgreSQL) — guestbook
-- **Spotify Proxy**: Railway (persistent Node.js process)
-  - Polls Spotify API every 1 second
-  - Serves `/now-playing` and `/stream` endpoints
-  - Prevents rate limiting by centralizing all Spotify requests
+- **Spotify**: Vercel serverless function (`/api/spotify/now-playing`)
+  - Fetches directly from Spotify API with token refresh
+  - CDN-cached for 10s (`s-maxage=10`) — all visitors share one Spotify API call per interval
 - **GitHub API**: GraphQL — contribution graph & last commit
 - **Weather API**: Open-Meteo (free, no API key required)
 
@@ -35,18 +34,14 @@ Personal website of Kai Chen — a living, dynamic digital identity system.
 
 ```
 Browser (kaichen.dev)
-  ├── Vercel (Next.js)
-  │     ├── /api/github/contributions  →  GitHub GraphQL API
-  │     ├── /api/weather               →  Open-Meteo API
-  │     ├── /api/guestbook             →  Supabase (PostgreSQL)
-  │     └── /api/spotify/now-playing   →  fallback only
-  │
-  └── Railway (spotify-proxy)
-        └── polls Spotify API every 1s
-              └── serves /now-playing to browser directly
+  └── Vercel (Next.js)
+        ├── /api/github/contributions  →  GitHub GraphQL API
+        ├── /api/weather               →  Open-Meteo API
+        ├── /api/guestbook             →  Supabase (PostgreSQL)
+        └── /api/spotify/now-playing   →  Spotify API (CDN-cached 10s)
 ```
 
-Key design decision: the Spotify proxy runs as a **persistent Node.js process** on Railway, not a serverless function. This allows a single polling loop to serve all visitors, keeping Spotify API usage constant regardless of traffic.
+Key design decision: `/api/spotify/now-playing` is cached at the CDN edge (`s-maxage=10`). All visitors share a single cached response, keeping Spotify API calls constant regardless of traffic.
 
 ---
 
@@ -76,20 +71,6 @@ SPOTIFY_REFRESH_TOKEN=
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 GITHUB_TOKEN=
-NEXT_PUBLIC_SPOTIFY_PROXY_URL=
-```
-
-### Railway (Spotify Proxy)
-- Root directory: `spotify-proxy/`
-- Auto-deploys on push to `main`
-- Live at: `https://kaichendev-production.up.railway.app`
-
-**Environment variables required:**
-
-```
-SPOTIFY_CLIENT_ID=
-SPOTIFY_CLIENT_SECRET=
-SPOTIFY_REFRESH_TOKEN=
 ```
 
 ---
@@ -106,11 +87,6 @@ cp .env.example .env.local
 
 # Run dev server
 npm run dev
-
-# Run Spotify proxy locally (separate terminal)
-cd spotify-proxy
-npm install
-SPOTIFY_CLIENT_ID=xxx SPOTIFY_CLIENT_SECRET=xxx SPOTIFY_REFRESH_TOKEN=xxx node index.js
 ```
 
 ---
@@ -138,11 +114,8 @@ kaichen-dev/
 ├── lib/
 │   ├── spotify.ts                # Spotify token refresh & API helpers
 │   └── supabase.ts               # Supabase client
-├── hooks/
-│   └── use-now-playing.ts        # Spotify polling hook (1s interval)
-├── spotify-proxy/                # Railway service (separate Node.js app)
-│   ├── index.js                  # Persistent polling server
-│   └── package.json
+├── app/hooks/
+│   └── use-now-playing.ts        # Spotify polling hook (10s interval)
 ├── .env.example                  # Environment variable template
 └── README.md
 ```
