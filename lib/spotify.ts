@@ -21,17 +21,11 @@ export type NowPlayingResult =
       duration_ms: number;
     };
 
-// Token cache — survives across requests within the same server instance
-let cachedToken: string | null = null;
-let tokenExpiresAt = 0; // epoch ms
-
 // Track history — survives across requests within the same server instance
 let currentTrack: RecentTrack | null = null;
 let previousTrack: RecentTrack | null = null;
 
 async function getAccessToken(): Promise<string | null> {
-  if (cachedToken && Date.now() < tokenExpiresAt - 60_000) return cachedToken;
-
   const clientId = process.env.SPOTIFY_CLIENT_ID;
   const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
   const refreshToken = process.env.SPOTIFY_REFRESH_TOKEN;
@@ -40,6 +34,8 @@ async function getAccessToken(): Promise<string | null> {
 
   const basic = Buffer.from(`${clientId}:${clientSecret}`).toString("base64");
 
+  // Cache token in Next.js Data Cache for 50 minutes (tokens last 1 hour)
+  // This survives across serverless cold starts on Vercel
   const res = await fetch(TOKEN_URL, {
     method: "POST",
     headers: {
@@ -50,19 +46,18 @@ async function getAccessToken(): Promise<string | null> {
       grant_type: "refresh_token",
       refresh_token: refreshToken,
     }),
+    next: { revalidate: 3000 }, // 50 minutes
   });
 
   if (!res.ok) return null;
   const data = await res.json();
 
-  cachedToken = (data.access_token as string) ?? null;
-  tokenExpiresAt = Date.now() + (data.expires_in as number) * 1000;
-
-  return cachedToken;
+  return (data.access_token as string) ?? null;
 }
 
 export async function getNowPlaying(): Promise<NowPlayingResult> {
   const accessToken = await getAccessToken();
+  console.log("access token:", accessToken ? "exists" : "null");
   if (!accessToken) {
     return { isPlaying: false, recentTrack: currentTrack ?? previousTrack ?? undefined };
   }
@@ -70,6 +65,7 @@ export async function getNowPlaying(): Promise<NowPlayingResult> {
   const res = await fetch(NOW_PLAYING_URL, {
     headers: { Authorization: `Bearer ${accessToken}` },
   });
+  console.log("spotify response status:", res.status);
 
   // 204 = nothing playing, 429 = rate limited, >400 = error
   if (res.status === 429) {
@@ -80,6 +76,8 @@ export async function getNowPlaying(): Promise<NowPlayingResult> {
   }
 
   const data = await res.json();
+  console.log("spotify data is_playing:", data?.is_playing);
+  console.log("currently_playing_type:", data?.currently_playing_type);
 
   if (data?.currently_playing_type !== "track" || !data?.item) {
     return { isPlaying: false, recentTrack: currentTrack ?? previousTrack ?? undefined };
