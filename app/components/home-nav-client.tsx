@@ -56,7 +56,7 @@ export default function HomeNavClient() {
   }, []);
 
   return (
-    <nav className="flex flex-col gap-4 mb-10">
+    <nav className="hidden md:flex flex-col gap-4 mb-10">
       {NAV_ITEMS.map(({ id, label }) => {
         const isActive = active === id;
         return (
