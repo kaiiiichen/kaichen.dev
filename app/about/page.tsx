@@ -8,13 +8,13 @@ export const metadata: Metadata = {
 const experience = [
   {
     role: "Peer Mentor",
-    org: "SUSTech Zhicheng College",
+    org: "SUSTech Zhicheng College, Shenzhen",
     period: "2024–2025",
     note: "300+ hours of one-to-one mentoring; recognized as Outstanding Peer Mentor.",
   },
   {
     role: "Teaching Assistant",
-    org: "Lingnan University × SUSTech Wellness Ambassador Program",
+    org: "Lingnan University × SUSTech Wellness Ambassador Program, Hong Kong",
     period: "2024",
   },
   {
@@ -48,10 +48,10 @@ export default function About() {
         <div className="flex gap-4">
           <span className={label}>Background</span>
           <p className="text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed">
-            Kai Chen. Math major at Southern University of Science and
-            Technology (SUSTech), currently visiting UC Berkeley (2026). Fields
-            Honours Program student. Previously attended a summer program in Deep
-            Unsupervised Learning at the University of Oxford (2025).
+            Kai Chen. Mathematics major (数学与应用数学) at Southern University of
+            Science and Technology (SUSTech), currently visiting UC Berkeley (2026).
+            Fields Medal Honors Program student. Previously attended a summer program
+            in Deep Unsupervised Learning at the University of Oxford (2025).
           </p>
         </div>
 

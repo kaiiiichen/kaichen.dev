@@ -4,7 +4,11 @@ import { useEffect, useState } from "react";
 
 const NAV_ITEMS = [
   { id: "about", label: "About" },
+  { id: "experience", label: "Experience" },
+  { id: "volunteering", label: "Volunteering" },
+  { id: "focus", label: "Focus" },
   { id: "projects", label: "Projects" },
+  { id: "github", label: "GitHub" },
 ] as const;
 
 type SectionId = typeof NAV_ITEMS[number]["id"];
@@ -13,7 +17,6 @@ export default function HomeNavClient() {
   const [active, setActive] = useState<SectionId>("about");
 
   useEffect(() => {
-    // Track which sections are currently intersecting
     const intersecting = new Set<string>();
 
     const observers = NAV_ITEMS.map(({ id }) => {
@@ -30,7 +33,6 @@ export default function HomeNavClient() {
 
           if (intersecting.size === 0) return;
 
-          // Pick the section whose top edge is closest to (but below) the viewport top
           let best: string = id;
           let bestTop = Infinity;
           for (const sectionId of intersecting) {

@@ -4,7 +4,6 @@ import "./globals.css";
 import Nav from "./components/nav";
 import SubpageEnter from "./components/subpage-enter";
 import Providers from "./components/providers";
-import SpotifyBarWrapper from "./components/spotify-bar-wrapper";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import Script from "next/script";
@@ -65,10 +64,9 @@ export default function RootLayout({
         </Script>
         <Providers>
           <Nav />
-          <main className="flex-1 pb-16">
+          <main className="flex-1 pt-16">
             <SubpageEnter>{children}</SubpageEnter>
           </main>
-          <SpotifyBarWrapper />
         </Providers>
         <Analytics />
         <SpeedInsights />

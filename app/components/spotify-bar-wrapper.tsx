@@ -5,6 +5,6 @@ import SpotifyBar from "./spotify-bar";
 
 export default function SpotifyBarWrapper() {
   const pathname = usePathname();
-  if (pathname === "/") return null;
+  if (pathname !== "/") return null;
   return <SpotifyBar />;
 }

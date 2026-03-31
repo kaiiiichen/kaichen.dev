@@ -1,11 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import { useNowPlaying, formatMs } from "@/app/hooks/use-now-playing";
+import { useNowPlaying } from "@/app/hooks/use-now-playing";
 
 export default function SpotifyCardHome() {
-  const { data, displayItem, dotPlaying, slideClass, progress, pct } =
-    useNowPlaying();
+  const { data, displayItem, dotPlaying, slideClass } = useNowPlaying();
 
   return (
     <div
@@ -25,7 +24,7 @@ export default function SpotifyCardHome() {
           Not playing
         </p>
       ) : (
-        <div className={`flex items-start gap-3 ${slideClass}`}>
+        <div className={`flex items-center gap-3 ${slideClass}`}>
           {/* Album art — only shown when playing */}
           {data.isPlaying && displayItem.albumArt ? (
             <Image
@@ -61,11 +60,7 @@ export default function SpotifyCardHome() {
                 href={displayItem.songUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{
-                  fontFamily: "var(--font-dm-sans)",
-                  fontSize: 15,
-                  fontWeight: 500,
-                }}
+                style={{ fontFamily: "var(--font-dm-sans)", fontSize: 15, fontWeight: 500 }}
                 className="text-zinc-900 dark:text-zinc-100 transition-colors truncate hover:opacity-70"
               >
                 {displayItem.title}
@@ -75,47 +70,10 @@ export default function SpotifyCardHome() {
             {/* Artist */}
             <p
               style={{ fontFamily: "var(--font-dm-sans)", fontSize: 13 }}
-              className="text-zinc-500 truncate mb-2"
+              className="text-zinc-500 truncate"
             >
               {displayItem.artist}
             </p>
-
-            {/* Progress bar (playing only) */}
-            {data.isPlaying ? (
-              <div>
-                <div
-                  className="h-[3px] rounded-full mb-1"
-                  style={{ background: "#e5e7eb" }}
-                >
-                  <div
-                    className="h-full rounded-full transition-all duration-1000 ease-linear"
-                    style={{ width: `${pct}%`, backgroundColor: "var(--accent)" }}
-                  />
-                </div>
-                <div
-                  className="flex justify-between"
-                  style={{
-                    fontFamily: "var(--font-jetbrains-mono)",
-                    fontSize: 11,
-                  }}
-                >
-                  <span className="text-zinc-400">{formatMs(progress)}</span>
-                  <span className="text-zinc-400">
-                    {formatMs(data.duration_ms)}
-                  </span>
-                </div>
-              </div>
-            ) : (
-              <p
-                style={{
-                  fontFamily: "var(--font-jetbrains-mono)",
-                  fontSize: 11,
-                }}
-                className="text-zinc-400"
-              >
-                last played
-              </p>
-            )}
           </div>
         </div>
       )}

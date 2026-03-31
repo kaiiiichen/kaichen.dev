@@ -15,49 +15,31 @@ export type UseNowPlayingReturn = {
   displayItem: DisplayItem;
   dotPlaying: boolean;
   slideClass: string;
-  progress: number;
-  pct: number;
 };
-
-export function formatMs(ms: number): string {
-  const totalSec = Math.floor(ms / 1000);
-  const min = Math.floor(totalSec / 60);
-  const sec = totalSec % 60;
-  return `${min}:${sec.toString().padStart(2, "0")}`;
-}
 
 export function useNowPlaying(): UseNowPlayingReturn {
   const [data, setData] = useState<NowPlayingResult | null>(null);
-  const [progress, setProgress] = useState(0);
   const [displayItem, setDisplayItem] = useState<DisplayItem>(null);
   const [dotPlaying, setDotPlaying] = useState(false);
   const [slideClass, setSlideClass] = useState("");
-  const pollRef = useRef<() => void>(() => {});
   const prevUrlRef = useRef<string | null>(null);
   const slideTimers = useRef<ReturnType<typeof setTimeout>[]>([]);
 
-  // Poll Railway proxy every 1 s
   useEffect(() => {
-    const base =
-      process.env.NEXT_PUBLIC_SPOTIFY_PROXY_URL ?? "/api/spotify";
+    const base = process.env.NEXT_PUBLIC_SPOTIFY_PROXY_URL ?? "/api/spotify";
 
     const poll = () => {
       fetch(`${base}/now-playing`)
         .then((r) => r.json())
-        .then((d: NowPlayingResult) => {
-          setData(d);
-          if (d.isPlaying) setProgress(d.progress_ms);
-        })
+        .then((d: NowPlayingResult) => setData(d))
         .catch(() => setData({ isPlaying: false }));
     };
 
-    pollRef.current = poll;
     poll();
-    const id = setInterval(poll, 1_000);
+    const id = setInterval(poll, 10_000);
     return () => clearInterval(id);
   }, []);
 
-  // Sync display state when data changes
   useEffect(() => {
     if (!data) return;
 
@@ -95,26 +77,5 @@ export function useNowPlaying(): UseNowPlayingReturn {
     );
   }, [data]);
 
-  // Tick progress locally; refetch when track ends
-  useEffect(() => {
-    if (!data?.isPlaying) return;
-    const { duration_ms } = data;
-    const id = setInterval(() => {
-      setProgress((p) => {
-        if (p + 1000 >= duration_ms) {
-          pollRef.current();
-          return duration_ms;
-        }
-        return p + 1000;
-      });
-    }, 1000);
-    return () => clearInterval(id);
-  }, [data]);
-
-  const pct =
-    data?.isPlaying && data.duration_ms > 0
-      ? Math.min((progress / data.duration_ms) * 100, 100)
-      : 0;
-
-  return { data, displayItem, dotPlaying, slideClass, progress, pct };
+  return { data, displayItem, dotPlaying, slideClass };
 }
