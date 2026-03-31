@@ -140,7 +140,7 @@ export default async function Home() {
                 target={href.startsWith("http") ? "_blank" : undefined}
                 rel={href.startsWith("http") ? "noopener noreferrer" : undefined}
                 style={{ fontFamily: "var(--font-dm-sans)", fontSize: 13 }}
-                className="text-zinc-400 dark:text-zinc-500 hover:text-[var(--accent)] transition-colors duration-200"
+                className="text-zinc-400 dark:text-zinc-500 hover:text-[#2d8c78] transition-colors duration-200"
               >
                 {label}
               </a>
@@ -168,7 +168,7 @@ export default async function Home() {
             <Link
               href="/gallery"
               style={LABEL_STYLE}
-              className="uppercase text-zinc-400 dark:text-zinc-600 hover:text-[var(--accent)] [transition:color_0.15s_ease] mb-3 block"
+              className="uppercase text-zinc-400 dark:text-zinc-600 hover:text-[#2d8c78] [transition:color_0.15s_ease] mb-3 block"
             >
               Gallery
             </Link>
@@ -230,8 +230,8 @@ export default async function Home() {
               </p>
               <div className="space-y-3">
                 {(() => {
-                  const SUSTECH = "https://www.sustech.edu.cn/en/";
-                  const linkCls = "no-underline hover:text-[var(--accent)] transition-colors duration-150";
+                  const SUSTECH = "https://www.sustech.edu.cn/";
+                  const linkCls = "no-underline hover:text-[#2d8c78] transition-colors duration-150";
                   const expItems = [
                     { role: "Member", org: "Project Reboot", period: "2026–present", url: "https://www.projectreboot.club/" },
                     { role: "Member", org: "Effective Altruism at UC Berkeley", period: "2026–present", url: "https://eaberkeley.com/" },
@@ -258,7 +258,7 @@ export default async function Home() {
                         {item.period}
                       </span>
                       <p style={{ fontFamily: "var(--font-dm-sans)", fontSize: 13, lineHeight: 1.7 }} className="text-zinc-600 dark:text-zinc-400">
-                        <span className="font-medium text-zinc-800 dark:text-zinc-200 group-hover:text-[var(--accent)] transition-colors duration-150 ease">{item.role}</span>
+                        <span className="font-medium text-zinc-800 dark:text-zinc-200 group-hover:text-[#2d8c78] transition-colors duration-150 ease">{item.role}</span>
                         {", "}
                         {renderOrg(item)}
                       </p>
@@ -287,10 +287,10 @@ export default async function Home() {
                       {item.period}
                     </span>
                     <p style={{ fontFamily: "var(--font-dm-sans)", fontSize: 13, lineHeight: 1.7 }} className="text-zinc-600 dark:text-zinc-400">
-                      <span className="font-medium text-zinc-800 dark:text-zinc-200 group-hover:text-[var(--accent)] transition-colors duration-150 ease">{item.role}</span>
+                      <span className="font-medium text-zinc-800 dark:text-zinc-200 group-hover:text-[#2d8c78] transition-colors duration-150 ease">{item.role}</span>
                       {", "}
                       {"url" in item && item.url
-                        ? <a href={item.url} target="_blank" rel="noopener noreferrer" className="no-underline hover:text-[var(--accent)] transition-colors duration-150">{item.org}</a>
+                        ? <a href={item.url} target="_blank" rel="noopener noreferrer" className="no-underline hover:text-[#2d8c78] transition-colors duration-150">{item.org}</a>
                         : <span>{item.org}</span>
                       }
                     </p>
@@ -327,12 +327,12 @@ export default async function Home() {
                           href={url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="no-underline group-hover:text-[var(--accent)] hover:text-[var(--accent)] transition-colors duration-150"
+                          className="no-underline group-hover:text-[#2d8c78] hover:text-[#2d8c78] transition-colors duration-150"
                         >
                           {title}
                         </a>
                       ) : (
-                        <span className="group-hover:text-[var(--accent)] transition-colors duration-200">{title}</span>
+                        <span className="group-hover:text-[#2d8c78] transition-colors duration-200">{title}</span>
                       )}
                     </p>
                     <p style={{ fontFamily: "var(--font-dm-sans)", fontSize: 13 }} className="text-zinc-500">
@@ -362,7 +362,7 @@ export default async function Home() {
                         target="_blank"
                         rel="noopener noreferrer"
                         style={{ fontFamily: "var(--font-jetbrains-mono)", fontSize: 11 }}
-                        className="block text-zinc-400 dark:text-zinc-600 hover:text-[var(--accent)] transition-colors"
+                        className="block text-zinc-400 dark:text-zinc-600 hover:text-[#2d8c78] transition-colors"
                       >
                         GitHub ↗
                       </Link>
@@ -375,7 +375,7 @@ export default async function Home() {
                     {/* Right: name + status + description + tags */}
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <h3 style={{ fontFamily: "var(--font-dm-sans)", fontSize: 14 }} className="font-medium text-zinc-900 dark:text-zinc-100 group-hover:text-[var(--accent)] transition-colors duration-150 ease">
+                        <h3 style={{ fontFamily: "var(--font-dm-sans)", fontSize: 14 }} className="font-medium text-zinc-900 dark:text-zinc-100 group-hover:text-[#2d8c78] transition-colors duration-150 ease">
                           {project.name}
                         </h3>
                         <span
