@@ -16,12 +16,20 @@ Personal website of Kai Chen — a living, dynamic digital identity system.
 
 ### Backend & APIs
 - **Hosting**: Vercel (serverless)
-- **Database**: Supabase (PostgreSQL) — guestbook
+- **Database**: Supabase (PostgreSQL)
+  - `guestbook` — public guestbook
+  - `listening_history` — every Spotify fetch recorded (proxy for listening duration)
+  - `listening_stats` — unique tracks with play_count, used for Gallery ranking
 - **Spotify**: Vercel serverless function (`/api/spotify/now-playing`)
-  - Fetches directly from Spotify API with token refresh
-  - CDN-cached for 10s (`s-maxage=10`) — all visitors share one Spotify API call per interval
+  - Token refresh with in-memory cache
+  - Writes to Supabase on every fetch when isPlaying is true
 - **GitHub API**: GraphQL — contribution graph & last commit
 - **Weather API**: Open-Meteo (free, no API key required)
+
+### Mobile & Responsive
+- **Layout**: Single-column on mobile (`grid-cols-1`), two-column on desktop (`md:grid-cols-2`)
+- **Navigation**: Desktop section nav (`hidden md:flex`) replaced by hamburger menu on mobile
+- **Mobile nav drawer**: Slides in from the left, backdrop blur overlay, body scroll locked while open, staggered link entrance animation (40ms delay per item), instant exit
 
 ### External Integrations
 - **Spotify Web API** — real-time now playing, album art, playback progress
@@ -37,11 +45,12 @@ Browser (kaichen.dev)
   └── Vercel (Next.js)
         ├── /api/github/contributions  →  GitHub GraphQL API
         ├── /api/weather               →  Open-Meteo API
-        ├── /api/guestbook             →  Supabase (PostgreSQL)
-        └── /api/spotify/now-playing   →  Spotify API (CDN-cached 10s)
+        ├── /api/guestbook             →  Supabase (guestbook table)
+        ├── /api/spotify/now-playing   →  Spotify API → Supabase (listening_history + listening_stats)
+        └── /api/spotify/recent-albums →  Supabase (listening_stats, sorted by play_count)
 ```
 
-Key design decision: `/api/spotify/now-playing` is cached at the CDN edge (`s-maxage=10`). All visitors share a single cached response, keeping Spotify API calls constant regardless of traffic.
+Key design decision: every Spotify fetch is recorded in Supabase. listening_history approximates listening duration (each record = one 10s polling interval). listening_stats powers the Gallery, ranked by play_count.
 
 ---
 
@@ -53,6 +62,7 @@ Key design decision: `/api/spotify/now-playing` is cached at the CDN edge (`s-ma
 | `/about` | Background, experience, contact |
 | `/projects` | Projects with active/archived status tags |
 | `/guestbook` | Public guestbook powered by Supabase |
+| `/gallery` | Scroll-driven album gallery, ranked by personal play count from Supabase |
 
 ---
 
@@ -70,6 +80,7 @@ SPOTIFY_CLIENT_SECRET=
 SPOTIFY_REFRESH_TOKEN=
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
 GITHUB_TOKEN=
 ```
 
@@ -97,11 +108,14 @@ npm run dev
 kaichen-dev/
 ├── app/
 │   ├── page.tsx                  # Home page
+│   ├── gallery/page.tsx          # Scroll-driven album gallery
 │   ├── about/page.tsx            # About page
 │   ├── projects/page.tsx         # Projects page
 │   ├── guestbook/page.tsx        # Guestbook page
 │   ├── api/
-│   │   ├── spotify/              # Spotify API routes (fallback)
+│   │   ├── spotify/
+│   │   │   ├── now-playing/      # Fetches Spotify + writes to Supabase
+│   │   │   └── recent-albums/    # Reads from listening_stats
 │   │   ├── github/               # GitHub contributions & last commit
 │   │   ├── weather/              # Weather data from Open-Meteo
 │   │   └── guestbook/            # Guestbook CRUD via Supabase
@@ -110,10 +124,12 @@ kaichen-dev/
 │   ├── SpotifyBar.tsx            # Global bottom Spotify bar (non-home pages)
 │   ├── GitHubActivity.tsx        # Contribution graph + last commit
 │   ├── ThemeToggle.tsx           # Dark/light mode toggle
+│   ├── mobile-nav.tsx            # Hamburger + slide-in drawer (mobile only)
+│   ├── home-nav-client.tsx       # Section anchor nav (desktop only, hidden md:flex)
 │   └── ...
 ├── lib/
-│   ├── spotify.ts                # Spotify token refresh & API helpers
-│   └── supabase.ts               # Supabase client
+│   ├── spotify.ts                # Token refresh, Supabase write on fetch
+│   └── supabase.ts               # Supabase anon client
 ├── app/hooks/
 │   └── use-now-playing.ts        # Spotify polling hook (10s interval)
 ├── .env.example                  # Environment variable template

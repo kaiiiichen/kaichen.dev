@@ -1,6 +1,15 @@
+import { createClient } from "@supabase/supabase-js";
+
 const TOKEN_URL = "https://accounts.spotify.com/api/token";
 const NOW_PLAYING_URL =
   "https://api.spotify.com/v1/me/player/currently-playing";
+
+function getServiceSupabase() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  );
+}
 
 export type RecentTrack = {
   title: string;
@@ -106,6 +115,47 @@ export async function getNowPlaying(): Promise<NowPlayingResult> {
   if (!data.is_playing) {
     return { isPlaying: false, recentTrack: currentTrack ?? previousTrack ?? undefined };
   }
+
+  // Record to Supabase (fire-and-forget, don't block the response)
+  const trackId: string = data.item.id;
+  const albumId: string = data.item.album.id;
+  const albumName: string = data.item.album.name;
+
+  void (async () => {
+    try {
+      const db = getServiceSupabase();
+      await db.from("listening_history").insert({
+        track_id: trackId,
+        track_name: data.item.name,
+        artist_name: incoming.artist,
+        album_id: albumId,
+        album_name: albumName,
+        album_art: incoming.albumArt,
+        song_url: incoming.songUrl,
+      });
+      const { data: existing } = await db
+        .from("listening_stats")
+        .select("play_count")
+        .eq("track_id", trackId)
+        .single();
+      await db.from("listening_stats").upsert(
+        {
+          track_id: trackId,
+          track_name: data.item.name,
+          artist_name: incoming.artist,
+          album_id: albumId,
+          album_name: albumName,
+          album_art: incoming.albumArt,
+          song_url: incoming.songUrl,
+          play_count: (existing?.play_count ?? 0) + 1,
+          last_played_at: new Date().toISOString(),
+        },
+        { onConflict: "track_id" }
+      );
+    } catch {
+      // Non-critical — silently ignore Supabase errors
+    }
+  })();
 
   return {
     isPlaying: true,
