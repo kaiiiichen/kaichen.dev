@@ -34,7 +34,7 @@ export async function GET() {
     "&timezone=America%2FLos_Angeles" +
     "&forecast_days=1";
 
-  const res = await fetch(url, { next: { revalidate: 1800 } });
+  const res = await fetch(url, { next: { revalidate: 600 } });
   if (!res.ok) return NextResponse.json({ error: "weather fetch failed" }, { status: 502 });
 
   const data = await res.json();

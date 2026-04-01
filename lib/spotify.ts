@@ -34,6 +34,27 @@ export type NowPlayingResult =
 let currentTrack: RecentTrack | null = null;
 let previousTrack: RecentTrack | null = null;
 
+async function getLastPlayedFromDb(): Promise<RecentTrack | undefined> {
+  try {
+    const db = getServiceSupabase();
+    const { data: lastPlayed } = await db
+      .from("listening_stats")
+      .select("track_name, artist_name, album_art, song_url")
+      .order("last_played_at", { ascending: false })
+      .limit(1)
+      .single();
+    if (!lastPlayed) return undefined;
+    return {
+      title: lastPlayed.track_name,
+      artist: lastPlayed.artist_name,
+      albumArt: lastPlayed.album_art,
+      songUrl: lastPlayed.song_url,
+    };
+  } catch {
+    return undefined;
+  }
+}
+
 // In-memory token cache — avoids redundant refresh calls within the same instance
 let cachedToken: string | null = null;
 let tokenExpiresAt = 0;
@@ -75,7 +96,7 @@ export async function getNowPlaying(): Promise<NowPlayingResult> {
   const accessToken = await getAccessToken();
   console.log("access token:", accessToken ? "exists" : "null");
   if (!accessToken) {
-    return { isPlaying: false, recentTrack: currentTrack ?? previousTrack ?? undefined };
+    return { isPlaying: false, recentTrack: currentTrack ?? previousTrack ?? await getLastPlayedFromDb() };
   }
 
   const res = await fetch(NOW_PLAYING_URL, {
@@ -85,10 +106,10 @@ export async function getNowPlaying(): Promise<NowPlayingResult> {
 
   // 204 = nothing playing, 429 = rate limited, >400 = error
   if (res.status === 429) {
-    return { isPlaying: false, recentTrack: currentTrack ?? undefined };
+    return { isPlaying: false, recentTrack: currentTrack ?? await getLastPlayedFromDb() };
   }
   if (res.status === 204 || res.status > 400) {
-    return { isPlaying: false, recentTrack: currentTrack ?? previousTrack ?? undefined };
+    return { isPlaying: false, recentTrack: currentTrack ?? previousTrack ?? await getLastPlayedFromDb() };
   }
 
   const data = await res.json();
@@ -96,7 +117,7 @@ export async function getNowPlaying(): Promise<NowPlayingResult> {
   console.log("currently_playing_type:", data?.currently_playing_type);
 
   if (data?.currently_playing_type !== "track" || !data?.item) {
-    return { isPlaying: false, recentTrack: currentTrack ?? previousTrack ?? undefined };
+    return { isPlaying: false, recentTrack: currentTrack ?? previousTrack ?? await getLastPlayedFromDb() };
   }
 
   const incoming: RecentTrack = {
@@ -113,7 +134,7 @@ export async function getNowPlaying(): Promise<NowPlayingResult> {
   }
 
   if (!data.is_playing) {
-    return { isPlaying: false, recentTrack: currentTrack ?? previousTrack ?? undefined };
+    return { isPlaying: false, recentTrack: currentTrack ?? previousTrack ?? await getLastPlayedFromDb() };
   }
 
   // Record to Supabase (fire-and-forget, don't block the response)

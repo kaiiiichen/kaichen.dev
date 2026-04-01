@@ -4,6 +4,7 @@ import "./globals.css";
 import Nav from "./components/nav";
 import SubpageEnter from "./components/subpage-enter";
 import Providers from "./components/providers";
+import CustomCursor from "./components/CustomCursor";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import Script from "next/script";
@@ -62,6 +63,7 @@ export default function RootLayout({
         <Script id="theme-init" strategy="beforeInteractive">
           {`(function(){try{var d=document.documentElement;var t=localStorage.getItem('theme');var dark;if(t==='dark')dark=true;else if(t==='light')dark=false;else dark=true;d.classList.toggle('dark',dark);d.style.colorScheme=dark?'dark':'light';}catch(e){}})();`}
         </Script>
+        <CustomCursor />
         <Providers>
           <Nav />
           <main className="flex-1 pt-16">
