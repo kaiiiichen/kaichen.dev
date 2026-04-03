@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 
 export default function MouseHalo() {
   const [mounted, setMounted] = useState(false);
+  const [isInside, setIsInside] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -21,8 +22,16 @@ export default function MouseHalo() {
         : "rgba(45,140,120,0.055)";
       el.style.background = `radial-gradient(700px at ${e.clientX}px ${e.clientY}px, ${color}, transparent 80%)`;
     };
+    const onEnter = () => setIsInside(true);
+    const onLeave = () => setIsInside(false);
     window.addEventListener("mousemove", onMove);
-    return () => window.removeEventListener("mousemove", onMove);
+    document.documentElement.addEventListener("mouseenter", onEnter);
+    document.documentElement.addEventListener("mouseleave", onLeave);
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      document.documentElement.removeEventListener("mouseenter", onEnter);
+      document.documentElement.removeEventListener("mouseleave", onLeave);
+    };
   }, [mounted]);
 
   if (!mounted) return null;
@@ -36,6 +45,7 @@ export default function MouseHalo() {
         inset: 0,
         pointerEvents: "none",
         zIndex: 30,
+        visibility: isInside ? "visible" : "hidden",
       }}
     />
   );

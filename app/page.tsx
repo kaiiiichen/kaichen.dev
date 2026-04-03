@@ -2,11 +2,12 @@ import Link from "next/link";
 import { headers } from "next/headers";
 import GitHubActivity from "./components/GitHubActivity";
 import Weather from "./components/Weather";
-import MouseHalo from "./components/mouse-halo";
 import SpotifyCardHome from "./components/spotify-card-home";
 import HomeNavClient from "./components/home-nav-client";
 import MessageForm from "./components/Guestbook";
 import GalleryPreview from "./components/gallery-preview";
+import NameCarousel from "./components/name-carousel";
+import MouseHalo from "./components/mouse-halo";
 
 // ── Project data (source of truth for the home page) ─────────────────────────
 const PROJECTS = [
@@ -88,7 +89,6 @@ export default async function Home() {
   return (
     <>
       <MouseHalo />
-
       <div className="max-w-[1180px] mx-auto px-6 py-12 md:px-12 md:py-20 grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 items-start">
         {/* ── LEFT COLUMN (sticky) ──────────────────────────────── */}
         <aside className="md:sticky md:top-20">
@@ -106,9 +106,10 @@ export default async function Home() {
           </h1>
           <p
             style={{ fontFamily: "var(--font-instrument-serif)", fontSize: 20 }}
-            className="text-zinc-400 dark:text-zinc-500 mb-3"
+            className="text-zinc-400 dark:text-zinc-500 mb-3 flex items-center"
           >
             陈恺
+            <NameCarousel />
           </p>
 
           {/* Tagline */}
