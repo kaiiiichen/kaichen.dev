@@ -233,12 +233,8 @@ export default async function Home() {
                   const SUSTECH = "https://www.sustech.edu.cn/";
                   const linkCls = "no-underline hover:text-[#2d8c78] dark:hover:text-[#3aaa90] transition-colors duration-150";
                   const expItems = [
-                    { role: "Member", org: "Project Reboot", period: "2026–present", url: "https://www.projectreboot.club/" },
-                    { role: "Member", org: "Effective Altruism at UC Berkeley", period: "2026–present", url: "https://eaberkeley.com/" },
                     { role: "Peer Mentor", org: "Southern University of Science and Technology", period: "2024–2025", url: SUSTECH },
-                    { role: "President", org: "SUSTech Psychology Society", period: "2024–2025" },
                     { role: "Teaching Assistant", org: "Lingnan University", period: "2024", url: "https://www.ln.edu.hk/" },
-                    { role: "Student Organization Coordinator", org: "Zhicheng College, SUSTech", period: "2023–2024" },
                   ];
                   const orgCls = "transition-colors duration-150";
                   const renderOrg = (item: { org: string; url?: string }) => {
