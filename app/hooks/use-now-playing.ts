@@ -27,7 +27,7 @@ export function useNowPlaying(): UseNowPlayingReturn {
 
   useEffect(() => {
     const poll = () => {
-      fetch("/api/spotify/now-playing")
+      fetch("/api/lastfm/now-playing")
         .then((r) => r.json())
         .then((d: NowPlayingResult) => setData(d))
         .catch(() => setData({ isPlaying: false }));

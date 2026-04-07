@@ -2,6 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(git push:*)"
+    ],
+    "additionalDirectories": [
+      "/Users/kaichen/sync/kaichen.dev/app/api/lastfm"
     ]
   }
 }

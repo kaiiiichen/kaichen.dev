@@ -49,6 +49,9 @@ export default function SpotifyBar() {
           <span className="text-sm text-zinc-400 dark:text-zinc-600 truncate shrink-0">
             {displayItem.artist}
           </span>
+          <span className="text-[10px] font-medium tracking-widest text-zinc-400 dark:text-zinc-600 shrink-0 uppercase ml-1">
+            Now Playing
+          </span>
         </div>
       </div>
     </div>
