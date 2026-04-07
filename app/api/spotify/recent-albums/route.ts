@@ -37,7 +37,7 @@ export async function GET() {
       albumName: row.album_name,
       artistName: row.artist_name,
       albumArt: row.album_art,
-      albumUrl: row.song_url,
+      albumUrl: `https://music.apple.com/search?term=${encodeURIComponent(`${row.album_name} ${row.artist_name}`)}`,
     });
     if (albums.length >= 50) break;
   }

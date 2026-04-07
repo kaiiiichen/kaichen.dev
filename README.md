@@ -20,9 +20,12 @@ Personal website of Kai Chen — a living, dynamic digital identity system.
   - `guestbook` — public guestbook
   - `listening_history` — every Spotify fetch recorded (proxy for listening duration)
   - `listening_stats` — unique tracks with play_count, used for Gallery ranking
-- **Spotify**: Vercel serverless function (`/api/spotify/now-playing`)
-  - Token refresh with in-memory cache
+- **Last.fm**: Vercel serverless function (`/api/lastfm/now-playing`) — primary now playing source
+  - Detects active playback via `@attr.nowplaying` flag or scrobble within last 5 minutes
+  - Album art: Last.fm `extralarge` image → iTunes Search API fallback (upscaled to 600×600)
+  - Song links to Apple Music search
   - Writes to Supabase on every fetch when isPlaying is true
+- **Spotify**: (`/api/spotify/now-playing`) — retained as backup, not used by UI
 - **GitHub API**: GraphQL — contribution graph & last commit
 - **Weather API**: Open-Meteo (free, no API key required)
 
@@ -32,7 +35,8 @@ Personal website of Kai Chen — a living, dynamic digital identity system.
 - **Mobile nav drawer**: Slides in from the left, backdrop blur overlay, body scroll locked while open, staggered link entrance animation (40ms delay per item), instant exit
 
 ### External Integrations
-- **Spotify Web API** — real-time now playing, album art, playback progress
+- **Last.fm API** — real-time now playing, recent scrobbles, album art
+- **iTunes Search API** — album art fallback when Last.fm image is unavailable
 - **GitHub GraphQL API** — contribution graph (past year), last commit info
 - **Open-Meteo API** — Berkeley weather, temperature, precipitation forecast
 
@@ -46,7 +50,8 @@ Browser (kaichen.dev)
         ├── /api/github/contributions  →  GitHub GraphQL API
         ├── /api/weather               →  Open-Meteo API
         ├── /api/guestbook             →  Supabase (guestbook table)
-        ├── /api/spotify/now-playing   →  Spotify API → Supabase (listening_history + listening_stats)
+        ├── /api/lastfm/now-playing    →  Last.fm API → iTunes fallback → Supabase (listening_history + listening_stats)
+        ├── /api/spotify/now-playing   →  Spotify API (backup, not used by UI)
         └── /api/spotify/recent-albums →  Supabase (listening_stats, sorted by play_count)
 ```
 
