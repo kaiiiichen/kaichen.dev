@@ -18,14 +18,13 @@ Personal website of Kai Chen — a living, dynamic digital identity system.
 - **Hosting**: Vercel (serverless)
 - **Database**: Supabase (PostgreSQL)
   - `guestbook` — public guestbook
-  - `listening_history` — every Spotify fetch recorded (proxy for listening duration)
+  - `listening_history` — every Last.fm scrobble recorded (proxy for listening duration)
   - `listening_stats` — unique tracks with play_count, used for Gallery ranking
-- **Last.fm**: Vercel serverless function (`/api/lastfm/now-playing`) — primary now playing source
+- **Last.fm**: Vercel serverless function (`/api/lastfm/now-playing`)
   - Detects active playback via `@attr.nowplaying` flag or scrobble within last 5 minutes
   - Album art: Last.fm `extralarge` image → iTunes Search API fallback (upscaled to 600×600)
   - Song links to Apple Music search
   - Writes to Supabase on every fetch when isPlaying is true
-- **Spotify**: (`/api/spotify/now-playing`) — retained as backup, not used by UI
 - **GitHub API**: GraphQL — contribution graph & last commit
 - **Weather API**: Open-Meteo (free, no API key required)
 
@@ -51,11 +50,10 @@ Browser (kaichen.dev)
         ├── /api/weather               →  Open-Meteo API
         ├── /api/guestbook             →  Supabase (guestbook table)
         ├── /api/lastfm/now-playing    →  Last.fm API → iTunes fallback → Supabase (listening_history + listening_stats)
-        ├── /api/spotify/now-playing   →  Spotify API (backup, not used by UI)
         └── /api/spotify/recent-albums →  Supabase (listening_stats, sorted by play_count)
 ```
 
-Key design decision: every Spotify fetch is recorded in Supabase. listening_history approximates listening duration (each record = one 10s polling interval). listening_stats powers the Gallery, ranked by play_count.
+Key design decision: every Last.fm scrobble poll is recorded in Supabase. listening_history approximates listening duration (each record = one 10s polling interval). listening_stats powers the Gallery, ranked by play_count.
 
 ---
 
@@ -63,7 +61,7 @@ Key design decision: every Spotify fetch is recorded in Supabase. listening_hist
 
 | Route | Description |
 |-------|-------------|
-| `/` | Home — live status, Spotify now playing, GitHub activity, weather, guestbook preview |
+| `/` | Home — live status, Last.fm now playing (Apple Music links), GitHub activity, weather, guestbook preview |
 | `/about` | Background, experience, contact |
 | `/projects` | Projects with active/archived status tags |
 | `/guestbook` | Public guestbook powered by Supabase |
@@ -80,9 +78,7 @@ Key design decision: every Spotify fetch is recorded in Supabase. listening_hist
 **Environment variables required:**
 
 ```
-SPOTIFY_CLIENT_ID=
-SPOTIFY_CLIENT_SECRET=
-SPOTIFY_REFRESH_TOKEN=
+LASTFM_API_KEY=
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
@@ -118,25 +114,26 @@ kaichen-dev/
 │   ├── projects/page.tsx         # Projects page
 │   ├── guestbook/page.tsx        # Guestbook page
 │   ├── api/
+│   │   ├── lastfm/
+│   │   │   └── now-playing/      # Last.fm scrobbles → iTunes fallback → Supabase write
 │   │   ├── spotify/
-│   │   │   ├── now-playing/      # Fetches Spotify + writes to Supabase
-│   │   │   └── recent-albums/    # Reads from listening_stats
+│   │   │   └── recent-albums/    # Reads from listening_stats (gallery)
 │   │   ├── github/               # GitHub contributions & last commit
 │   │   ├── weather/              # Weather data from Open-Meteo
 │   │   └── guestbook/            # Guestbook CRUD via Supabase
-│   └── layout.tsx                # Root layout (nav, SpotifyBar, providers)
+│   └── layout.tsx                # Root layout (nav, NowPlayingBar, providers)
 ├── components/
-│   ├── SpotifyBar.tsx            # Global bottom Spotify bar (non-home pages)
+│   ├── spotify-bar.tsx           # Global bottom now playing bar (non-home pages)
 │   ├── GitHubActivity.tsx        # Contribution graph + last commit
 │   ├── ThemeToggle.tsx           # Dark/light mode toggle
 │   ├── mobile-nav.tsx            # Hamburger + slide-in drawer (mobile only)
 │   ├── home-nav-client.tsx       # Section anchor nav (desktop only, hidden md:flex)
 │   └── ...
 ├── lib/
-│   ├── spotify.ts                # Token refresh, Supabase write on fetch
+│   ├── spotify.ts                # Spotify token refresh (backup, unused by UI)
 │   └── supabase.ts               # Supabase anon client
 ├── app/hooks/
-│   └── use-now-playing.ts        # Spotify polling hook (10s interval)
+│   └── use-now-playing.ts        # Last.fm polling hook (10s interval)
 ├── .env.example                  # Environment variable template
 └── README.md
 ```
