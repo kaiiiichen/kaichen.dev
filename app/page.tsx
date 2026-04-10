@@ -37,7 +37,7 @@ const PROJECTS = [
 
 export default function Home() {
   return (
-    <div className="max-w-[1180px] mx-auto px-6 md:px-12 py-16 space-y-14">
+    <div className="max-w-[1180px] mx-auto px-12 py-16 space-y-14">
 
       {/* ── Layer 1: Identity Row ───────────────────────────────── */}
       <div
@@ -132,7 +132,7 @@ export default function Home() {
       </div>
 
       {/* ── Layer 2: Status Cards ───────────────────────────────── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 fade-up" style={{ animationDelay: "60ms" }}>
+      <div className="grid grid-cols-2 gap-6 fade-up" style={{ animationDelay: "60ms" }}>
 
         <div className="mag-card">
           <div className="mag-label">Listening</div>
@@ -147,7 +147,7 @@ export default function Home() {
 
       {/* ── Layer 3: Blog & Projects ────────────────────────────── */}
       <div
-        className="grid grid-cols-1 sm:grid-cols-2 gap-6 fade-up"
+        className="grid grid-cols-2 gap-6 fade-up"
         style={{ animationDelay: "120ms" }}
       >
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { createBrowserClient } from "@supabase/ssr";
 import Link from "next/link";
 
@@ -64,7 +65,7 @@ export default function Gallery() {
   }
 
   return (
-    <div className="max-w-[1180px] mx-auto px-6 md:px-12 py-16">
+    <div className="max-w-[1180px] mx-auto px-12 py-16">
 
       {/* Header */}
       <div className="mb-12 fade-up" style={{ animationDelay: "0ms" }}>
@@ -86,7 +87,7 @@ export default function Gallery() {
 
       {/* Grid */}
       {photos === null ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 fade-up" style={{ animationDelay: "60ms" }}>
+        <div className="grid grid-cols-3 gap-4 fade-up" style={{ animationDelay: "60ms" }}>
           {Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className="rounded-sm bg-zinc-100 dark:bg-zinc-800/50" style={{ aspectRatio: "4/3" }} />
           ))}
@@ -102,7 +103,7 @@ export default function Gallery() {
         </div>
       ) : (
         <div
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 fade-up"
+          className="grid grid-cols-3 gap-4 fade-up"
           style={{ animationDelay: "60ms" }}
         >
           {photos.map((photo) => (
@@ -139,11 +140,12 @@ export default function Gallery() {
         </div>
       )}
 
-      {/* Lightbox */}
-      {selected && (
+      {/* Lightbox — rendered via portal to escape stacking contexts */}
+      {selected && createPortal(
         <div
-          className="fixed inset-0 z-[9999] flex items-center justify-center"
+          className="fixed inset-0 flex items-center justify-center"
           style={{
+            zIndex: 99999,
             backgroundColor: "rgba(0,0,0,0.85)",
             opacity: closing ? 0 : 1,
             transition: "opacity 0.2s ease",
@@ -195,7 +197,8 @@ export default function Gallery() {
               </div>
             )}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Admin entry — bottom, minimal icon */}

@@ -1,6 +1,6 @@
 export default function Blog() {
   return (
-    <div className="max-w-[1180px] mx-auto px-6 md:px-12 py-16">
+    <div className="max-w-[1180px] mx-auto px-12 py-16">
 
       {/* Header */}
       <div className="mb-12 fade-up" style={{ animationDelay: "0ms" }}>

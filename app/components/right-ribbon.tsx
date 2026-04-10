@@ -35,7 +35,7 @@ export default function RightRibbon() {
         display: "flex",
         alignItems: "flex-start",
       }}
-      className="ribbon hidden xl:flex"
+      className="ribbon flex"
     >
       <div
         style={{

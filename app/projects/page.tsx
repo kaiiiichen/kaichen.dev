@@ -34,7 +34,7 @@ const PROJECTS = [
 
 export default function Projects() {
   return (
-    <div className="max-w-[1180px] mx-auto px-6 md:px-12 py-16">
+    <div className="max-w-[1180px] mx-auto px-12 py-16">
 
       {/* Header */}
       <div className="mb-12 fade-up" style={{ animationDelay: "0ms" }}>
@@ -54,7 +54,7 @@ export default function Projects() {
       </div>
 
       {/* Project cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 fade-up" style={{ animationDelay: "60ms" }}>
+      <div className="grid grid-cols-2 gap-6 fade-up" style={{ animationDelay: "60ms" }}>
         {PROJECTS.map(({ name, desc, href, repo, stack }) => (
           <a
             key={name}

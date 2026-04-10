@@ -72,7 +72,7 @@ export default function Admin() {
   async function signIn() {
     await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${location.origin}/admin` },
+      options: { redirectTo: `${location.origin}/auth/callback?next=/admin` },
     });
   }
 
@@ -286,7 +286,7 @@ export default function Admin() {
         ) : photos.length === 0 ? (
           <p style={{ fontFamily: "'Bitter'", fontStyle: "italic", fontSize: 14 }} className="text-zinc-400 dark:text-zinc-600">No photos yet.</p>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-3 gap-3">
             {photos.map((photo) => (
               <div
                 key={photo.id}

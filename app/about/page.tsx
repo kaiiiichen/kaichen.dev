@@ -2,7 +2,7 @@ import React from "react";
 
 export default function About() {
   return (
-    <div className="max-w-[1180px] mx-auto px-6 md:px-12 py-16 space-y-8">
+    <div className="max-w-[1180px] mx-auto px-12 py-16 space-y-8">
 
       {/* Header */}
       <div className="fade-up" style={{ animationDelay: "0ms" }}>
@@ -27,7 +27,7 @@ export default function About() {
       </div>
 
       {/* Two-column: Education (left) | Experience + Volunteering (right) */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 fade-up" style={{ animationDelay: "60ms" }}>
+      <div className="grid grid-cols-2 gap-6 fade-up" style={{ animationDelay: "60ms" }}>
 
         {/* Left — Education */}
         <div className="mag-card">
@@ -249,8 +249,7 @@ export default function About() {
           courses.forEach(({ term, code, name }, i) => {
             if (i > 0) {
               items.push(
-                <div key={`vdiv-${i}`} className="hidden sm:block w-px self-stretch bg-zinc-100 dark:bg-zinc-800/60 mx-6" />,
-                <div key={`hdiv-${i}`} className="block sm:hidden h-px w-full bg-zinc-100 dark:bg-zinc-800/60 my-4" />
+                <div key={`vdiv-${i}`} className="w-px self-stretch bg-zinc-100 dark:bg-zinc-800/60 mx-6" />
               );
             }
             items.push(
@@ -261,7 +260,7 @@ export default function About() {
               </div>
             );
           });
-          return <div className="flex flex-col sm:flex-row">{items}</div>;
+          return <div className="flex flex-row">{items}</div>;
         })()}
       </div>
 

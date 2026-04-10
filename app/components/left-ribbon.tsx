@@ -28,7 +28,7 @@ export default function LeftRibbon() {
         display: "flex",
         alignItems: "flex-start",
       }}
-      className="ribbon hidden xl:flex"
+      className="ribbon flex"
     >
       <div
         style={{
