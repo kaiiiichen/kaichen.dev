@@ -51,5 +51,5 @@ export async function GET() {
   const nextProbs = idx >= 0 ? probs.slice(idx, idx + 3) : probs.slice(0, 3);
   const rainChance = Math.max(...nextProbs.map((p) => p ?? 0));
 
-  return NextResponse.json({ temperature, emoji, condition, rainChance });
+  return NextResponse.json({ temperature, weatherCode, emoji, condition, rainChance });
 }
