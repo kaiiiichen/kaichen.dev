@@ -67,28 +67,19 @@ export default function Gallery() {
     <div className="max-w-[1180px] mx-auto px-6 md:px-12 py-16">
 
       {/* Header */}
-      <div className="flex items-start justify-between mb-12 fade-up" style={{ animationDelay: "0ms" }}>
-        <div>
-          <h1
-            style={{ fontFamily: "'Nunito'", fontWeight: 300, fontSize: 48, letterSpacing: "-0.02em", lineHeight: 1.1 }}
-            className="text-zinc-900 dark:text-zinc-100"
-          >
-            Gallery
-          </h1>
-          <p
-            style={{ fontFamily: "'Bitter'", fontWeight: 400, fontSize: 14, lineHeight: 1.8 }}
-            className="text-zinc-400 dark:text-zinc-600 mt-3"
-          >
-            Photos and moments.
-          </p>
-        </div>
-        <Link
-          href="/admin/gallery"
-          style={{ fontFamily: "'Nunito'", fontWeight: 400, fontSize: 13 }}
-          className="text-zinc-400 dark:text-zinc-600 hover:text-[#C4894F] dark:hover:text-[#D9A870] transition-colors duration-150 mt-2 shrink-0"
+      <div className="mb-12 fade-up" style={{ animationDelay: "0ms" }}>
+        <h1
+          style={{ fontFamily: "'Nunito'", fontWeight: 300, fontSize: 48, letterSpacing: "-0.02em", lineHeight: 1.1 }}
+          className="text-zinc-900 dark:text-zinc-100"
         >
-          admin: add photo
-        </Link>
+          Gallery
+        </h1>
+        <p
+          style={{ fontFamily: "'Bitter'", fontWeight: 400, fontSize: 14, lineHeight: 1.8 }}
+          className="text-zinc-400 dark:text-zinc-600 mt-3"
+        >
+          Photos and moments.
+        </p>
       </div>
 
       <div className="w-full h-px bg-zinc-200 dark:bg-zinc-800 mb-10" />
@@ -206,6 +197,21 @@ export default function Gallery() {
           </div>
         </div>
       )}
+
+      {/* Admin entry — bottom, minimal icon */}
+      <div className="flex justify-center mt-16">
+        <Link
+          href="/admin"
+          aria-label="Admin"
+          className="text-zinc-400 dark:text-zinc-600 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors duration-200"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="3" />
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14" />
+            <path d="M12 2v2M12 20v2M2 12h2M20 12h2" />
+          </svg>
+        </Link>
+      </div>
 
     </div>
   );

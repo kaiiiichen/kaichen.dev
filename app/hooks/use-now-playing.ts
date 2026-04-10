@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { NowPlayingResult } from "@/lib/spotify";
+import type { NowPlayingResult } from "@/lib/now-playing";
 
 export type DisplayItem = {
   title: string;

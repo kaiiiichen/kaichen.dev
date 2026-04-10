@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import type { NowPlayingResult } from "@/lib/spotify";
+import type { NowPlayingResult } from "@/lib/now-playing";
 
 const LASTFM_API_URL = "https://ws.audioscrobbler.com/2.0/";
 

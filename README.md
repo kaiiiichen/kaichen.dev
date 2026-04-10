@@ -1,103 +1,89 @@
 # kaichen.dev
 
-Personal website of Kai Chen — a living, dynamic digital identity system.
-
-> Not just a résumé. Not just a blog. A real-time interface to my intellectual and creative trajectory.
+Personal website of Kai Chen. Built with Next.js 16 + React 19 + Tailwind CSS 4 + TypeScript. Deployed on Vercel.
 
 ---
 
 ## Tech Stack
 
-### Frontend
-- **Framework**: Next.js 15 (App Router)
-- **Styling**: Tailwind CSS
-- **Language**: TypeScript
-- **Theme**: Dark / Light mode with system preference detection + manual toggle
-
-### Backend & APIs
-- **Hosting**: Vercel (serverless)
-- **Database**: Supabase (PostgreSQL)
-  - `guestbook` — public guestbook
-  - `listening_history` — every Last.fm scrobble recorded (proxy for listening duration)
-  - `listening_stats` — unique tracks with play_count, used for Gallery ranking
-- **Last.fm**: Vercel serverless function (`/api/lastfm/now-playing`)
-  - Detects active playback via `@attr.nowplaying` flag or scrobble within last 5 minutes
-  - Album art: Last.fm `extralarge` image → iTunes Search API fallback (upscaled to 600×600)
-  - Song links to Apple Music search
-  - Writes to Supabase on every fetch when isPlaying is true
-- **GitHub API**: GraphQL — contribution graph & last commit
-- **Weather API**: Open-Meteo (free, no API key required)
-
-### Mobile & Responsive
-- **Layout**: Single-column on mobile (`grid-cols-1`), two-column on desktop (`md:grid-cols-2`)
-- **Navigation**: Desktop section nav (`hidden md:flex`) replaced by hamburger menu on mobile
-- **Mobile nav drawer**: Slides in from the left, backdrop blur overlay, body scroll locked while open, staggered link entrance animation (40ms delay per item), instant exit
-
-### External Integrations
-- **Last.fm API** — real-time now playing, recent scrobbles, album art
-- **iTunes Search API** — album art fallback when Last.fm image is unavailable
-- **GitHub GraphQL API** — contribution graph (past year), last commit info
-- **Open-Meteo API** — Berkeley weather, temperature, precipitation forecast
-
----
-
-## Architecture
-
-```
-Browser (kaichen.dev)
-  └── Vercel (Next.js)
-        ├── /api/github/contributions  →  GitHub GraphQL API
-        ├── /api/weather               →  Open-Meteo API
-        ├── /api/guestbook             →  Supabase (guestbook table)
-        ├── /api/lastfm/now-playing    →  Last.fm API → iTunes fallback → Supabase (listening_history + listening_stats)
-        └── /api/spotify/recent-albums →  Supabase (listening_stats, sorted by play_count)
-```
-
-Key design decision: every Last.fm scrobble poll is recorded in Supabase. listening_history approximates listening duration (each record = one 10s polling interval). listening_stats powers the Gallery, ranked by play_count.
+- **Framework**: Next.js 16.2 (App Router)
+- **UI**: React 19, Tailwind CSS 4, TypeScript
+- **Fonts**: Nunito (identity / nav), Bitter (body copy), Geist Sans, Geist Mono, JetBrains Mono
+- **Theme**: Light by default, dark mode toggle (persisted in `localStorage`)
+- **Analytics**: Vercel Analytics + Speed Insights
 
 ---
 
 ## Pages
 
 | Route | Description |
-|-------|-------------|
-| `/` | Home — live status, Last.fm now playing (Apple Music links), GitHub activity, weather, guestbook preview |
-| `/about` | Background, experience, contact |
-| `/projects` | Projects with active/archived status tags |
-| `/guestbook` | Public guestbook powered by Supabase |
-| `/gallery` | Scroll-driven album gallery, ranked by personal play count from Supabase |
+| --- | --- |
+| `/` | Home — identity card, Last.fm now playing, Berkeley weather, projects list |
+| `/about` | Education, experience, volunteering, current courses |
+| `/projects` | Projects page |
+| `/blog` | Blog (no posts yet) |
+| `/gallery` | Photo gallery — grid + lightbox, sourced from Supabase `gallery_photos` |
+| `/admin/gallery` | Admin page for uploading photos to Supabase |
 
 ---
 
-## Deploy
+## Architecture
 
-### Vercel (Main Site)
-- Connected to GitHub repo `kaiiiichen/kaichen-dev`
-- Auto-deploys on push to `main`
-
-**Environment variables required:**
-
+```text
+Browser (kaichen.dev)
+  └── Vercel (Next.js 16)
+        ├── /api/lastfm/now-playing    →  Last.fm API → iTunes art fallback → Supabase write
+        ├── /api/github/contributions  →  GitHub GraphQL API
+        ├── /api/weather               →  Open-Meteo API (no key required)
+        └── /api/guestbook             →  Supabase
 ```
-LASTFM_API_KEY=
+
+**Key design choices:**
+
+- Last.fm now-playing is CDN-cached (`s-maxage=10`), so all users share one API call per 10s polling interval
+- Each scrobble poll while playing writes to Supabase `listening_history` + `listening_stats`
+- Gallery photos are stored in Supabase Storage, metadata in `gallery_photos` table
+- `useNowPlaying` hook polls every 10s and animates track transitions with a slide exit/enter effect
+
+---
+
+## External Integrations
+
+| Service | Purpose |
+| --- | --- |
+| Last.fm API | Now playing / last played track detection |
+| iTunes Search API | Album art fallback when Last.fm image unavailable |
+| GitHub GraphQL API | Star counts on /projects |
+| Open-Meteo | Berkeley weather — temperature, precipitation (free, no key) |
+| Supabase | `listening_history`, `listening_stats`, `gallery_photos` tables + storage |
+
+---
+
+## Environment Variables
+
+```bash
+# Supabase (listening_history, listening_stats, gallery_photos + storage)
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
+
+# Last.fm (now playing)
+LASTFM_API_KEY=
+
+# GitHub GraphQL (star counts on /projects)
 GITHUB_TOKEN=
 ```
+
+See `.env.example` for the full template.
 
 ---
 
 ## Local Development
 
 ```bash
-# Install dependencies
 npm install
-
-# Set up environment variables
 cp .env.example .env.local
-# Fill in your own keys
-
-# Run dev server
+# Fill in your keys
 npm run dev
 ```
 
@@ -105,44 +91,43 @@ npm run dev
 
 ## Project Structure
 
-```
-kaichen-dev/
+```text
+kaichen.dev/
 ├── app/
-│   ├── page.tsx                  # Home page
-│   ├── gallery/page.tsx          # Scroll-driven album gallery
-│   ├── about/page.tsx            # About page
-│   ├── projects/page.tsx         # Projects page
-│   ├── guestbook/page.tsx        # Guestbook page
+│   ├── page.tsx                      # Home — identity row, listening card, weather, projects
+│   ├── about/page.tsx                # Education, experience, volunteering, courses
+│   ├── projects/page.tsx             # Projects
+│   ├── blog/page.tsx                 # Blog (placeholder)
+│   ├── gallery/page.tsx              # Photo gallery with lightbox (Supabase)
+│   ├── admin/gallery/                # Photo upload admin
 │   ├── api/
-│   │   ├── lastfm/
-│   │   │   └── now-playing/      # Last.fm scrobbles → iTunes fallback → Supabase write
-│   │   ├── spotify/
-│   │   │   └── recent-albums/    # Reads from listening_stats (gallery)
-│   │   ├── github/               # GitHub contributions & last commit
-│   │   ├── weather/              # Weather data from Open-Meteo
-│   │   └── guestbook/            # Guestbook CRUD via Supabase
-│   └── layout.tsx                # Root layout (nav, NowPlayingBar, providers)
-├── components/
-│   ├── spotify-bar.tsx           # Global bottom now playing bar (non-home pages)
-│   ├── GitHubActivity.tsx        # Contribution graph + last commit
-│   ├── ThemeToggle.tsx           # Dark/light mode toggle
-│   ├── mobile-nav.tsx            # Hamburger + slide-in drawer (mobile only)
-│   ├── home-nav-client.tsx       # Section anchor nav (desktop only, hidden md:flex)
-│   └── ...
+│   │   ├── lastfm/now-playing/       # Last.fm now-playing → iTunes art fallback → Supabase write
+│   │   ├── github/                   # GitHub contributions + star counts
+│   │   ├── weather/                  # Open-Meteo weather
+│   │   └── guestbook/                # Supabase guestbook CRUD
+│   ├── components/
+│   │   ├── nav.tsx                   # Fixed top nav (desktop links + mobile hamburger)
+│   │   ├── mobile-nav.tsx            # Slide-in drawer (mobile)
+│   │   ├── left-ribbon.tsx           # Decorative left edge ribbon
+│   │   ├── right-ribbon.tsx          # Decorative right edge ribbon
+│   │   ├── nav-wave-overlay.tsx      # Nav wave animation overlay
+│   │   ├── avatar-card.tsx           # Profile photo card
+│   │   ├── listening-card.tsx        # Last.fm now playing card
+│   │   ├── listening-line.tsx        # Inline now-playing line for home bio
+│   │   ├── weather-card.tsx          # Berkeley weather card
+│   │   ├── project-stars.tsx         # GitHub star count badge
+│   │   ├── theme-toggle.tsx          # Dark/light mode toggle
+│   │   └── subpage-enter.tsx         # Page transition wrapper
+│   └── hooks/
+│       └── use-now-playing.ts        # Last.fm polling hook (10s interval, slide animation)
 ├── lib/
-│   ├── spotify.ts                # Spotify token refresh (backup, unused by UI)
-│   └── supabase.ts               # Supabase anon client
-├── app/hooks/
-│   └── use-now-playing.ts        # Last.fm polling hook (10s interval)
-├── .env.example                  # Environment variable template
-└── README.md
+│   ├── now-playing.ts                # NowPlayingResult + RecentTrack types
+│   └── supabase.ts                   # Supabase anon client
+└── .env.example
 ```
 
 ---
 
-## Guiding Principles
+## Deploy
 
-- Don't overbuild early — ship first, polish later
-- Separate experimentation from production
-- The site should reflect life, not just achievements
-- Every data point on the page should be real and live
+Auto-deploys to Vercel on push to `main` via the connected GitHub repo `kaiiiichen/kaichen.dev`.
