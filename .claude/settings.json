@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Read(//Users/kaichen/**)",
+      "Read(//private/var/folders/**)"
     ],
     "additionalDirectories": [
       "/Users/kaichen/sync/kaichen.dev/app/api/lastfm"

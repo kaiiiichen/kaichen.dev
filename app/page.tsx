@@ -88,7 +88,7 @@ export default function Home() {
 
           {/* Personality / side */}
           <div style={{ fontFamily: "'Bitter'", fontWeight: 400, fontSize: 15, lineHeight: 1.9 }} className="text-zinc-700 dark:text-zinc-300">
-            <p>Running in the Berkeley hills before the city wakes up.</p>
+            <p>Up before the city. Barely.</p>
             <p className="mt-1">Currently reading <a href="https://www.amazon.com/s?k=Thinking+Fast+and+Slow" target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 decoration-zinc-300 dark:decoration-zinc-600 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors duration-150"><em>Thinking, Fast and Slow</em></a> and pretending I understand it.</p>
             <p className="mt-1"><ListeningLine /></p>
           </div>
