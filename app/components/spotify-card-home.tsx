@@ -13,6 +13,7 @@ export default function SpotifyCardHome() {
         border: "0.5px solid rgba(0,0,0,0.07)",
         borderRadius: 10,
         padding: "1rem",
+        position: "relative",
       }}
       className="dark:!bg-[#12121a] dark:!border-white/[0.06]"
     >
@@ -77,6 +78,14 @@ export default function SpotifyCardHome() {
           </div>
         </div>
       )}
+      {/* Apple Music logo */}
+      <img
+        src="/apple-music.svg"
+        alt="Apple Music"
+        width={20}
+        height={20}
+        style={{ position: "absolute", bottom: 10, right: 10 }}
+      />
     </div>
   );
 }
