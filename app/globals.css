@@ -1,31 +1,37 @@
-@import url('https://fonts.googleapis.com/css2?family=Chiron+GoRound+TC&display=swap');
 @import "tailwindcss";
 
 /* Dark mode: .dark on <html> (see theme-init script + theme-provider) */
 @variant dark (.dark &);
 
 :root {
-  --background: #fafaf8;
+  --background: #F7F3EE;
   --foreground: #171717;
   --dot-idle: #a1a1aa;
-  --accent: #2d8c78;
+  --accent: #C4894F;
   --contribution-empty: #e4e4e7;
   --contribution-l1: #c6e48b;
   --contribution-l2: #7bc96f;
   --contribution-l3: #239a3b;
   --contribution-l4: #196127;
   --font-chinese: 'Chiron GoRound TC', 'Ma Shan Zheng', serif;
+  /* Border hierarchy for mag-card */
+  --color-border-primary:   #a1a1aa; /* zinc-400 — bottom accent */
+  --color-border-secondary: #d4d4d8; /* zinc-300 — sides */
+  --color-border-tertiary:  #e4e4e7; /* zinc-200 — shadow */
 }
 
 .dark {
-  --background: #0a0a0f;
+  --background: #1C1814;
   --foreground: #ededed;
-  --accent: #2d8c78;
+  --accent: #D9A870;
   --contribution-empty: #2d333b;
   --contribution-l1: rgba(91,191,160,0.15);
   --contribution-l2: rgba(91,191,160,0.3);
   --contribution-l3: rgba(91,191,160,0.5);
   --contribution-l4: rgba(91,191,160,0.8);
+  --color-border-primary:   #71717a; /* zinc-500 */
+  --color-border-secondary: #3f3f46; /* zinc-700 */
+  --color-border-tertiary:  #27272a; /* zinc-800 */
 }
 
 @theme inline {
@@ -45,12 +51,63 @@
 
 html {
   scroll-behavior: smooth;
+  font-size: 120%;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
 }
+
+/* ── Magazine / Editorial card ──────────────────────────────── */
+.mag-card {
+  background: #ffffff;
+  border: 1px solid var(--color-border-secondary);
+  border-bottom: 3px solid var(--color-border-primary);
+  border-right: 2px solid var(--color-border-secondary);
+  box-shadow: 5px 5px 0px 0px var(--color-border-tertiary);
+  border-radius: 2px;
+  padding: 1.5rem;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+}
+.mag-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 7px 7px 0px 0px var(--color-border-tertiary);
+  border-bottom-color: #C4894F;
+  border-right-color: #C4894F;
+  background: #FFFAF6;
+}
+.dark .mag-card {
+  background: #252019;
+}
+.dark .mag-card:hover {
+  border-bottom-color: #D9A870;
+  border-right-color: #D9A870;
+  background: #2a221c;
+}
+
+/* Magazine label — Nunito 400, uppercase + right-extending hairline */
+.mag-label {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 400;
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #a1a1aa;
+  margin-bottom: 1rem;
+}
+.dark .mag-label { color: #52525b; }
+.mag-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--color-border-tertiary);
+}
+.dark .mag-label::after { background: var(--color-border-secondary); }
 
 @keyframes fade-up {
   from { opacity: 0; transform: translateY(8px); }
@@ -118,6 +175,32 @@ body {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* ── Ribbon scroll + hover pause ───────────────────────────── */
+.ribbon-track {
+  opacity: 0.225;
+  transition: opacity 0.3s ease;
+}
+.ribbon:hover .ribbon-track {
+  animation-play-state: paused;
+  opacity: 0.95;
+}
+
+
+@keyframes ribbon-scroll {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-50%); }
+}
+@keyframes ribbon-scroll-down {
+  from { transform: translateY(-50%); }
+  to   { transform: translateY(0); }
+}
+
+/* ── Nav wave underline (rendered via portal, see nav-wave-overlay.tsx) ── */
+@keyframes nav-wave-flow {
+  from { background-position-x: 0px; }
+  to   { background-position-x: 20px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

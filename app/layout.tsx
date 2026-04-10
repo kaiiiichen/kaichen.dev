@@ -1,7 +1,16 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Lora, Instrument_Serif, DM_Sans, JetBrains_Mono } from "next/font/google";
+import { Geist, Geist_Mono, JetBrains_Mono } from "next/font/google";
+import "@fontsource/nunito/300.css";
+import "@fontsource/nunito/400.css";
+import "@fontsource/nunito/600.css";
+import "@fontsource/bitter/400.css";
+import "@fontsource/bitter/400-italic.css";
+import "@fontsource/bitter/600.css";
 import "./globals.css";
 import Nav from "./components/nav";
+import LeftRibbon from "./components/left-ribbon";
+import RightRibbon from "./components/right-ribbon";
+import NavWaveOverlay from "./components/nav-wave-overlay";
 import SubpageEnter from "./components/subpage-enter";
 import Providers from "./components/providers";
 import { Analytics } from "@vercel/analytics/react";
@@ -15,24 +24,6 @@ const geistSans = Geist({
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-const lora = Lora({
-  variable: "--font-lora",
-  subsets: ["latin"],
-  weight: ["400", "700"],
-});
-
-const instrumentSerif = Instrument_Serif({
-  variable: "--font-instrument-serif",
-  subsets: ["latin"],
-  weight: "400",
-  style: ["normal", "italic"],
-});
-
-const dmSans = DM_Sans({
-  variable: "--font-dm-sans",
   subsets: ["latin"],
 });
 
@@ -55,7 +46,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${lora.variable} ${instrumentSerif.variable} ${dmSans.variable} ${jetbrainsMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${jetbrainsMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col font-sans">
@@ -63,6 +54,9 @@ export default function RootLayout({
           {`(function(){try{var d=document.documentElement;var t=localStorage.getItem('theme');var dark;if(t==='dark')dark=true;else if(t==='light')dark=false;else dark=true;d.classList.toggle('dark',dark);d.style.colorScheme=dark?'dark':'light';}catch(e){}})();`}
         </Script>
         <Providers>
+          <LeftRibbon />
+          <RightRibbon />
+          <NavWaveOverlay />
           <Nav />
           <main className="flex-1 pt-16">
             <SubpageEnter>{children}</SubpageEnter>
