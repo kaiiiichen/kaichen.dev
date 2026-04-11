@@ -19,11 +19,13 @@
   },
   "dependencies": {
     "@fontsource/bitter": "^5.2.10",
+    "@fontsource/jetbrains-mono": "^5.2.8",
     "@fontsource/nunito": "^5.2.7",
     "@supabase/ssr": "^0.10.0",
     "@supabase/supabase-js": "^2.100.1",
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",
+    "geist": "^1.7.0",
     "next": "16.2.0",
     "react": "19.2.4",
     "react-dom": "19.2.4"

@@ -42,7 +42,7 @@
   --font-serif: var(--font-lora);
   --font-instrument-serif: var(--font-instrument-serif);
   --font-dm-sans: var(--font-dm-sans);
-  --font-jetbrains-mono: var(--font-jetbrains-mono);
+  --font-jetbrains-mono: 'JetBrains Mono', monospace;
 }
 
 * {
@@ -177,25 +177,6 @@ body {
   }
 }
 
-/* ── Ribbon scroll + hover pause ───────────────────────────── */
-.ribbon-track {
-  opacity: 0.225;
-  transition: opacity 0.3s ease;
-}
-.ribbon:hover .ribbon-track {
-  animation-play-state: paused;
-  opacity: 0.95;
-}
-
-
-@keyframes ribbon-scroll {
-  from { transform: translateY(0); }
-  to   { transform: translateY(-50%); }
-}
-@keyframes ribbon-scroll-down {
-  from { transform: translateY(-50%); }
-  to   { transform: translateY(0); }
-}
 
 /* ── Nav wave underline (rendered via portal, see nav-wave-overlay.tsx) ── */
 @keyframes nav-wave-flow {
