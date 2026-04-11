@@ -20,8 +20,6 @@ export default function Nav() {
             {[
               { href: "/about", label: "About" },
               { href: "/projects", label: "Projects" },
-              { href: "/blog", label: "Blog" },
-              { href: "/gallery", label: "Gallery" },
             ].map(({ href, label }) => (
               <Link
                 key={label}
@@ -32,6 +30,22 @@ export default function Nav() {
                 {label}
               </Link>
             ))}
+            <a
+              href="https://substack.com/@kaiiiichen"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ fontFamily: "'Nunito'", fontWeight: 400 }}
+              className="nav-wave text-sm text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors duration-150"
+            >
+              Blog
+            </a>
+            <Link
+              href="/gallery"
+              style={{ fontFamily: "'Nunito'", fontWeight: 400 }}
+              className="nav-wave text-sm text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors duration-150"
+            >
+              Gallery
+            </Link>
           </div>
           <ThemeToggle />
         </div>

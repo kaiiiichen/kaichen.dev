@@ -237,7 +237,8 @@ export default function About() {
       </div>
 
       {/* Focus */}
-      <div className="mag-card fade-up" style={{ animationDelay: "120ms" }}>
+      <div className="fade-up" style={{ animationDelay: "120ms" }}>
+      <div className="mag-card">
         <div className="mag-label">Focus</div>
         {(() => {
           const courses = [
@@ -262,6 +263,7 @@ export default function About() {
           });
           return <div className="flex flex-row">{items}</div>;
         })()}
+      </div>
       </div>
 
     </div>

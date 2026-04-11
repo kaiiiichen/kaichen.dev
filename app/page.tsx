@@ -3,6 +3,7 @@ import ListeningLine from "./components/listening-line";
 import ListeningCard from "./components/listening-card";
 import WeatherCard from "./components/weather-card";
 import ProjectStars from "./components/project-stars";
+import { getSubstackPosts } from "./lib/substack";
 
 const PROJECTS = [
   {
@@ -35,7 +36,8 @@ const PROJECTS = [
   },
 ];
 
-export default function Home() {
+export default async function Home() {
+  const substackPosts = await getSubstackPosts();
   return (
     <div className="max-w-[1180px] mx-auto px-12 py-16 space-y-14">
 
@@ -154,9 +156,30 @@ export default function Home() {
         {/* Blog */}
         <div className="mag-card">
           <div className="mag-label">Blog</div>
-          <p style={{ fontFamily: "'Bitter'", fontWeight: 400, fontSize: 14 }} className="text-zinc-300 dark:text-zinc-700">
-            No posts yet.
-          </p>
+          {substackPosts.length === 0 ? (
+            <p style={{ fontFamily: "'Bitter'", fontWeight: 400, fontSize: 14 }} className="text-zinc-300 dark:text-zinc-700">
+              No posts yet.
+            </p>
+          ) : (
+            <div className="space-y-1">
+              {substackPosts.map((post) => (
+                <a
+                  key={post.url}
+                  href={post.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group flex items-baseline justify-between gap-3 py-2.5 -mx-2 px-2 rounded-sm hover:bg-zinc-50 dark:hover:bg-zinc-800/60 transition-colors duration-150 no-underline"
+                >
+                  <span style={{ fontFamily: "'Bitter'", fontWeight: 400, fontSize: 14 }} className="text-zinc-700 dark:text-zinc-300 group-hover:text-[#C4894F] transition-colors line-clamp-1">
+                    {post.title}
+                  </span>
+                  <span style={{ fontFamily: "'Nunito'", fontWeight: 400, fontSize: 11 }} className="text-zinc-400 dark:text-zinc-600 shrink-0">
+                    {new Date(post.pubDate).toLocaleDateString("en-US", { month: "short", year: "numeric" })}
+                  </span>
+                </a>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Projects */}

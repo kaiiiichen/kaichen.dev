@@ -1,0 +1,10 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <rect width="64" height="64" fill="#F2EBD9" rx="14"/>
+  <polygon points="64,40 64,64 40,64" fill="#E8A020"/>
+  <text x="32" y="37"
+    font-family="Cormorant Garamond, serif"
+    font-weight="600" font-size="26"
+    fill="#2A1F0E"
+    text-anchor="middle"
+    dominant-baseline="middle">KC</text>
+</svg>
