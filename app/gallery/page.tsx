@@ -65,13 +65,13 @@ export default function Gallery() {
   }
 
   return (
-    <div className="max-w-[1180px] mx-auto px-12 py-16">
+    <div className="max-w-[1180px] mx-auto px-4 md:px-12 py-16">
 
       {/* Header */}
       <div className="mb-12 fade-up" style={{ animationDelay: "0ms" }}>
         <h1
-          style={{ fontFamily: "'Nunito'", fontWeight: 300, fontSize: 48, letterSpacing: "-0.02em", lineHeight: 1.1 }}
-          className="text-zinc-900 dark:text-zinc-100"
+          style={{ fontFamily: "'Nunito'", fontWeight: 300, letterSpacing: "-0.02em", lineHeight: 1.1 }}
+          className="text-zinc-900 dark:text-zinc-100 text-[36px] md:text-[48px]"
         >
           Gallery
         </h1>
@@ -87,7 +87,7 @@ export default function Gallery() {
 
       {/* Grid */}
       {photos === null ? (
-        <div className="grid grid-cols-3 gap-4 fade-up" style={{ animationDelay: "60ms" }}>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 fade-up" style={{ animationDelay: "60ms" }}>
           {Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className="rounded-sm bg-zinc-100 dark:bg-zinc-800/50" style={{ aspectRatio: "4/3" }} />
           ))}
@@ -103,7 +103,7 @@ export default function Gallery() {
         </div>
       ) : (
         <div
-          className="grid grid-cols-3 gap-4 fade-up"
+          className="grid grid-cols-2 md:grid-cols-3 gap-4 fade-up"
           style={{ animationDelay: "60ms" }}
         >
           {photos.map((photo) => (
@@ -154,8 +154,7 @@ export default function Gallery() {
         >
           {/* Modal */}
           <div
-            className="relative flex flex-col items-center"
-            style={{ maxWidth: "80vw" }}
+            className="relative flex flex-col items-center max-w-[95vw] md:max-w-[80vw]"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Close button */}
@@ -172,7 +171,7 @@ export default function Gallery() {
             <img
               src={selected.url}
               alt={selected.description ?? "Gallery photo"}
-              style={{ maxWidth: "80vw", maxHeight: "70vh", objectFit: "contain", display: "block", borderRadius: 2 }}
+              className="max-w-[95vw] md:max-w-[80vw] max-h-[80vh] md:max-h-[70vh] object-contain block rounded-sm"
             />
 
             {/* Caption */}

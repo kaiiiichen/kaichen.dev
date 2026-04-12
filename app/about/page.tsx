@@ -2,13 +2,13 @@ import React from "react";
 
 export default function About() {
   return (
-    <div className="max-w-[1180px] mx-auto px-12 py-16 space-y-8">
+    <div className="max-w-[1180px] mx-auto px-4 md:px-12 py-16 space-y-8">
 
       {/* Header */}
       <div className="fade-up" style={{ animationDelay: "0ms" }}>
         <h1
-          style={{ fontFamily: "'Nunito'", fontWeight: 300, fontSize: 48, letterSpacing: "-0.02em", lineHeight: 1.1 }}
-          className="text-zinc-900 dark:text-zinc-100"
+          style={{ fontFamily: "'Nunito'", fontWeight: 300, letterSpacing: "-0.02em", lineHeight: 1.1 }}
+          className="text-zinc-900 dark:text-zinc-100 text-[36px] md:text-[48px]"
         >
           About
         </h1>
@@ -27,7 +27,7 @@ export default function About() {
       </div>
 
       {/* Two-column: Education (left) | Experience + Volunteering (right) */}
-      <div className="grid grid-cols-2 gap-6 fade-up" style={{ animationDelay: "60ms" }}>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 fade-up" style={{ animationDelay: "60ms" }}>
 
         {/* Left — Education */}
         <div className="mag-card">
@@ -250,7 +250,7 @@ export default function About() {
           courses.forEach(({ term, code, name }, i) => {
             if (i > 0) {
               items.push(
-                <div key={`vdiv-${i}`} className="w-px self-stretch bg-zinc-100 dark:bg-zinc-800/60 mx-6" />
+                <div key={`vdiv-${i}`} className="h-px w-full md:h-auto md:w-px md:self-stretch bg-zinc-100 dark:bg-zinc-800/60 my-1 md:my-0 md:mx-6" />
               );
             }
             items.push(
@@ -261,7 +261,7 @@ export default function About() {
               </div>
             );
           });
-          return <div className="flex flex-row">{items}</div>;
+          return <div className="flex flex-col md:flex-row">{items}</div>;
         })()}
       </div>
       </div>

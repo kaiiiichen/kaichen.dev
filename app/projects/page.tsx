@@ -34,13 +34,13 @@ const PROJECTS = [
 
 export default function Projects() {
   return (
-    <div className="max-w-[1180px] mx-auto px-12 py-16">
+    <div className="max-w-[1180px] mx-auto px-4 md:px-12 py-16">
 
       {/* Header */}
       <div className="mb-12 fade-up" style={{ animationDelay: "0ms" }}>
         <h1
-          style={{ fontFamily: "'Nunito'", fontWeight: 300, fontSize: 48, letterSpacing: "-0.02em", lineHeight: 1.1 }}
-          className="text-zinc-900 dark:text-zinc-100"
+          style={{ fontFamily: "'Nunito'", fontWeight: 300, letterSpacing: "-0.02em", lineHeight: 1.1 }}
+          className="text-zinc-900 dark:text-zinc-100 text-[36px] md:text-[48px]"
         >
           Projects
         </h1>
@@ -54,7 +54,7 @@ export default function Projects() {
       </div>
 
       {/* Project cards */}
-      <div className="grid grid-cols-2 gap-6 fade-up" style={{ animationDelay: "60ms" }}>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 fade-up" style={{ animationDelay: "60ms" }}>
         {PROJECTS.map(({ name, desc, href, repo, stack }) => (
           <a
             key={name}
@@ -115,7 +115,9 @@ export default function Projects() {
       {/* GitHub Activity */}
       <div className="mt-14 fade-up" style={{ animationDelay: "120ms" }}>
         <div className="mag-label">GitHub Activity</div>
-        <GitHubActivity />
+        <div className="overflow-x-auto">
+          <GitHubActivity />
+        </div>
       </div>
 
     </div>

@@ -39,15 +39,15 @@ const PROJECTS = [
 export default async function Home() {
   const substackPosts = await getSubstackPosts();
   return (
-    <div className="max-w-[1180px] mx-auto px-12 py-16 space-y-14">
+    <div className="max-w-[1180px] mx-auto px-4 md:px-12 py-16 space-y-14">
 
       {/* ── Layer 1: Identity Row ───────────────────────────────── */}
       <div
-        className="flex items-stretch gap-10 fade-up"
+        className="flex flex-col md:flex-row md:items-stretch gap-6 md:gap-10 fade-up"
         style={{ animationDelay: "0ms" }}
       >
         {/* Photo in mag-card */}
-        <div className="w-[40%] shrink-0 mag-card" style={{ padding: 0, minHeight: 320 }}>
+        <div className="w-full max-w-[280px] mx-auto md:mx-0 md:w-[40%] md:max-w-none shrink-0 mag-card min-h-[200px] md:min-h-[320px]" style={{ padding: 0 }}>
           <AvatarCard
             src="/avatar.jpg"
             alt="Kai Chen"
@@ -61,8 +61,8 @@ export default async function Home() {
           {/* Identity */}
           <div>
             <h1
-              style={{ fontFamily: "'Nunito'", fontWeight: 300, fontSize: 48, letterSpacing: "-0.02em", lineHeight: 1.1 }}
-              className="text-zinc-900 dark:text-zinc-100"
+              style={{ fontFamily: "'Nunito'", fontWeight: 300, letterSpacing: "-0.02em", lineHeight: 1.1 }}
+              className="text-zinc-900 dark:text-zinc-100 text-[36px] md:text-[48px]"
             >
               Kai Chen{" "}
               <a
@@ -134,7 +134,7 @@ export default async function Home() {
       </div>
 
       {/* ── Layer 2: Status Cards ───────────────────────────────── */}
-      <div className="grid grid-cols-2 gap-6 fade-up" style={{ animationDelay: "60ms" }}>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 fade-up" style={{ animationDelay: "60ms" }}>
 
         <div className="mag-card">
           <div className="mag-label">Listening</div>
@@ -149,7 +149,7 @@ export default async function Home() {
 
       {/* ── Layer 3: Blog & Projects ────────────────────────────── */}
       <div
-        className="grid grid-cols-2 gap-6 fade-up"
+        className="grid grid-cols-1 md:grid-cols-2 gap-6 fade-up"
         style={{ animationDelay: "120ms" }}
       >
 
