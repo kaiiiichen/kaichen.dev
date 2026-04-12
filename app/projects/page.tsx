@@ -10,7 +10,7 @@ const PROJECTS = [
     stack: ["Next.js", "TypeScript", "Tailwind"],
   },
   {
-    name: "SUSTech Kai Notes",
+    name: "SUSTech-Kai-Notes",
     desc: "Open lecture notes for 20+ math and CS courses.",
     href: "https://github.com/kaiiiichen/SUSTech-Kai-Notes",
     repo: "kaiiiichen/SUSTech-Kai-Notes",
