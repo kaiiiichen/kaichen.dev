@@ -21,7 +21,23 @@ import Script from "next/script";
 
 export const metadata: Metadata = {
   title: "Kai Chen",
-  description: "Personal site",
+  description: "Visiting UC Berkeley · Math at SUSTech · Fields Medal Honors Program",
+  icons: { icon: "/favicon.ico" },
+  openGraph: {
+    title: "Kai Chen",
+    description: "Visiting UC Berkeley · Math at SUSTech · Fields Medal Honors Program",
+    url: "https://kaichen.dev",
+    siteName: "Kai Chen",
+    images: [{ url: "/opengraph-image", width: 1200, height: 630 }],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Kai Chen",
+    description: "Visiting UC Berkeley · Math at SUSTech",
+    images: ["/opengraph-image"],
+  },
 };
 
 export default function RootLayout({
