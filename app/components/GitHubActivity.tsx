@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 
 type Day = { date: string; count: number };
 type LastCommit = { message: string; repo: string; sha: string; url: string; timeAgo: string };
@@ -33,10 +34,26 @@ function getMonthLabels(weeks: Day[][]): { label: string; col: number }[] {
   return labels;
 }
 
+function formatDate(dateStr: string): string {
+  const d = new Date(dateStr + "T00:00:00Z");
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
+}
+
 export default function GitHubActivity() {
   const [weeks, setWeeks] = useState<Day[][]>([]);
   const [total, setTotal] = useState(0);
   const [lastCommit, setLastCommit] = useState<LastCommit | null>(null);
+  const [hoveredInfo, setHoveredInfo] = useState<{ date: string; count: number; rect: DOMRect } | null>(null);
+
+  useEffect(() => {
+    const clear = () => setHoveredInfo(null);
+    window.addEventListener("scroll", clear, true);
+    window.addEventListener("resize", clear);
+    return () => {
+      window.removeEventListener("scroll", clear, true);
+      window.removeEventListener("resize", clear);
+    };
+  }, []);
 
   useEffect(() => {
     fetch("/api/github/contributions")
@@ -72,21 +89,62 @@ export default function GitHubActivity() {
       <div className="flex" style={{ gap: GAP }}>
         {weeks.map((week, wi) => (
           <div key={wi} className="flex flex-col" style={{ gap: GAP }}>
-            {week.map((day) => (
-              <div
-                key={day.date}
-                title={`${day.date}: ${day.count}`}
-                style={{
-                  width: CELL,
-                  height: CELL,
-                  borderRadius: 2,
-                  backgroundColor: getColor(day.count),
-                }}
-              />
-            ))}
+            {week.map((day) => {
+              const isHovered = hoveredInfo?.date === day.date;
+              return (
+                <div
+                  key={day.date}
+                  style={{ position: "relative" }}
+                  onMouseEnter={(e) => {
+                    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+                    setHoveredInfo({ date: day.date, count: day.count, rect });
+                  }}
+                  onMouseLeave={() => setHoveredInfo(null)}
+                >
+                  <div
+                    style={{
+                      width: CELL,
+                      height: CELL,
+                      borderRadius: 2,
+                      backgroundColor: getColor(day.count),
+                      transform: isHovered ? "scale(1.8)" : "scale(1)",
+                      transition: "transform 150ms ease",
+                      position: "relative",
+                      zIndex: isHovered ? 10 : 0,
+                    }}
+                  />
+                </div>
+              );
+            })}
           </div>
         ))}
       </div>
+
+      {/* Portal tooltip — renders into document.body to escape any overflow:hidden ancestor */}
+      {hoveredInfo && typeof document !== "undefined" && createPortal(
+        <div
+          style={{
+            position: "fixed",
+            top: hoveredInfo.rect.top - 44 - 8,
+            left: hoveredInfo.rect.left + hoveredInfo.rect.width / 2,
+            transform: "translateX(-50%)",
+            background: "rgba(0,0,0,0.82)",
+            color: "#fff",
+            fontSize: 12,
+            lineHeight: "1.4",
+            padding: "4px 8px",
+            borderRadius: 4,
+            whiteSpace: "nowrap",
+            pointerEvents: "none",
+            zIndex: 9999,
+            textAlign: "center",
+          }}
+        >
+          <div>{formatDate(hoveredInfo.date)}</div>
+          <div>{hoveredInfo.count === 0 ? "No contributions" : `${hoveredInfo.count} contribution${hoveredInfo.count === 1 ? "" : "s"}`}</div>
+        </div>,
+        document.body
+      )}
 
       {total > 0 && (
         <p className="font-mono text-zinc-400 dark:text-zinc-600 mt-2" style={{ fontSize: 11 }}>
