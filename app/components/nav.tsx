@@ -76,24 +76,43 @@ export default function Nav() {
             aria-label={isOpen ? "Close menu" : "Open menu"}
             aria-expanded={isOpen}
           >
-            {isOpen ? "✕" : "☰"}
+            <span
+              className="inline-block transition-transform duration-200 ease-in-out"
+              style={{ transform: isOpen ? "rotate(90deg)" : "rotate(0deg)" }}
+            >
+              {isOpen ? "✕" : "☰"}
+            </span>
           </button>
         </div>
       </div>
 
-      {/* Mobile dropdown */}
-      {isOpen && (
-        <div className="md:hidden border-t border-zinc-200 dark:border-zinc-800 bg-[var(--background)] px-4 py-3 flex flex-col gap-1">
-          {NAV_LINKS.map(({ href, label, external }) =>
-            external ? (
+      {/* Mobile dropdown — always mounted, animated via max-height + opacity */}
+      <div
+        className={`md:hidden overflow-hidden bg-[var(--background)] transition-all duration-300 ease-in-out ${
+          isOpen
+            ? "max-h-64 opacity-100 border-t border-zinc-200 dark:border-zinc-800"
+            : "max-h-0 opacity-0 pointer-events-none"
+        }`}
+      >
+        <div className="px-4 py-3 flex flex-col gap-1">
+          {NAV_LINKS.map(({ href, label, external }, i) => {
+            const linkClass = `text-base text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-all duration-200 py-2 ${
+              isOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-1"
+            }`;
+            const linkStyle = {
+              fontFamily: "'Nunito'",
+              fontWeight: 400,
+              transitionDelay: isOpen ? `${60 + i * 40}ms` : "0ms",
+            };
+            return external ? (
               <a
                 key={label}
                 href={href}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => setIsOpen(false)}
-                style={{ fontFamily: "'Nunito'", fontWeight: 400 }}
-                className="text-base text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors duration-150 py-2"
+                style={linkStyle}
+                className={linkClass}
               >
                 {label}
               </a>
@@ -102,15 +121,15 @@ export default function Nav() {
                 key={label}
                 href={href}
                 onClick={() => setIsOpen(false)}
-                style={{ fontFamily: "'Nunito'", fontWeight: 400 }}
-                className="text-base text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors duration-150 py-2"
+                style={linkStyle}
+                className={linkClass}
               >
                 {label}
               </Link>
-            )
-          )}
+            );
+          })}
         </div>
-      )}
+      </div>
     </nav>
   );
 }
