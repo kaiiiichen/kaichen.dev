@@ -3,7 +3,8 @@
     "allow": [
       "Bash(git push:*)",
       "Read(//Users/kaichen/**)",
-      "Read(//private/var/folders/**)"
+      "Read(//private/var/folders/**)",
+      "Bash(git rm:*)"
     ],
     "additionalDirectories": [
       "/Users/kaichen/sync/kaichen.dev/app/api/lastfm"

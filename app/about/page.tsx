@@ -124,7 +124,7 @@ export default function About() {
                 },
                 {
                   years: "Mar 2024 – Jan 2025",
-                  meta: null,
+                  meta: "Shenzhen, China · On-site",
                   role: "Research Assistant",
                   org: "Southern University of Science and Technology",
                   desc: "Conducted research in control theory at NCC Lab, developing inequality-based estimates for nonlinear systems using Lyapunov and energy-based methods.",
