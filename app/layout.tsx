@@ -22,7 +22,6 @@ import Script from "next/script";
 export const metadata: Metadata = {
   title: "Kai Chen",
   description: "Visiting UC Berkeley · Math at SUSTech · Fields Medal Honors Program",
-  icons: { icon: "/favicon.ico" },
   openGraph: {
     title: "Kai Chen",
     description: "Visiting UC Berkeley · Math at SUSTech · Fields Medal Honors Program",
