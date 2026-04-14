@@ -7,6 +7,7 @@ import { useState, useEffect, useRef } from "react";
 const NAV_LINKS = [
   { href: "/about", label: "About", external: false },
   { href: "/projects", label: "Projects", external: false },
+  { href: "/notes", label: "Notes", external: false },
   { href: "https://substack.com/@kaiiiichen", label: "Blog", external: true },
   { href: "/gallery", label: "Gallery", external: false },
 ];

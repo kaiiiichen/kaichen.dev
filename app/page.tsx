@@ -120,6 +120,17 @@ export default async function Home() {
               </svg>
             </a>
             <a
+              href="https://x.com/kaiiiichen37"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="X"
+              className="text-zinc-700 dark:text-zinc-300 opacity-35 hover:opacity-100 transition-opacity duration-300 ease-out"
+            >
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+              </svg>
+            </a>
+            <a
               href="mailto:kaichen0728@gmail.com"
               aria-label="Email"
               className="text-zinc-700 dark:text-zinc-300 opacity-35 hover:opacity-100 transition-opacity duration-300 ease-out"
@@ -127,6 +138,17 @@ export default async function Home() {
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="2" y="4" width="20" height="16" rx="2" />
                 <path d="m2 7 10 7 10-7" />
+              </svg>
+            </a>
+            <a
+              href="https://signal.me/#p/kaiiiichen.37"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Signal"
+              className="text-zinc-700 dark:text-zinc-300 opacity-35 hover:opacity-100 transition-opacity duration-300 ease-out"
+            >
+              <svg width="22" height="22" viewBox="0 0 50 50" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path d="M25 2C12.3 2 2 11.4 2 23c0 5.4 2.2 10.3 5.8 14L4 46l9.4-3.2C15.8 43.9 20.3 45 25 45c12.7 0 23-9.4 23-21S37.7 2 25 2z" />
               </svg>
             </a>
           </div>
@@ -147,43 +169,15 @@ export default async function Home() {
         </div>
       </div>
 
-      {/* ── Layer 3: Blog & Projects ────────────────────────────── */}
+      {/* ── Layer 3: Projects | Notes + Blog ───────────────────── */}
+      {/* Desktop: 2-col grid, Projects spans both rows on the left */}
       <div
-        className="grid grid-cols-1 md:grid-cols-2 gap-6 fade-up"
+        className="grid grid-cols-1 md:grid-cols-2 md:grid-rows-[auto_auto] gap-6 fade-up"
         style={{ animationDelay: "120ms" }}
       >
 
-        {/* Blog */}
-        <div className="mag-card">
-          <div className="mag-label">Blog</div>
-          {substackPosts.length === 0 ? (
-            <p style={{ fontFamily: "'Bitter'", fontWeight: 400, fontSize: 14 }} className="text-zinc-300 dark:text-zinc-700">
-              No posts yet.
-            </p>
-          ) : (
-            <div className="space-y-1">
-              {substackPosts.map((post) => (
-                <a
-                  key={post.url}
-                  href={post.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group flex items-baseline justify-between gap-3 py-2.5 -mx-2 px-2 rounded-sm hover:bg-zinc-50 dark:hover:bg-zinc-800/60 transition-colors duration-150 no-underline"
-                >
-                  <span style={{ fontFamily: "'Bitter'", fontWeight: 400, fontSize: 14 }} className="text-zinc-700 dark:text-zinc-300 group-hover:text-[#C4894F] transition-colors line-clamp-1">
-                    {post.title}
-                  </span>
-                  <span style={{ fontFamily: "'Nunito'", fontWeight: 400, fontSize: 11 }} className="text-zinc-400 dark:text-zinc-600 shrink-0">
-                    {new Date(post.pubDate).toLocaleDateString("en-US", { month: "short", year: "numeric" })}
-                  </span>
-                </a>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Projects */}
-        <div className="mag-card">
+        {/* Projects — left column, spans 2 rows on desktop */}
+        <div className="mag-card md:row-span-2">
           <div className="mag-label">Projects</div>
           <div>
             {PROJECTS.map(({ name, desc, href, repo, stack }) => (
@@ -194,7 +188,6 @@ export default async function Home() {
                 rel="noopener noreferrer"
                 className="group block py-3 -mx-2 px-2 rounded-sm hover:bg-zinc-50 dark:hover:bg-zinc-800/60 transition-all duration-150"
               >
-                {/* Name row */}
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="opacity-0 group-hover:opacity-100 text-[#C4894F] -translate-x-1 group-hover:translate-x-0 transition-all duration-150 text-xs shrink-0">
                     ↗
@@ -207,16 +200,12 @@ export default async function Home() {
                   </p>
                   <ProjectStars repo={repo} />
                 </div>
-
-                {/* Description */}
                 <p
                   style={{ fontFamily: "'Bitter'", fontWeight: 400, fontSize: 11 }}
                   className="text-zinc-400 dark:text-zinc-500 mt-0.5 leading-snug pl-4"
                 >
                   {desc}
                 </p>
-
-                {/* Tech stack pills */}
                 <div className="flex flex-wrap gap-1 mt-1.5 pl-4">
                   {stack.map((tag) => (
                     <span
@@ -232,6 +221,65 @@ export default async function Home() {
             ))}
           </div>
         </div>
+
+        {/* Notes — right column, top */}
+        <a href="/notes" className="mag-card block no-underline" style={{ textDecoration: "none" }}>
+          <div className="mag-label">Notes</div>
+          <div className="group flex items-start justify-between gap-4 py-3 -mx-2 px-2 rounded-sm hover:bg-zinc-50 dark:hover:bg-zinc-800/60 transition-all duration-150">
+            <div>
+              <p
+                style={{ fontFamily: "'Bitter'", fontWeight: 600, fontSize: 15, fontStyle: "italic" }}
+                className="text-zinc-800 dark:text-zinc-200 group-hover:text-[#C4894F] dark:group-hover:text-[#D9A870] transition-colors duration-150"
+              >
+                CS61A
+              </p>
+              <p
+                style={{ fontFamily: "'Bitter'", fontWeight: 400, fontSize: 12, lineHeight: 1.6 }}
+                className="text-zinc-400 dark:text-zinc-600 mt-0.5"
+              >
+                Structure and Interpretation of Computer Programs
+              </p>
+            </div>
+            <span
+              style={{ fontFamily: "'Nunito'", fontWeight: 400, fontSize: 11 }}
+              className="text-zinc-300 dark:text-zinc-700 group-hover:text-[#C4894F] dark:group-hover:text-[#D9A870] shrink-0 transition-colors"
+            >
+              1 note →
+            </span>
+          </div>
+        </a>
+
+        {/* Blog — right column, bottom */}
+        <a
+          href="https://substack.com/@kaiiiichen"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mag-card block no-underline"
+          style={{ textDecoration: "none" }}
+        >
+          <div className="mag-label">Blog</div>
+          {substackPosts.length === 0 ? (
+            <p style={{ fontFamily: "'Bitter'", fontWeight: 400, fontSize: 14 }} className="text-zinc-300 dark:text-zinc-700">
+              No posts yet.
+            </p>
+          ) : (
+            <div className="space-y-0">
+              {substackPosts.map((post) => (
+                <div
+                  key={post.url}
+                  className="group flex items-baseline justify-between gap-3 py-2.5 -mx-2 px-2 rounded-sm hover:bg-zinc-50 dark:hover:bg-zinc-800/60 transition-all duration-150"
+                >
+                  <span style={{ fontFamily: "'Bitter'", fontWeight: 400, fontSize: 14 }} className="text-zinc-700 dark:text-zinc-300 group-hover:text-[#C4894F] dark:group-hover:text-[#D9A870] transition-colors duration-150 line-clamp-1">
+                    {post.title}
+                  </span>
+                  <span style={{ fontFamily: "'Nunito'", fontWeight: 400, fontSize: 11 }} className="text-zinc-400 dark:text-zinc-600 shrink-0">
+                    {new Date(post.pubDate).toLocaleDateString("en-US", { month: "short", year: "numeric" })}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </a>
       </div>
 
       {/* Footer */}

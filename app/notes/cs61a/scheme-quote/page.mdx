@@ -1,0 +1,291 @@
+import Link from "next/link";
+
+export const metadata = {
+  title: 'Scheme — Quote & Quasiquote | CS61A | Kai Chen',
+  description: 'CS61A reference: quote, quasiquote, unquote, splice — including the classic (car \'(list ...)) pitfall and exam Q13.',
+}
+
+<div className="mb-5">
+  <Link
+    href="/notes/cs61a"
+    style={{ fontFamily: "'Nunito'", fontWeight: 400, fontSize: "0.8rem" }}
+    className="inline-flex items-center gap-1.5 border border-[#C4894F] dark:border-[#D9A870] text-[#C4894F] dark:text-[#D9A870] hover:bg-[#C4894F] dark:hover:bg-[#D9A870] hover:text-white dark:hover:text-zinc-900 rounded-full px-3 py-1 transition-colors duration-150"
+  >
+    <span>←</span>
+    <span>CS61A</span>
+  </Link>
+</div>
+
+<div className="mb-8">
+  <div className="flex items-center gap-2 mb-1">
+    <span style={{ fontFamily: "'Nunito'", fontWeight: 600, fontSize: 11, letterSpacing: "0.12em", textTransform: "uppercase" }} className="text-[#C4894F] dark:text-[#D9A870]">CS61A · Scheme</span>
+  </div>
+  <h1 style={{ fontFamily: "'Bitter'", fontWeight: 600, fontSize: "1.8rem", lineHeight: 1.2, marginBottom: 0 }} className="text-zinc-900 dark:text-zinc-100">Quote &amp; Quasiquote</h1>
+  <p style={{ fontFamily: "'Nunito'", fontWeight: 400, fontSize: 13 }} className="text-zinc-400 dark:text-zinc-600 mt-2">A complete reference for Scheme's four quoting forms — how they work, when to use them, and the classic pitfall with <code>(car '(list ...))</code>.</p>
+  <div className="mt-5 w-full h-px bg-zinc-200 dark:bg-zinc-800" />
+</div>
+
+## 01 — The four quoting forms
+
+| Syntax | Full form | What it does |
+|--------|-----------|--------------|
+| `'x` | `(quote x)` | Freezes x entirely — nothing inside is ever evaluated. Returns the raw data structure. |
+| `` `x `` | `(quasiquote x)` | Like quote, but allows selective evaluation inside via `,` and `,@`. |
+| `,x` | `(unquote x)` | Inside a quasiquote: forces evaluation of x and splices the result in. |
+| `,@x` | `(unquote-splicing x)` | Inside a quasiquote: evaluates x (must be a list), then inlines all elements. |
+
+## 02 — How `'` (quote) freezes a structure
+
+```scheme
+; ' freezes everything inside — no evaluation happens at any depth
+(define x 42)
+
+'x            ; => x         the symbol x, not 42
+'(+ 1 2)      ; => (+ 1 2)   a three-element list, not 3
+'(1 2 3)      ; => (1 2 3)   a list of numbers — fine
+'(list 1 2 3) ; => (list 1 2 3)  a four-element list; "list" is just a symbol
+```
+
+<NoteBlock>
+Inside a quoted expression, **every identifier is a symbol**, not a function reference. The names `list`, `+`, `car` — all become inert symbols when quoted.
+</NoteBlock>
+
+## 03 — The classic pitfall — `(car '(list 1 2 3))`
+
+```scheme
+; What does this return?
+(car '(list 1 2 3))   ; => list   ← the SYMBOL "list", not 1 !
+
+; Why? The quote freezes the whole expression.
+; The list looks like this internally:
+;   element 0: the symbol  list
+;   element 1: the number  1
+;   element 2: the number  2
+;   element 3: the number  3
+; car picks element 0, which is the symbol "list".
+
+; (length '(list 1 2 3)) => 4, not 3 !
+```
+
+<NoteBlock>
+Many beginners write `'(list 1 2 3)` expecting it to behave like `(list 1 2 3)`. It does not. `'` prevents `list` from being called — it becomes a plain symbol sitting at the head of a 4-element list.
+</NoteBlock>
+
+## 04 — The correct ways to build a list
+
+```scheme
+; Goal: get (1 2 3) and apply car to get 1
+
+; Option A — call the list function (no quote)
+(car (list 1 2 3))       ; => 1  ✓
+
+; Option B — quote a literal data list (no function name inside)
+(car '(1 2 3))           ; => 1  ✓
+
+; Wrong — don't mix quote with a function call inside
+(car '(list 1 2 3))      ; => list  ✗
+```
+
+<Example>
+Use `'(1 2 3)` when the list contains **only literal data** (numbers, booleans, symbols you want verbatim). Use `(list ...)` when any element needs to be computed or when you're calling functions.
+</Example>
+
+---
+
+## 05 — Quasiquote — selective evaluation
+
+```scheme
+(define x 42)
+(define lst '(1 2 3))
+
+`(a x b)      ; => (a x b)      no comma — x is still a symbol
+`(a ,x b)     ; => (a 42 b)     ,x forces evaluation — 42
+`(a ,@lst b)  ; => (a 1 2 3 b)  ,@lst splices the list in
+
+; Mental model: backtick is a template, comma is ${...}
+;   `(a ,x b)    →   `a ${x} b`      in JavaScript
+;   `(a ,@lst b) →   `a ${...lst} b`
+```
+
+## 06 — Quasiquote in macros
+
+This is the most common real-world use: building code templates in `define-syntax` or `define-macro`.
+
+```scheme
+(define-syntax my-and
+  (syntax-rules ()
+    [(_ a b)
+     `(if ,a ,b #f)]))
+
+; (my-and (> x 0) (< x 10))
+; expands to: (if (> x 0) (< x 10) #f)
+; The , inserts the actual sub-expressions into the template.
+```
+
+## 07 — Nested quasiquote
+
+```scheme
+; Each backtick controls one level of quoting depth.
+`(a `(b ,(+ 1 2)))
+; The outer ` does NOT evaluate the inner ,
+; => (a (quasiquote (b (unquote (+ 1 2)))))
+
+; This is the foundation of macro-generating macros:
+; you write code that writes code that writes code.
+```
+
+<Example>
+Nested quasiquotes are rare in day-to-day CS61A work. They appear when you write a macro whose expansion itself contains a macro.
+</Example>
+
+---
+
+## 08 — Quick-reference summary
+
+<NoteBlock>
+
+**Pitfall — Quote + function name**
+
+```scheme
+(car '(list 1 2 3))
+; => list  (the symbol, not 1)
+; length = 4, not 3
+```
+
+</NoteBlock>
+
+<Example title="Correct — Two right approaches">
+
+```scheme
+(car (list 1 2 3))   ; => 1  ✓
+(car '(1 2 3))       ; => 1  ✓
+```
+
+</Example>
+
+<Example title="Quasiquote — Unquote vs splice">
+
+```scheme
+(define v '(2 3))
+`(1 ,v 4)    ; => (1 (2 3) 4)
+`(1 ,@v 4)   ; => (1 2 3 4)
+```
+
+</Example>
+
+<Example title="Mental model — Template analogy">
+
+```scheme
+; Scheme        → JS template literal
+`(a ,x b)    → `a ${x} b`
+`(a ,@v b)   → `a ${...v} b`
+'(a b)       → frozen data (no analogy — just data)
+```
+
+</Example>
+
+<Definition term="Summary">
+The `'` operator (quote) turns any expression into inert data — every symbol, including function names like `list` or `+`, becomes just a name with no behavior. `(car '(list 1 2 3))` therefore returns the symbol `list`, not `1`, because `list` is the first element of a four-item data list. To actually call `list`, either write `(list 1 2 3)` without quotes, or quote a literal data list `'(1 2 3)`. The backtick quasiquote relaxes this freeze: everything is still data by default, but commas (`,` and `,@`) punch holes in the freeze where evaluation is allowed — making it ideal for code templates in macros.
+</Definition>
+
+---
+
+## Past Exam — CS61A · Q13
+
+### 13. Comprehending Scheme Lists <span style={{fontFamily:"'Nunito'", fontSize:"0.75rem", fontWeight:400, color:"#a1a1aa", marginLeft:"0.5rem"}}>4.0 points</span>
+
+The Scheme procedure `comp` returns a Scheme expression that behaves similarly to Python list comprehensions.
+
+For example, consider this call to `comp`:
+
+```scheme
+(comp '(+ x 3) 'x '(list 1 2 3))
+```
+
+That generates an expression that goes through each item in the Scheme list `(1 2 3)`, assigns each item to the symbol `x`, calls `(+ x 3)` on the item, and puts the resulting value in a new Scheme list.
+
+The generated expression can be evaluated to return the new list:
+
+```scheme
+scm> (eval (comp '(+ x 3) 'x '(list 1 2 3)))
+(4 5 6)
+```
+
+However, `comp` returns a Scheme *expression* that must be evaluated to get the new list, whereas `map` returns the new list immediately.
+
+Complete the implementation of `comp` below per the description and the doctests:
+
+```scheme
+(define (comp item-call-expr item items)
+  `(begin (define (comp-helper old-lst)
+            (if (null? old-lst)
+                nil
+                (begin (define ,item _____(a)_____)
+                       (cons _____(b)_____ (comp-helper _____(c)_____))))))
+         (comp-helper _____(d)_____)))
+
+; (expect (eval (comp '(+ x 3) 'x '(list 1 2 3))) (4 5 6))
+; (expect (eval (comp '(* y 2) 'y '(list 1 2 3))) (2 4 6))
+```
+
+### Answers
+
+<Example title="(a) — (car old-lst)">
+Bind `item` (the loop variable symbol, e.g. `x`) to the *head* of the current list via `(car old-lst)`. The `,item` in `(define ,item ...)` unquotes the symbol so it becomes the actual variable name in the generated code.
+</Example>
+
+<Example title="(b) — ,item-call-expr">
+
+This is the value to place at the head of the output list — the result of applying the caller's expression (e.g. `(+ x 3)`) to the current item. It must be **unquoted** (`,`) so the actual expression is spliced in, not the symbol `item-call-expr`.
+
+| Candidate | Why wrong |
+|-----------|-----------|
+| `item` | Just the raw value (no transformation applied) — gives the original list back. |
+| `,item` | The current element's value — also wrong, same issue. |
+| `item-call-expr` | Not unquoted — becomes a literal symbol in the generated code. |
+
+</Example>
+
+<Example title="(c) — (cdr old-lst)">
+Recurse on the *tail* of the list. Standard list recursion: process `car`, recurse on `cdr`.
+</Example>
+
+<Example title="(d) — ,items">
+Kick off the recursion by calling `comp-helper` with the full input list. Must be **unquoted** (`,items`) so the actual list value is inserted into the generated expression — not the symbol `items`.
+</Example>
+
+<NoteBlock>
+Both (b) and (d) require a comma. The pattern: *anything that should be a runtime value in the generated code* needs `,`. Blanks (a) and (c) are inside a `define` and a function call respectively — they are evaluated at runtime normally, so no extra comma is needed there.
+</NoteBlock>
+
+### Complete solution
+
+```scheme
+(define (comp item-call-expr item items)
+  `(begin (define (comp-helper old-lst)
+            (if (null? old-lst)
+                nil
+                (begin (define ,item (car old-lst))
+                       (cons ,item-call-expr (comp-helper (cdr old-lst))))))
+         (comp-helper ,items)))
+```
+
+### How the generated expression works
+
+When you call `(comp '(+ x 3) 'x '(list 1 2 3))`, `comp` does *not* compute the result — it builds and returns this Scheme expression:
+
+```scheme
+(begin
+  (define (comp-helper old-lst)
+    (if (null? old-lst)
+        nil
+        (begin
+          (define x (car old-lst))          ; bind x to current head
+          (cons (+ x 3)                     ; apply (+ x 3)
+                (comp-helper (cdr old-lst))))))
+  (comp-helper (list 1 2 3)))
+```
+
+<Example title="Connection to quasiquote">
+This question is exactly the quasiquote-in-macros pattern from section 06 above. The backtick builds a code template; `,item`, `,item-call-expr`, and `,items` are the "holes" where caller-supplied values get spliced in. Every blank that needs to insert a runtime value into the generated code requires a `,`.
+</Example>
