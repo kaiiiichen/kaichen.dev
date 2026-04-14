@@ -145,11 +145,12 @@ export default async function Home() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Signal"
-              className="text-zinc-700 dark:text-zinc-300 opacity-35 hover:opacity-100 transition-opacity duration-300 ease-out"
             >
-              <svg width="22" height="22" viewBox="0 0 50 50" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                <path d="M25 2C12.3 2 2 11.4 2 23c0 5.4 2.2 10.3 5.8 14L4 46l9.4-3.2C15.8 43.9 20.3 45 25 45c12.7 0 23-9.4 23-21S37.7 2 25 2z" />
-              </svg>
+              <img
+                src="/Signal-Logo-Black.svg"
+                alt="Signal"
+                className="w-5 h-5 opacity-35 hover:opacity-100 transition-opacity duration-300 ease-out"
+              />
             </a>
           </div>
         </div>
@@ -223,9 +224,9 @@ export default async function Home() {
         </div>
 
         {/* Notes — right column, top */}
-        <a href="/notes" className="mag-card block no-underline" style={{ textDecoration: "none" }}>
+        <div className="mag-card">
           <div className="mag-label">Notes</div>
-          <div className="group flex items-start justify-between gap-4 py-3 -mx-2 px-2 rounded-sm hover:bg-zinc-50 dark:hover:bg-zinc-800/60 transition-all duration-150">
+          <a href="/notes/cs61a" className="group flex items-start justify-between gap-4 py-3 -mx-2 px-2 rounded-sm hover:bg-zinc-50 dark:hover:bg-zinc-800/60 transition-all duration-150 cursor-pointer no-underline" style={{ textDecoration: "none" }}>
             <div>
               <p
                 style={{ fontFamily: "'Bitter'", fontWeight: 600, fontSize: 15, fontStyle: "italic" }}
@@ -246,8 +247,8 @@ export default async function Home() {
             >
               1 note →
             </span>
-          </div>
-        </a>
+          </a>
+        </div>
 
         {/* Blog — right column, bottom */}
         <a
