@@ -108,6 +108,8 @@ On every **push** or **pull request** to `main`, [`.github/workflows/ci.yml`](.g
 3. `npm run test` (Vitest)
 4. `npm run build` (`next build --webpack`)
 
+The workflow sets **placeholder** `NEXT_PUBLIC_SUPABASE_*` values so `next build` can prerender client pages that create the Supabase browser client at module load; they are not real project keys.
+
 Run `npm run test` for unit tests (Vitest). Run the same lint/typecheck/build checks locally before pushing.
 
 ---
