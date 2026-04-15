@@ -1,0 +1,345 @@
+import Link from "next/link";
+
+export const metadata = {
+  title: 'Scheme — Macros: Code In, Code Out | CS61A | Kai Chen',
+  description: 'CS61A: macros as code processors — syntax in, syntax out — plus expansion steps, repeat, for, quasiquote, and quoting.',
+}
+
+<div className="mb-5">
+  <Link
+    href="/notes/cs61a"
+    style={{ fontFamily: "'Nunito'", fontWeight: 400, fontSize: "0.8rem" }}
+    className="inline-flex items-center gap-1.5 border border-[#C4894F] dark:border-[#D9A870] text-[#C4894F] dark:text-[#D9A870] hover:bg-[#C4894F] dark:hover:bg-[#D9A870] hover:text-white dark:hover:text-zinc-900 rounded-full px-3 py-1 transition-colors duration-150"
+  >
+    <span>←</span>
+    <span>CS61A</span>
+  </Link>
+</div>
+
+<div className="mb-8">
+  <div className="flex items-center gap-2 mb-1.5">
+    <span style={{ fontFamily: "'Nunito'", fontWeight: 600, fontSize: 13, letterSpacing: "0.1em", textTransform: "uppercase" }} className="text-[#C4894F] dark:text-[#D9A870]">CS61A · Scheme</span>
+  </div>
+  <h1 style={{ fontFamily: "'Bitter'", fontWeight: 600, fontSize: "1.8rem", lineHeight: 1.2, marginBottom: 0 }} className="text-zinc-900 dark:text-zinc-100">Macros — Code In, Code Out</h1>
+  <p style={{ fontFamily: "'Nunito'", fontWeight: 400, fontSize: 16, lineHeight: 1.65 }} className="text-zinc-500 dark:text-zinc-400 mt-3 max-w-[52rem]">A macro is a <strong className="text-zinc-700 dark:text-zinc-300">code processor</strong>: it <strong className="text-zinc-700 dark:text-zinc-300">consumes</strong> program fragments as data and <strong className="text-zinc-700 dark:text-zinc-300">emits</strong> new program fragments — syntax in, syntax out — before ordinary evaluation runs on the result. Below: the three-step model (resolve macro → expand with unevaluated operands → evaluate the generated expression).</p>
+  <div className="mt-5 w-full h-px bg-zinc-200 dark:bg-zinc-800" />
+</div>
+
+## Philosophy — macros as code processors
+
+The mental model that ties everything together: **a macro is not “a fancy function that returns a value.”** It is a **transformer of code** — often described informally as something that *eats* code and *spits* code, or more precisely **ingests unevaluated expressions and emits new expressions** (still represented as lists and symbols, i.e. as Scheme data).
+
+- **Input** — operands are **not** pre-evaluated; the macro sees the **shape** of the user’s sub-expressions (what you would call syntax or AST-level structure in other settings).
+- **Output** — the macro body **returns an expression** (new code). The interpreter then evaluates *that* code in the usual way.
+
+So the macro runs in a **different phase** from the rest of the program: it is a small program whose job is to **rewrite** another program. Helpers like `list`, `cons`, and quasiquote are just the tools for **building** that emitted code.
+
+<NoteBlock>
+**Same slogan everywhere:** *code in → code out.* Every example below — `twice`, `repeat`, `for` — is the same pattern: read syntax as data, assemble different syntax, then let evaluation handle the rest.
+</NoteBlock>
+
+## Running example
+
+Suppose we define this macro:
+
+```scheme
+(define-macro (twice expr)
+  (list 'begin expr expr))
+```
+
+and then call:
+
+```scheme
+(twice (print 'hi))
+```
+
+The following sections break down exactly what happens — each step is part of feeding **code** into the macro machinery and getting **new code** back.
+
+---
+
+## Step 1 — Evaluate the operator to obtain a macro
+
+The interpreter sees `(twice (print 'hi))` and first evaluates the operator position: `twice`. The environment lookup does not bind `twice` to an ordinary lambda; it binds it to a **macro procedure**.
+
+That distinction matters because the interpreter must choose a path: **ordinary function call** versus **macro expansion**. Once it knows `twice` is a macro, it follows the macro-specific rules instead of the usual call-by-value sequence.
+
+<NoteBlock>
+Resolving the operator is still normal evaluation — only after that does the implementation decide whether operands are evaluated before or after handing them to the callee.
+</NoteBlock>
+
+---
+
+## Step 2 — Call the macro on the operand expressions *without* evaluating them first
+
+This step is the **core difference** between macros and ordinary functions.
+
+For an ordinary function call such as `(f (print 'hi))`, the implementation evaluates `(print 'hi)` first (printing `hi` and producing whatever value `print` returns), then passes that value into `f`.
+
+A macro does **not** do that. It passes `(print 'hi)` to the macro procedure **as an unevaluated expression** — as the data structure / syntax tree for that subform, not as its runtime value. Inside `twice`, the parameter binds as:
+
+```scheme
+expr = (print 'hi)   ; a list — not the result of running print
+```
+
+The macro body runs `(list 'begin expr expr)`, which **constructs** a new expression:
+
+```scheme
+(begin (print 'hi) (print 'hi))
+```
+
+So this phase is **pure code generation** — the macro **consumes** the operand expressions as data and **emits** a fresh expression. It is a function from *code-as-data* to *code-as-data*; only step 3 turns that emitted code into runtime behavior.
+
+---
+
+## Step 3 — Evaluate the expression returned by the macro
+
+This is where **emitted code** re-enters the normal interpreter: the macro’s job is already done — it has **produced** a new expression. The value produced in step 2 — `(begin (print 'hi) (print 'hi))` — is treated as an ordinary Scheme expression and evaluated **in the environment of the call site**. Both `print` forms run, so the output is:
+
+```
+hi
+hi
+```
+
+---
+
+## Ordinary functions vs macros
+
+| | Ordinary function | Macro |
+|---|-------------------|--------|
+| Arguments | Evaluated first; the callee receives **values** | Operands are **not** pre-evaluated; the macro receives **expression data** |
+| Result | That value **is** the result of the call (modulo continuation) | The macro returns **new source**; that expression is **evaluated again** |
+
+Conceptually, a macro is a **compile-time (or expand-time) code transformer** — the **code processor** in the subtitle: **syntax in, syntax out**. It takes source-like structure as input, emits new structure, and only then does the interpreter execute the emitted code. That is why step 2 insists on *without evaluating them first* — if operands were evaluated up front, the macro would not see the original program shape and could not reliably rewrite it.
+
+<Definition term="Summary">
+**Philosophy first:** A macro is a **program that rewrites programs** — it **takes in** unevaluated code (operands as data) and **outputs** new code (the macro’s return value as data). Mechanically: the operator resolves to a macro procedure; operands are passed unevaluated; the macro body **emits** an expression; that expression is evaluated normally. That “syntax in → syntax out” loop explains `twice` printing twice: the macro never “received” the result of `print` — it **duplicated the print form** in the emitted code.
+</Definition>
+
+---
+
+## Discussion question — `repeat`
+
+**Goal.** Define a macro `repeat` that takes a count `n` and an expression `expr`. It should evaluate `expr` exactly `n` times; the value of the whole form is the value of the **last** evaluation (same rule as `begin`). Viewed as a code processor, `repeat` must **emit** a `begin` (or equivalent) whose length depends on what `n` **means** after expansion — still **code in → code out**, but the “out” side is built by a helper that lists or templates many copies of `expr`.
+
+**Intended expansion.** `(repeat (+ 2 2) (print 3))` should expand to something equivalent to:
+
+```scheme
+(begin (print 3) (print 3) (print 3) (print 3))
+```
+
+Here the first operand `(+ 2 2)` must **become the number 4** when deciding how many copies to generate, while the second operand `(print 3)` must stay **unevaluated** until the generated `begin` runs — otherwise you could not get four prints from one macro call.
+
+### Helper — `repeated-expr`
+
+`repeated-expr` is an ordinary function (not a macro). It returns a **list** containing the same expression datum `n` times:
+
+```scheme
+; Return a list containing expr n times.
+(define (repeated-expr n expr)
+  (if (zero? n)
+      nil
+      (cons expr (repeated-expr (- n 1) expr))))
+```
+
+Example:
+
+```scheme
+(repeated-expr 4 '(print 2))
+; => ((print 2) (print 2) (print 2) (print 2))
+```
+
+The macro will splice this list after `begin` to build the final form.
+
+### Macro — `repeat`
+
+```scheme
+; Evaluate expr n times and return the last value.
+(define-macro (repeat n expr)
+  (cons 'begin (repeated-expr (eval n) expr)))
+```
+
+**Why `cons 'begin`?** A `begin` form is `(begin e1 e2 …)`. The helper gives `((print 3) (print 3) …)`. Prepending the symbol `begin` with `cons` yields `(begin (print 3) (print 3) …)` — valid code whose body is exactly the repeated sub-expressions.
+
+### Why `(eval n)` is essential
+
+In the `twice` example, the expansion shape was fixed (always two copies), so the macro never needed a **numeric** count at expansion time.
+
+For `repeat`, the count may be **computed** at the call site: `(repeat (+ 1 2) (print 5))`. When the macro runs:
+
+- `n` is **not** the number `3`. It is the **unevaluated** expression `(+ 1 2)` — a list structure.
+- `repeated-expr` needs an integer to recurse on. If you passed `n` directly, you would be treating a list as a number, or you would build the wrong number of copies.
+
+`(eval n)` evaluates that first operand **during macro expansion** (in the macro’s environment / interaction environment, depending on your interpreter), so `(+ 1 2)` becomes `3` and `repeated-expr` builds three copies of `expr`.
+
+<NoteBlock>
+**Contrast:** The second argument `expr` must **not** be evaluated in the macro body — you want three copies of `(print 5)`, not one copy of whatever `print` returns. So you only `eval` the piece that must become a runtime **count** at expand time; you leave `expr` as data to be duplicated and embedded in the generated `begin`.
+</NoteBlock>
+
+### Walkthrough — `(repeat (+ 1 2) (print 5))`
+
+1. Operands to the macro: `n` = `(+ 1 2)`, `expr` = `(print 5)` (both as lists, unevaluated).
+2. Macro body: `(eval n)` → `3`. `repeated-expr` returns `((print 5) (print 5) (print 5))`.
+3. `cons 'begin` → `(begin (print 5) (print 5) (print 5))`.
+4. That expression is evaluated: `print` runs three times; the value of the form is the last result (typically whatever `print` returns in your dialect, e.g. `okay`).
+
+### Walkthrough — `(repeat 3 (+ 2 3))`
+
+1. `n` is the literal `3` (still passed as an expression datum; `eval` yields `3`).
+2. Expansion: `(begin (+ 2 3) (+ 2 3) (+ 2 3))`.
+3. At run time, `(+ 2 3)` is evaluated three times; only the **last** `5` is the value of the whole `repeat` form — matching “return the last value” like `begin`.
+
+<Example title="Mental model">
+`repeat` is still “code in, code out”: the macro returns a `begin` whose length depends on a **value** derived from the first operand, while the second operand is **copied verbatim** into that `begin` multiple times. `eval` bridges the gap between “unevaluated macro argument” and “integer the helper needs,” without pre-running the repeated expression.
+</Example>
+
+---
+
+## Discussion question — Repeat Repeat (recursive expansion)
+
+The **same** macro name `repeat` and the **same** user-facing behavior can be implemented by generating **recursive** code instead of a long flat `begin`. Philosophically nothing changes: the macro still **outputs** one compound expression — only now the emitted code contains a **nested** program (`repeater`) instead of inlining `n` copies. This variant shows **quasiquote** inside the helper: the expansion installs a local procedure `repeater` that counts down and re-evaluates `expr` each time.
+
+### Same call, different expansion
+
+For `(repeat (+ 2 2) (print 3))`, one valid expansion is the unrolled `begin` from the previous section. Another valid shape — the one this discussion emphasizes — looks like:
+
+```scheme
+(begin
+  (define (repeater k)
+    (if (= k 1)
+        (print 3)
+        (begin (print 3) (repeater (- k 1)))))
+  (repeater 4))
+```
+
+- `(+ 2 2)` has already been turned into **`4`** (via `(eval n)` in the macro), so the startup call is `(repeater 4)`.
+- `(print 3)` appears **inside** the generated `define` — still as code to run later, not as a value computed at macro-expand time.
+
+**Semantics.** For `k = 1`, the `if` takes the first branch and evaluates `expr` once — that value is the result of `repeater`. For `k > 1`, the second branch runs `expr`, then `(repeater (- k 1))`; the value of the whole `if` is therefore the value of the **last** recursive call, matching “`n` times, return the final result” (same idea as a multi-form `begin`).
+
+### Helper — `repeated-expr` (quasiquote version)
+
+Here the helper does **not** build a list of `n` copies of `expr`. It returns **two** expressions as data: a `define` for `repeater`, and an initial `(repeater n)`:
+
+```scheme
+; Return an expression that will repeatedly evaluate expr n times using recursion.
+(define (repeated-expr n expr)
+  `((define (repeater k)
+      (if (= k 1) ,expr (begin ,expr (repeater (- k 1)))))
+    (repeater ,n)))
+```
+
+- **Quasiquote (`` ` ``)** freezes the template; **unquote (`,`)** punches holes where real sub-expressions or numbers must appear.
+- `,expr` appears in **two** places: the base case (`k = 1`) and the first arm of the `begin` in the recursive case — always the **same** expression datum the macro received, embedded into the generated source.
+- `,n` in `(repeater ,n)` inserts the **numeric** count (the helper is always called with `(eval n)` from the macro, so this becomes `(repeater 4)` in the example).
+
+Example of what `repeated-expr` **returns** (as a list structure the macro will wrap):
+
+```scheme
+(repeated-expr 4 '(print 3))
+; => ((define (repeater k) (if (= k 1) (print 3) (begin (print 3) (repeater (- k 1)))))
+;     (repeater 4))
+```
+
+### Macro — same shell as before
+
+```scheme
+; Evaluate expr n times and return the last value.
+(define-macro (repeat n expr)
+  (cons 'begin (repeated-expr (eval n) expr)))
+```
+
+**Why `cons 'begin` still works.** `repeated-expr` returns a **list of two forms**: the `define` and the `(repeater n)` call. Prepending `begin` yields a single valid expression:
+
+```text
+(begin <define-repeater> <call-repeater>)
+```
+
+At run time, `begin` evaluates the `define` (binding `repeater`), then evaluates `(repeater n)`, which performs the loop.
+
+### Why `(eval n)` again
+
+The story is unchanged from the unrolled version: the macro’s first operand is **syntax** (e.g. `(+ 2 2)`), not necessarily a number. `repeated-expr` needs an actual integer for `(repeater ,n)` and for the recursive logic’s arithmetic. `(eval n)` produces that integer **during expansion**. The second operand `expr` stays unevaluated so it can be stitched into the generated `repeater` body with `,expr`.
+
+### Unrolled vs recursive — what changes
+
+| | Unrolled `repeat` | Repeat Repeat (recursive) |
+|---|-------------------|----------------------------|
+| Generated code | `(begin expr expr …)` — **O(n)** forms in the expansion | Fixed size: one `define` + one call — **O(1)** expansion text |
+| Mechanism | Duplicate `expr` datum `n` times | One copy of `expr` in source; **runtime** recursion counts executions |
+| Helper style | Plain `cons` / recursion on lists | **Quasiquote** template + `,expr`, `,n` |
+
+Both are valid macro solutions; the second highlights **code templates** and the difference between **expand-time** count (`eval n`) and **run-time** repetition (`repeater`).
+
+<Example title="Quasiquote recap">
+Think of `` `((define …) (repeater ,n)) `` as a small program that **writes** a two-part `begin`: the `define` is mostly fixed text, while `,expr` and `,n` are the slots filled from the macro’s unevaluated second argument and evaluated first argument.
+</Example>
+
+---
+
+## `for` macro
+
+**Goal.** Define a macro `for` that evaluates an expression **for each value** in a sequence, collecting results in a list (same idea as Python’s comprehension or `map`). As a code processor, `for` **rewrites** surface syntax `(for x vals expr)` into the **existing** vocabulary of `map` and `lambda` — new sugar on the left, standard Scheme on the right.
+
+### Usage and equivalence
+
+```scheme
+scm> (for x '(2 3 4 5) (* x x))
+(4 9 16 25)
+
+scm> (map (lambda (x) (* x x)) '(2 3 4 5))
+(4 9 16 25)
+```
+
+The macro expands into a `map` over a `lambda` that binds the loop variable.
+
+### Implementation with `list`
+
+```scheme
+(define-macro (for sym vals expr)
+  (list 'map (list 'lambda (list sym) expr) vals))
+```
+
+- **`sym`** — the intended parameter name (e.g. `x`), passed **unevaluated**; the macro builds `(lambda (x) …)`.
+- **`vals`** — the sequence expression (e.g. `'(2 3 4 5)`), passed **unevaluated**; it is spliced into the output as the third argument to `map`.
+- **`expr`** — the body (e.g. `(* x x)`), passed **unevaluated**; it becomes the body of the generated `lambda`.
+
+Expansion of `(for x '(2 3 4 5) (* x x))` yields:
+
+```scheme
+(map (lambda (x) (* x x)) '(2 3 4 5))
+```
+
+which evaluates to `(4 9 16 25)`.
+
+### Implementation with quasiquote
+
+The same expansion can be written as a **template**; unquoted parts are the “holes” filled from the macro’s arguments:
+
+```scheme
+(define-macro (for sym vals expr)
+  `(map (lambda (,sym) ,expr) ,vals))
+```
+
+- **Frozen** by the backtick: `map`, `lambda`, and the overall shape of the list.
+- **Unquoted (`,`)**: `sym`, `expr`, and `vals` — the three pieces that come from the call site and must appear **inside** the generated code as the right symbols and sub-expressions.
+
+This matches the mental model from the [quote & quasiquote](/notes/cs61a/scheme-quote) note: the backtick is a code-shaped template; commas inject the caller’s syntax.
+
+### Design question — must `vals` be quoted?
+
+The slide asks: why not allow calls like this (no quote on the list)?
+
+```scheme
+scm> (for x (2 3 4 5) (* x x))
+(4 9 16 25)
+```
+
+**If `for` were an ordinary function**, the subform `(2 3 4 5)` would be **evaluated** before the function runs. In standard Scheme that means “apply `2` as a procedure to `3`, `4`, `5`” — which is not what you want and typically errors. So you must write `'(2 3 4 5)` to pass a **list value**.
+
+**With a macro**, the operands are **not** evaluated before the macro procedure runs. The second argument is passed as **syntax / expression structure**. The form `(2 3 4 5)` is therefore **not** treated as a function call during macro expansion — it is simply a list whose elements are the numbers `2` through `5`. The macro can splice that structure into the expansion (via `,vals` in the quasiquote version, or `vals` in the `list` version) so the generated `map` receives the right list.
+
+So the “extra quote” in the user’s source exists mainly to satisfy **evaluation rules for ordinary code**. Macros bypass pre-evaluation of arguments, which is why an unquoted list of literals can be a valid design — as long as the expansion you emit still produces correct code (e.g. the expanded `map` must still see a **list value**, not an accidental application form).
+
+<NoteBlock>
+**Takeaway:** The `for` macro is **syntax in → syntax out** in miniature: three unevaluated pieces (`sym`, `vals`, `expr`) **emerge** as one `map` + `lambda` form. Quasiquote makes the template readable; `list` makes the same construction explicit. The macro does not “run the loop”; it **emits** a `map` form that the interpreter will run later.
+</NoteBlock>

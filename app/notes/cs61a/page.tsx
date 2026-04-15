@@ -8,6 +8,13 @@ const NOTES = [
     topics: ["Quote", "Quasiquote", "Unquote", "Splice", "Macros"],
     href: "/notes/cs61a/scheme-quote",
   },
+  {
+    num: "02",
+    title: "Scheme — Macros: Code In, Code Out",
+    desc: "Macros as code processors — syntax in, syntax out — plus expansion, repeat, for, and quasiquote.",
+    topics: ["Macros", "define-macro", "Code generation", "Philosophy"],
+    href: "/notes/cs61a/scheme-macro",
+  },
 ];
 
 export default function CS61APage() {
@@ -29,16 +36,16 @@ export default function CS61APage() {
         </div>
 
         {/* Course code label */}
-        <div className="flex items-center gap-2 mb-2">
+        <div className="flex items-center gap-2.5 mb-2.5">
           <span
-            style={{ fontFamily: "'Nunito'", fontWeight: 600, fontSize: 11, letterSpacing: "0.12em", textTransform: "uppercase" }}
+            style={{ fontFamily: "'Nunito'", fontWeight: 600, fontSize: 14, letterSpacing: "0.1em", textTransform: "uppercase" }}
             className="text-[#C4894F] dark:text-[#D9A870]"
           >
             CS61A
           </span>
           <span
-            style={{ fontFamily: "'Nunito'", fontWeight: 400, fontSize: 11 }}
-            className="text-zinc-400 dark:text-zinc-600"
+            style={{ fontFamily: "'Nunito'", fontWeight: 400, fontSize: 14 }}
+            className="text-zinc-500 dark:text-zinc-400"
           >
             UC Berkeley
           </span>
