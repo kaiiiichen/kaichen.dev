@@ -16,7 +16,7 @@ jobs:
     steps:
       - name: Find associated PR
         id: find-pr
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const prs = await github.rest.pulls.list({
