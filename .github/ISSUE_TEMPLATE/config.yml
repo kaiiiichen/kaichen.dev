@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Security disclosure
+    url: https://github.com/kaiiiichen/kaichen.dev/security/policy
+    about: Report security vulnerabilities privately (see SECURITY.md — do not post exploits in public issues).

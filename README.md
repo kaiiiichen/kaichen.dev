@@ -198,9 +198,19 @@ kaichen.dev/
 ├── vitest.config.ts
 ├── .github/workflows/ci.yml, auto-merge.yml
 ├── .github/dependabot.yml
+├── .github/ISSUE_TEMPLATE/            # Bug / feature issue forms
+├── .github/pull_request_template.md
 ├── .env.example
+├── CODE_OF_CONDUCT.md, CONTRIBUTING.md
 └── SECURITY.md
 ```
+
+---
+
+## Community
+
+- [Contributing](CONTRIBUTING.md) — local setup, CI commands, conventions
+- [Code of Conduct](CODE_OF_CONDUCT.md)
 
 ---
 

@@ -1,0 +1,57 @@
+name: Bug report
+description: Something is broken or incorrect on the site or in the repo
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug. For **security issues**, use [Security advisories](https://github.com/kaiiiichen/kaichen.dev/security/advisories/new) or see [SECURITY.md](https://github.com/kaiiiichen/kaichen.dev/blob/main/SECURITY.md) instead.
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: What happened?
+      description: Short summary of the problem.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: How can we reproduce it?
+      description: Steps, URL (e.g. kaichen.dev path), or minimal code if building locally.
+      placeholder: |
+        1. Go to …
+        2. Click …
+        3. See error …
+    validations:
+      required: true
+
+  - type: input
+    id: environment
+    attributes:
+      label: Environment (if relevant)
+      description: Browser / OS, or Node version if it’s a build/dev issue.
+      placeholder: e.g. Safari 18, macOS 15 — or Node 20, npm 10
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Screenshots or logs
+      description: Optional — console errors, network failures, or screenshots.
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Code of Conduct
+      options:
+        - label: I agree to follow this project’s Code of Conduct
+          required: true

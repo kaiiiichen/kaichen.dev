@@ -1,0 +1,48 @@
+name: Feature request
+description: Suggest an idea or improvement for the site or codebase
+title: "[Feature] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This is a **personal website** repo; not every idea will fit, but suggestions are welcome.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or motivation
+      description: What would this solve or improve?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed direction
+      description: How you imagine it could work (UI, API, content — be brief).
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area (optional)
+      options:
+        - "Not sure"
+        - "Frontend / UI"
+        - "API routes"
+        - "Content / MDX"
+        - "Docs / DX"
+        - "CI / tooling"
+        - "Other"
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Code of Conduct
+      options:
+        - label: I agree to follow this project’s Code of Conduct
+          required: true
