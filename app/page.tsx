@@ -251,13 +251,7 @@ export default async function Home() {
         </div>
 
         {/* Blog — right column, bottom */}
-        <a
-          href="https://substack.com/@kaiiiichen"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mag-card block no-underline"
-          style={{ textDecoration: "none" }}
-        >
+        <div className="mag-card">
           <div className="mag-label">Blog</div>
           {substackPosts.length === 0 ? (
             <p style={{ fontFamily: "'Bitter'", fontWeight: 400, fontSize: 14 }} className="text-zinc-300 dark:text-zinc-700">
@@ -266,21 +260,36 @@ export default async function Home() {
           ) : (
             <div className="space-y-0">
               {substackPosts.map((post) => (
-                <div
+                <a
                   key={post.url}
-                  className="group flex items-baseline justify-between gap-3 py-2.5 -mx-2 px-2 rounded-sm hover:bg-zinc-50 dark:hover:bg-zinc-800/60 transition-all duration-150"
+                  href={post.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group flex items-baseline justify-between gap-3 py-2.5 -mx-2 px-2 rounded-sm hover:bg-zinc-50 dark:hover:bg-zinc-800/60 transition-all duration-150 no-underline block"
+                  style={{ textDecoration: "none" }}
                 >
-                  <span style={{ fontFamily: "'Bitter'", fontWeight: 400, fontSize: 14 }} className="text-zinc-700 dark:text-zinc-300 group-hover:text-[#C4894F] dark:group-hover:text-[#D9A870] transition-colors duration-150 line-clamp-1">
-                    {post.title}
+                  <span className="flex items-baseline gap-2 min-w-0 flex-1">
+                    <span className="opacity-0 group-hover:opacity-100 text-[#C4894F] -translate-x-1 group-hover:translate-x-0 transition-all duration-150 text-xs shrink-0">
+                      ↗
+                    </span>
+                    <span
+                      style={{ fontFamily: "'Bitter'", fontWeight: 400, fontSize: 14 }}
+                      className="text-zinc-700 dark:text-zinc-300 group-hover:text-[#C4894F] dark:group-hover:text-[#D9A870] transition-colors duration-150 line-clamp-1"
+                    >
+                      {post.title}
+                    </span>
                   </span>
-                  <span style={{ fontFamily: "'Nunito'", fontWeight: 400, fontSize: 11 }} className="text-zinc-400 dark:text-zinc-600 shrink-0">
+                  <span
+                    style={{ fontFamily: "'Nunito'", fontWeight: 400, fontSize: 11 }}
+                    className="text-zinc-400 dark:text-zinc-600 shrink-0 group-hover:text-[#C4894F] dark:group-hover:text-[#D9A870] transition-colors duration-150"
+                  >
                     {new Date(post.pubDate).toLocaleDateString("en-US", { month: "short", year: "numeric" })}
                   </span>
-                </div>
+                </a>
               ))}
             </div>
           )}
-        </a>
+        </div>
       </div>
 
       {/* Footer */}
