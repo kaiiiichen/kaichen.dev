@@ -36,21 +36,6 @@ export default function Gallery() {
       .then(({ data }) => setPhotos(data ?? []));
   }, []);
 
-  // ESC key + scroll lock
-  useEffect(() => {
-    if (selected) {
-      document.body.style.overflow = "hidden";
-      const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") closeLightbox(); };
-      window.addEventListener("keydown", onKey);
-      return () => {
-        window.removeEventListener("keydown", onKey);
-        document.body.style.overflow = "";
-      };
-    } else {
-      document.body.style.overflow = "";
-    }
-  }, [selected]);
-
   function openLightbox(photo: Photo) {
     setClosing(false);
     setSelected(photo);
@@ -63,6 +48,23 @@ export default function Gallery() {
       setClosing(false);
     }, 200);
   }
+
+  // ESC key + scroll lock
+  useEffect(() => {
+    if (selected) {
+      document.body.style.overflow = "hidden";
+      const onKey = (e: KeyboardEvent) => {
+        if (e.key === "Escape") closeLightbox();
+      };
+      window.addEventListener("keydown", onKey);
+      return () => {
+        window.removeEventListener("keydown", onKey);
+        document.body.style.overflow = "";
+      };
+    } else {
+      document.body.style.overflow = "";
+    }
+  }, [selected]);
 
   return (
     <div className="max-w-[1180px] mx-auto px-4 md:px-12 py-16">

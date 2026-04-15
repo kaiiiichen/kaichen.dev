@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import type { NowPlayingResult } from "@/lib/now-playing";
+import {
+  isLastFmTrackPlaying,
+  pickAlbumArtFromLastFmImages,
+  type LastFmImageEntry,
+} from "@/lib/lastfm-now-playing-helpers";
 
 const LASTFM_API_URL = "https://ws.audioscrobbler.com/2.0/";
 
@@ -77,22 +82,13 @@ export async function GET() {
 
   const track = tracks[0];
 
-  // isPlaying: explicit nowplaying flag OR scrobbled within the last 5 minutes
-  const isNowPlaying: boolean = track["@attr"]?.nowplaying === "true";
-  const lastScrobbleTime: number = track.date?.uts ? parseInt(track.date.uts, 10) * 1000 : 0;
-  const isRecentlyPlayed: boolean = lastScrobbleTime > Date.now() - 5 * 60 * 1000;
-  const isPlaying: boolean = isNowPlaying || isRecentlyPlayed;
+  const isPlaying: boolean = isLastFmTrackPlaying(track, new Date());
 
   const title: string = track.name ?? "";
   const artist: string = track.artist?.["#text"] ?? track.artist ?? "";
   const album: string = track.album?.["#text"] ?? "";
-  const images: { size: string; "#text": string }[] = track.image || [];
-  let albumArt: string =
-    images.find((i) => i.size === "extralarge")?.["#text"] ||
-    images.find((i) => i.size === "large")?.["#text"] ||
-    images.find((i) => i.size === "medium")?.["#text"] ||
-    "";
-  if (albumArt.includes("2a96cbd8b46e442fc41c2b86b821562f")) albumArt = "";
+  const images: LastFmImageEntry[] = track.image || [];
+  let albumArt: string = pickAlbumArtFromLastFmImages(images);
 
   // Fallback: fetch album art from iTunes Search API
   if (!albumArt) {

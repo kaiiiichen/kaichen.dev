@@ -38,16 +38,18 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<Theme>("system");
 
   useEffect(() => {
-    try {
-      const s = localStorage.getItem(STORAGE_KEY) as Theme | null;
-      if (s === "light" || s === "dark" || s === "system") {
-        setThemeState(s);
-      } else {
-        setThemeState("dark");
+    queueMicrotask(() => {
+      try {
+        const s = localStorage.getItem(STORAGE_KEY) as Theme | null;
+        if (s === "light" || s === "dark" || s === "system") {
+          setThemeState(s);
+        } else {
+          setThemeState("dark");
+        }
+      } catch {
+        /* ignore */
       }
-    } catch {
-      /* ignore */
-    }
+    });
   }, []);
 
   const resolvedTheme: "light" | "dark" =

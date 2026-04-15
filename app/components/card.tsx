@@ -37,32 +37,36 @@ export default function Card({
   const tgt   = useRef({ x: 0, y: 0, s: 1 });
   const rafId = useRef(0);
   const mtRef = useRef(maxTilt);
-  mtRef.current = maxTilt;
+
+  useEffect(() => {
+    mtRef.current = maxTilt;
+  }, [maxTilt]);
 
   const tick = useCallback(() => {
-    const card = cardRef.current;
-    if (!card) return;
+    function step() {
+      const card = cardRef.current;
+      if (!card) return;
+      const { x: cx, y: cy, s: cs } = cur.current;
+      const { x: tx, y: ty, s: ts } = tgt.current;
 
-    const mt = mtRef.current;
-    const { x: cx, y: cy, s: cs } = cur.current;
-    const { x: tx, y: ty, s: ts } = tgt.current;
+      const nx = cx + (tx - cx) * LERP;
+      const ny = cy + (ty - cy) * LERP;
+      const ns = cs + (ts - cs) * LERP;
+      cur.current = { x: nx, y: ny, s: ns };
 
-    const nx = cx + (tx - cx) * LERP;
-    const ny = cy + (ty - cy) * LERP;
-    const ns = cs + (ts - cs) * LERP;
-    cur.current = { x: nx, y: ny, s: ns };
+      const mag = Math.abs(nx) + Math.abs(ny);
+      card.style.transform = `rotateX(${nx}deg) rotateY(${ny}deg) scale(${ns})`;
+      card.style.boxShadow = `${(-ny * 0.4).toFixed(2)}px ${(nx * 0.4).toFixed(2)}px ${(12 + mag).toFixed(1)}px rgba(0,0,0,${(0.15 + mag * 0.003).toFixed(3)})`;
 
-    const mag = Math.abs(nx) + Math.abs(ny);
-    card.style.transform = `rotateX(${nx}deg) rotateY(${ny}deg) scale(${ns})`;
-    card.style.boxShadow = `${(-ny * 0.4).toFixed(2)}px ${(nx * 0.4).toFixed(2)}px ${(12 + mag).toFixed(1)}px rgba(0,0,0,${(0.15 + mag * 0.003).toFixed(3)})`;
-
-    const still = Math.abs(nx - tx) < 0.005 && Math.abs(ny - ty) < 0.005 && Math.abs(ns - ts) < 0.0005;
-    if (still) {
-      cur.current = { x: tx, y: ty, s: ts };
-      rafId.current = 0;
-    } else {
-      rafId.current = requestAnimationFrame(tick);
+      const still = Math.abs(nx - tx) < 0.005 && Math.abs(ny - ty) < 0.005 && Math.abs(ns - ts) < 0.0005;
+      if (still) {
+        cur.current = { x: tx, y: ty, s: ts };
+        rafId.current = 0;
+      } else {
+        rafId.current = requestAnimationFrame(step);
+      }
     }
+    step();
   }, []);
 
   const kick = useCallback(() => {

@@ -17,7 +17,8 @@ function extractTag(xml: string, tag: string): string {
   return plainMatch ? plainMatch[1].trim() : "";
 }
 
-function parseItems(xml: string): SubstackPost[] {
+/** Pure RSS XML → posts (first 3 items). Used by `getSubstackPosts` and tests. */
+export function parseSubstackRssXml(xml: string): SubstackPost[] {
   const itemBlocks = xml.match(/<item[\s>][\s\S]*?<\/item>/gi) ?? [];
   return itemBlocks.slice(0, 3).map((block) => {
     const title = extractTag(block, "title");
@@ -38,7 +39,7 @@ export async function getSubstackPosts(): Promise<SubstackPost[]> {
       });
       if (!res.ok) continue;
       const xml = await res.text();
-      const posts = parseItems(xml);
+      const posts = parseSubstackRssXml(xml);
       if (posts.length > 0) return posts;
     } catch {
       // try next feed

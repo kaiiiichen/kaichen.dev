@@ -1,17 +1,15 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 
 const WAVE_SVG = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='4'%3E%3Cpath d='M0 3 Q5 0 10 3 Q15 6 20 3' stroke='%23C4894F' stroke-width='1.5' fill='none'/%3E%3C/svg%3E")`;
 
+const emptySubscribe = () => () => {};
+
 export default function NavWaveOverlay() {
   const [rect, setRect] = useState<{ left: number; width: number; top: number } | null>(null);
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(emptySubscribe, () => true, () => false);
   const frameRef = useRef<number>(0);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   useEffect(() => {
     if (!mounted) return;

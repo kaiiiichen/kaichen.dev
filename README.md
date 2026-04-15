@@ -99,6 +99,19 @@ npm run dev
 
 ---
 
+## CI
+
+On every **push** or **pull request** to `main`, [`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs on `ubuntu-latest` with **Node 20** and `npm ci` (lockfile install). Steps, in order:
+
+1. `npm run lint`
+2. `npm run typecheck` (`tsc --noEmit`)
+3. `npm run test` (Vitest)
+4. `npm run build` (`next build --webpack`)
+
+Run `npm run test` for unit tests (Vitest). Run the same lint/typecheck/build checks locally before pushing.
+
+---
+
 ## Project Structure
 
 ```text

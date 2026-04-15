@@ -20,7 +20,6 @@ export type UseNowPlayingReturn = {
 export function useNowPlaying(): UseNowPlayingReturn {
   const [data, setData] = useState<NowPlayingResult | null>(null);
   const [displayItem, setDisplayItem] = useState<DisplayItem>(null);
-  const [dotPlaying, setDotPlaying] = useState(false);
   const [slideClass, setSlideClass] = useState("");
   const prevUrlRef = useRef<string | null>(null);
   const slideTimers = useRef<ReturnType<typeof setTimeout>[]>([]);
@@ -41,39 +40,41 @@ export function useNowPlaying(): UseNowPlayingReturn {
   useEffect(() => {
     if (!data) return;
 
-    setDotPlaying(data.isPlaying);
+    queueMicrotask(() => {
+      const nextItem: DisplayItem = data.isPlaying
+        ? { title: data.title, artist: data.artist, songUrl: data.songUrl, albumArt: data.albumArt }
+        : (data.recentTrack ?? null);
 
-    const nextItem: DisplayItem = data.isPlaying
-      ? { title: data.title, artist: data.artist, songUrl: data.songUrl, albumArt: data.albumArt }
-      : (data.recentTrack ?? null);
+      if (!nextItem) {
+        setDisplayItem(null);
+        prevUrlRef.current = null;
+        return;
+      }
 
-    if (!nextItem) {
-      setDisplayItem(null);
-      prevUrlRef.current = null;
-      return;
-    }
+      if (prevUrlRef.current === nextItem.songUrl) return;
 
-    if (prevUrlRef.current === nextItem.songUrl) return;
+      const hadContent = prevUrlRef.current !== null;
+      prevUrlRef.current = nextItem.songUrl;
 
-    const hadContent = prevUrlRef.current !== null;
-    prevUrlRef.current = nextItem.songUrl;
-
-    if (!hadContent) {
-      setDisplayItem(nextItem);
-      return;
-    }
-
-    slideTimers.current.forEach(clearTimeout);
-    slideTimers.current = [];
-    setSlideClass("slide-exit");
-    slideTimers.current.push(
-      setTimeout(() => {
+      if (!hadContent) {
         setDisplayItem(nextItem);
-        setSlideClass("slide-enter");
-        slideTimers.current.push(setTimeout(() => setSlideClass(""), 250));
-      }, 200)
-    );
+        return;
+      }
+
+      slideTimers.current.forEach(clearTimeout);
+      slideTimers.current = [];
+      setSlideClass("slide-exit");
+      slideTimers.current.push(
+        setTimeout(() => {
+          setDisplayItem(nextItem);
+          setSlideClass("slide-enter");
+          slideTimers.current.push(setTimeout(() => setSlideClass(""), 250));
+        }, 200)
+      );
+    });
   }, [data]);
+
+  const dotPlaying = Boolean(data?.isPlaying);
 
   return { data, displayItem, dotPlaying, slideClass };
 }
