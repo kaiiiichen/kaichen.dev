@@ -1,37 +1,40 @@
 # AGENTS.md — kaichen.dev
 
-Shared instructions for any AI coding agent (Cursor, Claude Code, Codex, etc.)
-working on this repo.
+Instructions for **AI coding agents** (Cursor, Claude Code, Codex, Copilot, etc.) and anyone running **automated** edits against this repository.
 
-## Git workflow — ALWAYS branch + PR
+**Human-oriented** contributor docs: [CONTRIBUTING.md](CONTRIBUTING.md). **Full project reference:** [README.md](README.md) (architecture, APIs, environment variables, CI, MDX, deployment).
 
-**Never push directly to `main`.** `main` is protected; pushes must go through
-a pull request with required status checks. Even if the agent has bypass
-permissions, use the PR flow.
+---
 
-For every change:
+## Git workflow — always branch + PR
 
-1. Create a feature branch off the latest `main`:
+**Never push directly to `main`.** Treat `main` as protected: every change goes through a **pull request** with CI green. Even with bypass permissions, use the PR flow unless the repository owner explicitly overrides with a written reason.
+
+### Steps
+
+1. **Branch** from latest `main`:
+
    ```bash
    git checkout main && git pull --ff-only
    git checkout -b <type>/<short-description>
    ```
-   Branch name format: `fix/…`, `feat/…`, `chore/…`, `docs/…`, `refactor/…`.
 
-2. Commit with a conventional-style message. **Every commit in this repo must
-   credit Claude as a co-author** — `.githooks/prepare-commit-msg` appends the
-   trailer automatically once `npm install` has run, but include it explicitly
-   anyway (e.g. when you commit via an API/web editor that skips git hooks):
+   Prefix examples: `fix/`, `feat/`, `chore/`, `docs/`, `refactor/`.
+
+2. **Commit** using conventional-style messages:
 
    ```
    <type>: <imperative summary>
 
-   <optional body explaining the why>
+   <optional body>
 
    Co-authored-by: Claude <noreply@anthropic.com>
    ```
 
-3. Push the branch and open a PR with `gh pr create`:
+   The `Co-authored-by` line is **required** for this repo’s policy (see [Git hooks](#git-hooks) below). If your tool cannot run hooks, append the trailer manually.
+
+3. **Push** and **open a PR**:
+
    ```bash
    git push -u origin HEAD
    gh pr create --title "<type>: <summary>" --body "$(cat <<'EOF'
@@ -44,33 +47,51 @@ For every change:
    )"
    ```
 
-4. Wait for CI (lint + typecheck + test + build) to pass. Do **not** force-push
-   to `main`. Do **not** bypass required status checks.
+4. **Wait for CI** — lint, typecheck, test, build. Do not force-push to `main` or skip required checks without owner approval.
 
-5. If the user asks for a direct commit to `main`, push back on it and default
-   to the PR flow unless they explicitly override with a clear reason.
+5. If the user asks to **commit straight to `main`**, default to explaining the PR workflow and ask for explicit exception.
+
+---
 
 ## Before you commit
 
-Run the same sequence CI runs — fail fast locally:
+Mirror CI locally:
 
 ```bash
 npm run lint && npm run typecheck && npm run test && npm run build
 ```
 
+Update **[README.md](README.md)** and/or **[`.env.example`](.env.example)** when you change routes, APIs, or required environment variables.
+
+---
+
 ## Git hooks (co-author trailer)
 
-This repo ships a `prepare-commit-msg` hook at `.githooks/prepare-commit-msg`
-that appends `Co-authored-by: Claude <noreply@anthropic.com>` on every commit
-(skipped for merge commits). `npm install` sets `core.hooksPath = .githooks`
-via the `postinstall` script, so the hook activates automatically after a
-fresh clone + install.
+- Hook path: **`.githooks/prepare-commit-msg`**
+- Activation: `npm install` runs `postinstall` → `git config core.hooksPath .githooks` (best effort; may fail in some sandboxes — set manually if needed).
+- Behavior: appends `Co-authored-by: Claude <noreply@anthropic.com>` via `git interpret-trailers` (skipped for **merge** commits; idempotent if trailer exists).
 
-If you commit in an environment where the hook can't run (GitHub web editor,
-some sandboxed agents, `-n` / `--no-verify` situations), add the trailer
-manually so the policy is never silently dropped.
+If hooks do not run (web editor, `--no-verify`, CI-only commits), **add the trailer by hand** so policy is not dropped silently.
 
-## Secrets
+---
 
-Never commit `.env.local`, `.env.vercel.check`, `.env.sentry-build-plugin`, or
-anything matching `*.local` / `*.secret`. Check `git status` before staging.
+## Secrets — never commit
+
+Do not stage or commit:
+
+- `.env.local`, `.env.vercel.check`, `.env.sentry-build-plugin`
+- Any `*.local`, `*.secret`, or raw tokens
+
+Run `git status` and `git diff --staged` before committing.
+
+---
+
+## Where to read more
+
+| Topic | Document |
+| --- | --- |
+| APIs, env, CI, MDX, fork checklist | [README.md](README.md) |
+| Human contribution process | [CONTRIBUTING.md](CONTRIBUTING.md) |
+| Short Claude Code stack summary | [CLAUDE.md](CLAUDE.md) |
+| Security reporting | [SECURITY.md](SECURITY.md) |
+| Cursor IDE git reminder | [`.cursor/rules/git-workflow.mdc`](.cursor/rules/git-workflow.mdc) |

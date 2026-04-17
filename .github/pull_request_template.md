@@ -1,6 +1,6 @@
 ## Summary
 
-<!-- What does this PR change? (1–3 sentences) -->
+<!-- What does this PR change? (1–3 sentences). For repo-wide context see README.md (table of contents). -->
 
 ## Type of change
 
@@ -34,4 +34,5 @@
 
 - [ ] I have read [CONTRIBUTING.md](CONTRIBUTING.md) and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
 - [ ] No secrets, `.env.local`, or production tokens are included in this PR.
-- [ ] **README** / **`.env.example`** updated if user-facing behavior or required env vars changed.
+- [ ] **[README.md](../README.md)** / **[`.env.example`](../.env.example)** updated if routes, APIs, user-facing behavior, or env vars changed.
+- [ ] **[CONTRIBUTING.md](../CONTRIBUTING.md)** / **[AGENTS.md](../AGENTS.md)** updated if contribution or agent workflow rules changed.
