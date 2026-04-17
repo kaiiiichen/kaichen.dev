@@ -1,5 +1,49 @@
 # kaichen.dev
 
+<p align="center">
+  <!-- Automation & checks -->
+  <a aria-label="GitHub Actions CI" href="https://github.com/kaiiiichen/kaichen.dev/actions/workflows/ci.yml">
+    <img src="https://img.shields.io/github/actions/workflow/status/kaiiiichen/kaichen.dev/ci.yml?branch=main&label=CI&logo=github&logoColor=white" alt="CI" />
+  </a>
+  <a aria-label="Vitest" href="https://github.com/kaiiiichen/kaichen.dev/blob/main/vitest.config.ts">
+    <img src="https://img.shields.io/badge/tests-Vitest-6E9F18?logo=vitest&logoColor=white" alt="Vitest" />
+  </a>
+  <a aria-label="ESLint" href="https://github.com/kaiiiichen/kaichen.dev/blob/main/eslint.config.mjs">
+    <img src="https://img.shields.io/badge/lint-ESLint-4B32C3?logo=eslint&logoColor=white" alt="ESLint" />
+  </a>
+  <br />
+  <!-- Stack versions -->
+  <a aria-label="Next.js" href="https://nextjs.org/">
+    <img src="https://img.shields.io/badge/Next.js-16-000000?logo=nextdotjs&logoColor=white" alt="Next.js 16" />
+  </a>
+  <a aria-label="React" href="https://react.dev/">
+    <img src="https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black" alt="React 19" />
+  </a>
+  <a aria-label="TypeScript" href="https://www.typescriptlang.org/">
+    <img src="https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white" alt="TypeScript 5" />
+  </a>
+  <a aria-label="Tailwind CSS" href="https://tailwindcss.com/">
+    <img src="https://img.shields.io/badge/Tailwind-4-38B2AC?logo=tailwindcss&logoColor=white" alt="Tailwind CSS 4" />
+  </a>
+  <a aria-label="Node.js" href="https://nodejs.org/">
+    <img src="https://img.shields.io/badge/node.js-20.x-339933?logo=nodedotjs&logoColor=white" alt="Node.js 20" />
+  </a>
+  <br />
+  <!-- Meta -->
+  <a aria-label="Deploy" href="https://vercel.com/">
+    <img src="https://img.shields.io/badge/deployed%20on-Vercel-000000?logo=vercel&logoColor=white" alt="Deployed on Vercel" />
+  </a>
+  <a aria-label="License" href="https://github.com/kaiiiichen/kaichen.dev/blob/main/LICENSE">
+    <img src="https://img.shields.io/badge/license-GPL_3.0-blue.svg" alt="License GPL-3.0" />
+  </a>
+  <a aria-label="Dependabot" href="https://github.com/kaiiiichen/kaichen.dev/network/updates">
+    <img src="https://img.shields.io/badge/Dependabot-enabled-025E8C?logo=dependabot&logoColor=white" alt="Dependabot" />
+  </a>
+  <a aria-label="Website" href="https://kaichen.dev/">
+    <img src="https://img.shields.io/badge/site-kaichen.dev-C4894F?logo=googlechrome&logoColor=white" alt="kaichen.dev" />
+  </a>
+</p>
+
 Personal website of **Kai Chen** — production: [kaichen.dev](https://kaichen.dev).
 
 This repository is a **[Next.js 16](https://nextjs.org/)** application using the **App Router**, **React 19**, **TypeScript**, and **Tailwind CSS 4**. It is deployed on **[Vercel](https://vercel.com/)**.
