@@ -1,0 +1,44 @@
+---
+description: Always use a branch + PR, never push directly to main
+alwaysApply: true
+---
+
+# Git workflow — branch + PR only
+
+`main` is protected. **Never `git push` directly to `main`**, even if you have
+bypass permissions. Every change must go through a pull request.
+
+See `AGENTS.md` for the full canonical version. Short form:
+
+1. Branch off latest `main`:
+   ```bash
+   git checkout main && git pull --ff-only
+   git checkout -b <type>/<short-description>
+   ```
+   Prefix: `fix/`, `feat/`, `chore/`, `docs/`, `refactor/`.
+
+2. Commit with conventional-style message:
+   `<type>: <imperative summary>`
+
+3. Push the branch and open a PR:
+   ```bash
+   git push -u origin HEAD
+   gh pr create --title "<type>: <summary>" --body "..."
+   ```
+
+4. Let CI pass. Don't force-push or bypass required checks.
+
+5. If the user asks you to push to `main` directly, push back and default to
+   the PR flow unless they explicitly override with a reason.
+
+## Pre-commit sanity
+
+Before committing, run:
+```bash
+npm run lint && npm run typecheck && npm run test && npm run build
+```
+
+## Never commit
+
+`.env.local`, `.env.vercel.check`, `.env.sentry-build-plugin`, or any `*.local`
+/ `*.secret` file. Check `git status` before staging.
