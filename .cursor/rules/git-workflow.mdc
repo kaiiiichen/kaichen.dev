@@ -20,6 +20,13 @@ See `AGENTS.md` for the full canonical version. Short form:
 2. Commit with conventional-style message:
    `<type>: <imperative summary>`
 
+   **Every commit must credit Claude as co-author.** `.githooks/prepare-commit-msg`
+   appends the trailer automatically after `npm install`, but include it
+   explicitly anyway as defense-in-depth:
+   ```
+   Co-authored-by: Claude <noreply@anthropic.com>
+   ```
+
 3. Push the branch and open a PR:
    ```bash
    git push -u origin HEAD

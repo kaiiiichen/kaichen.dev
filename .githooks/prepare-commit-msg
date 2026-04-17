@@ -1,0 +1,27 @@
+#!/usr/bin/env sh
+# Appends a Co-authored-by trailer crediting Claude on every commit.
+#
+# Activated via `core.hooksPath = .githooks`, which is set automatically by the
+# `postinstall` npm script. To install manually, run:
+#   git config core.hooksPath .githooks
+
+set -e
+
+COMMIT_MSG_FILE=$1
+COMMIT_SOURCE=$2
+
+# Skip for true merge commits (they carry their own author metadata) but run
+# for everything else including squash, amend, and template-based commits.
+case "$COMMIT_SOURCE" in
+  merge) exit 0 ;;
+esac
+
+COAUTHOR="Co-authored-by: Claude <noreply@anthropic.com>"
+
+# `git interpret-trailers` handles trailer placement (blank line before,
+# existing trailers, duplicates) correctly.
+git interpret-trailers \
+  --in-place \
+  --if-exists addIfDifferent \
+  --trailer "$COAUTHOR" \
+  "$COMMIT_MSG_FILE"
