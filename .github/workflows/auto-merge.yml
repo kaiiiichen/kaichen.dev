@@ -1,10 +1,16 @@
 name: Auto-merge Dependabot minor/patch
 
-on: pull_request
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
 
 permissions:
   contents: write
   pull-requests: write
+
+concurrency:
+  group: dependabot-automerge-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 
 jobs:
   dependabot:
@@ -17,11 +23,43 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Enable auto-merge for patch/minor updates
+      - name: Enable squash auto-merge for patch/minor
         if: |
           steps.meta.outputs.update-type == 'version-update:semver-patch' ||
           steps.meta.outputs.update-type == 'version-update:semver-minor'
-        run: gh pr merge --auto --squash "$PR_URL"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh pr merge --auto --squash "$PR_URL"
+
+      - name: Comment @dependabot squash and merge (idempotent)
+        if: |
+          (steps.meta.outputs.update-type == 'version-update:semver-patch' ||
+           steps.meta.outputs.update-type == 'version-update:semver-minor') &&
+          (github.event.action == 'opened' || github.event.action == 'reopened')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          MARKER='<!-- dependabot-automerge-workflow -->'
+          if gh api "repos/${REPO}/issues/${PR_NUMBER}/comments" --paginate \
+            --jq '.[].body' | grep -Fq "$MARKER"; then
+            echo "Automerge comment already present; skipping."
+            exit 0
+          fi
+          BODY_FILE="$(mktemp)"
+          trap 'rm -f "$BODY_FILE"' EXIT
+          {
+            echo '<!-- dependabot-automerge-workflow -->'
+            echo ''
+            echo '**Dependabot auto-merge**'
+            echo ''
+            echo 'This PR is a semver **patch** or **minor** dependency update. Squash **auto-merge** is enabled; it completes when required status checks pass.'
+            echo ''
+            echo 'The line below is the official Dependabot command (squash merge when checks are green). It mirrors the workflow step that runs `gh pr merge --auto --squash`:'
+            echo ''
+            echo '@dependabot squash and merge'
+          } >"$BODY_FILE"
+          gh pr comment "$PR_NUMBER" --body-file "$BODY_FILE"
