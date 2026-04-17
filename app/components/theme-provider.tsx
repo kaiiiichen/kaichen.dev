@@ -44,7 +44,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         if (s === "light" || s === "dark" || s === "system") {
           setThemeState(s);
         } else {
-          setThemeState("dark");
+          setThemeState("light");
         }
       } catch {
         /* ignore */
