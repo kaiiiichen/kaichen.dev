@@ -6,6 +6,14 @@ Instructions for **AI coding agents** (Cursor, Claude Code, Codex, Copilot, etc.
 
 ---
 
+## Owner defaults (read first)
+
+- **Remote:** Use **SSH** — `git@github.com:kaiiiichen/kaichen.dev.git`. If `origin` is HTTPS and push fails with “could not read Username”, set: `git remote set-url origin git@github.com:kaiiiichen/kaichen.dev.git`.
+- **Default branch:** Always **`main`** (not `master`).
+- **Merge policy:** **Open a PR and merge through GitHub** every time — no direct pushes to `main`, even when the agent could technically push.
+
+---
+
 ## Git workflow — always branch + PR
 
 **Never push directly to `main`.** Treat `main` as protected: every change goes through a **pull request** with CI green. Even with bypass permissions, use the PR flow unless the repository owner explicitly overrides with a written reason.
