@@ -5,8 +5,10 @@ alwaysApply: true
 
 # Git workflow — branch + PR only
 
-`main` is protected. **Never `git push` directly to `main`**, even if you have
-bypass permissions. Every change must go through a pull request.
+The owner uses **SSH** remotes (`git@github.com:...`) and **`main`** as the only
+integration branch. **`main` is protected.** Never `git push` directly to
+`main`, even if you have bypass permissions. Every change must go through a
+pull request and merge on GitHub.
 
 See `AGENTS.md` for the full canonical version. Short form:
 
