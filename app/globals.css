@@ -178,7 +178,7 @@ body {
 }
 
 
-/* ── Nav wave underline (rendered via portal, see nav-wave-overlay.tsx) ── */
+/* ── Nav wave underline (portal in nav.tsx) ── */
 @keyframes nav-wave-flow {
   from { background-position-x: 0px; }
   to   { background-position-x: 20px; }

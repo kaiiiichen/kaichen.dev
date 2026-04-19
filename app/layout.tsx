@@ -11,7 +11,6 @@ import "@fontsource/jetbrains-mono/400.css";
 import "@fontsource/jetbrains-mono/500.css";
 import "./globals.css";
 import Nav from "./components/nav";
-import NavWaveOverlay from "./components/nav-wave-overlay";
 import SubpageEnter from "./components/subpage-enter";
 import Providers from "./components/providers";
 import { Analytics } from "@vercel/analytics/react";
@@ -56,7 +55,6 @@ export default function RootLayout({
           {`(function(){try{var d=document.documentElement;var t=localStorage.getItem('theme');var dark;if(t==='dark')dark=true;else if(t==='light')dark=false;else dark=false;d.classList.toggle('dark',dark);d.style.colorScheme=dark?'dark':'light';}catch(e){}})();`}
         </Script>
         <Providers>
-          <NavWaveOverlay />
           <Nav />
           <main className="flex-1 pt-16">
             <SubpageEnter>{children}</SubpageEnter>
