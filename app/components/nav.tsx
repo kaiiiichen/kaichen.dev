@@ -17,10 +17,15 @@ const NAV_LINKS = [
 ];
 
 export default function Nav() {
+  const [mounted, setMounted] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const navRef = useRef<HTMLElement>(null);
   const [waveRect, setWaveRect] = useState<{ left: number; width: number; top: number } | null>(null);
   const waveLeaveFrame = useRef(0);
+
+  useEffect(() => {
+    queueMicrotask(() => setMounted(true));
+  }, []);
 
   const onWaveEnter = useCallback((e: React.MouseEvent<HTMLElement>) => {
     const el = e.currentTarget;
@@ -157,7 +162,7 @@ export default function Nav() {
         </div>
       </div>
     </nav>
-    {typeof document !== "undefined"
+    {mounted
       ? createPortal(
           <div
             style={{

@@ -1,0 +1,66 @@
+import Link from "next/link";
+
+export const metadata = {
+  title: "Lecture Notes | MA337 Real Analysis (H) | Kai Chen",
+  description:
+    "General measure theory.",
+};
+
+<div className="mb-5">
+  <Link
+    href="/notes/ma337"
+    style={{ fontFamily: "'Nunito'", fontWeight: 400, fontSize: "0.8rem" }}
+    className="inline-flex items-center gap-1.5 border border-[#C4894F] dark:border-[#D9A870] text-[#C4894F] dark:text-[#D9A870] hover:bg-[#C4894F] dark:hover:bg-[#D9A870] hover:text-white dark:hover:text-zinc-900 rounded-full px-3 py-1 transition-colors duration-150"
+  >
+    <span>←</span>
+    <span>MA337</span>
+  </Link>
+</div>
+
+<div className="mb-8">
+  <h1 style={{ fontFamily: "'Bitter'", fontWeight: 600, fontSize: "1.8rem", lineHeight: 1.2, marginBottom: 0 }} className="text-zinc-900 dark:text-zinc-100">Lecture Notes</h1>
+  <div className="mt-5 w-full h-px bg-zinc-200 dark:bg-zinc-800" />
+</div>
+
+<div style={{ fontFamily: "'Bitter'", fontWeight: 400, fontSize: 16, lineHeight: 1.85 }} className="text-zinc-700 dark:text-zinc-300 max-w-[52rem] [&_p]:mb-4 [&_p:last-child]:mb-0">
+
+These notes are compatible with the **MA337 course (Fall 2025)** at SUSTech, and part of
+the course-notes-and-resources initiative: [SUSTech-Kai-Notes](https://github.com/kaiiiichen/SUSTech-Kai-Notes).
+
+I tried my best to make sure every statement and proof make sense, and I made some
+complements, which might be useful, to the original contents of the course. For instance,
+the Dynkin classes.
+
+**Main reference**:
+
+A.N. Kolmogorov and S.V. Fomin, Elements of the Theory of Functions and Functional
+Analysis: translated from the first (1954) Russian edition by Leo F. Boron, Gra Ylock
+Press, 1957.
+(There is also a Chinese version of the book published by Higher Education Press, 2006.)
+
+**Remark**:
+
+I’ve stopped updating this course notes project due to personal reasons.
+
+If you are interested in finishing it and fill the blanks with details, please feel free to contact me.
+
+</div>
+
+<div className="mt-10 flex flex-col sm:flex-row flex-wrap gap-3 not-prose">
+  <a
+    href="/notes/ma337/RA.pdf"
+    download="RA.pdf"
+    className="inline-flex items-center justify-center rounded-sm border border-[#C4894F] dark:border-[#D9A870] bg-[#C4894F]/10 dark:bg-[#D9A870]/10 px-4 py-1.5 text-sm leading-none font-normal text-[#C4894F] dark:text-[#D9A870] hover:bg-[#C4894F] dark:hover:bg-[#D9A870] hover:text-white dark:hover:text-zinc-900 transition-colors duration-150"
+    style={{ fontFamily: "'Nunito'", fontWeight: 500 }}
+  >
+    Download PDF
+  </a>
+  <a
+    href="/notes/ma337/RA.zip"
+    download="RA.zip"
+    className="inline-flex items-center justify-center rounded-sm border border-zinc-300 dark:border-zinc-600 px-4 py-1.5 text-sm leading-none font-normal text-zinc-700 dark:text-zinc-300 hover:border-[#C4894F] dark:hover:border-[#D9A870] hover:text-[#C4894F] dark:hover:text-[#D9A870] transition-colors duration-150"
+    style={{ fontFamily: "'Nunito'", fontWeight: 500 }}
+  >
+    Download TeX sources (zip)
+  </a>
+</div>

@@ -70,10 +70,17 @@ export default function Admin() {
   }, [user]);
 
   async function signIn() {
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? location.origin;
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? window.location.origin;
+    let nextPath = "/admin";
+    const fromQuery = new URLSearchParams(window.location.search).get("next");
+    if (fromQuery && fromQuery.startsWith("/") && !fromQuery.startsWith("//")) {
+      nextPath = fromQuery;
+    }
+    const callback = new URL("/auth/callback", siteUrl);
+    callback.searchParams.set("next", nextPath);
     await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${siteUrl}/auth/callback?next=/admin` },
+      options: { redirectTo: callback.toString() },
     });
   }
 

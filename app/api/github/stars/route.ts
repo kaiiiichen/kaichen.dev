@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 
-export const revalidate = 3600; // cache 1 hour
+/** ISR: refresh repo metadata often enough for archive / visibility to stay accurate */
+export const revalidate = 120;
+
+const cacheHeaders = {
+  "Cache-Control": "public, s-maxage=120, stale-while-revalidate=60",
+};
 
 export async function GET(req: NextRequest) {
   const repo = req.nextUrl.searchParams.get("repo");
@@ -12,14 +17,27 @@ export async function GET(req: NextRequest) {
       Accept: "application/vnd.github+json",
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
-    next: { revalidate: 3600 },
+    next: { revalidate: 120 },
   });
 
-  if (!res.ok) return NextResponse.json({ stars: 0 });
+  if (!res.ok) {
+    return NextResponse.json({ stars: 0 }, { headers: cacheHeaders });
+  }
 
   const data = await res.json();
-  return NextResponse.json({
-    stars: data.stargazers_count ?? 0,
-    archived: data.archived ?? false,
-  });
+  const visibility =
+    typeof data.visibility === "string"
+      ? (data.visibility as "public" | "private")
+      : data.private
+        ? "private"
+        : "public";
+
+  return NextResponse.json(
+    {
+      stars: data.stargazers_count ?? 0,
+      archived: data.archived ?? false,
+      visibility,
+    },
+    { headers: cacheHeaders }
+  );
 }

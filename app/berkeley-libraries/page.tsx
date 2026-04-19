@@ -6,7 +6,7 @@ import type { UCBLibrary } from "@/lib/ucb-library-hours";
 export const metadata: Metadata = {
   title: "UC Berkeley Library Hours",
   description:
-    "Live open/closed status for UC Berkeley libraries, from lib.berkeley.edu (refreshed at most every 15 minutes).",
+    "Library hours parsed from lib.berkeley.edu/hours; fetch cache revalidates every 15 minutes (Next.js revalidate: 900).",
   openGraph: {
     title: "UC Berkeley Library Hours · Kai Chen",
     description: "Library availability scraped from the official Berkeley hours page.",
@@ -106,7 +106,7 @@ export default async function BerkeleyLibrariesPage() {
           style={{ fontFamily: "'Bitter'", fontWeight: 400, fontSize: 16, lineHeight: 1.75 }}
           className="text-zinc-600 dark:text-zinc-400 mt-4 max-w-2xl"
         >
-          Parsed from the official{" "}
+          The server fetches the public{" "}
           <a
             href="https://www.lib.berkeley.edu/hours"
             target="_blank"
@@ -115,9 +115,13 @@ export default async function BerkeleyLibrariesPage() {
           >
             library hours
           </a>{" "}
-          page. Data is cached for up to 15 minutes to avoid hammering their servers. Overnight and
-          special hours may only appear on each library&apos;s detail page — check the official site
-          when in doubt.
+          HTML and parses list items server-side: each library gets a name, link to its visit page,
+          and—when the list text matches simple time patterns—a same-day hours window and an
+          open/closed guess. The underlying HTTP fetch is cached by Next.js with{" "}
+          <span className="whitespace-nowrap">revalidate: 900</span> (15 minutes), so the live
+          lib.berkeley.edu page is not downloaded on every request. Lines that don&apos;t match those
+          patterns (unusual wording, overnight spans, holidays) may parse as unknown or incomplete—check
+          the official site or each library&apos;s page when it matters.
         </p>
       </div>
 

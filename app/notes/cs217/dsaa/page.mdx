@@ -1,0 +1,51 @@
+import Link from "next/link";
+
+export const metadata = {
+  title: "Lecture Notes | CS217 DSAA (H) | Kai Chen",
+  description:
+    "Mathematical analysis of algorithms, data structure implementation details, and complexity theory.",
+};
+
+<div className="mb-5">
+  <Link
+    href="/notes/cs217"
+    style={{ fontFamily: "'Nunito'", fontWeight: 400, fontSize: "0.8rem" }}
+    className="inline-flex items-center gap-1.5 border border-[#C4894F] dark:border-[#D9A870] text-[#C4894F] dark:text-[#D9A870] hover:bg-[#C4894F] dark:hover:bg-[#D9A870] hover:text-white dark:hover:text-zinc-900 rounded-full px-3 py-1 transition-colors duration-150"
+  >
+    <span>←</span>
+    <span>CS217</span>
+  </Link>
+</div>
+
+<div className="mb-8">
+  <h1 style={{ fontFamily: "'Bitter'", fontWeight: 600, fontSize: "1.8rem", lineHeight: 1.2, marginBottom: 0 }} className="text-zinc-900 dark:text-zinc-100">Lecture Notes</h1>
+  <div className="mt-5 w-full h-px bg-zinc-200 dark:bg-zinc-800" />
+</div>
+
+<div style={{ fontFamily: "'Bitter'", fontWeight: 400, fontSize: 16, lineHeight: 1.85 }} className="text-zinc-700 dark:text-zinc-300 max-w-[52rem] [&_p]:mb-4 [&_p:last-child]:mb-0">
+
+These notes are compatible with the **CS217 Data Structures and Algorithm Analysis (H) (Fall 2025)** at SUSTech, and part of the course-notes-and-resources initiative: [SUSTech-Kai-Notes](https://github.com/kaiiiichen/SUSTech-Kai-Notes).
+
+Specific focus is placed on the mathematical analysis of algorithms, data structure
+implementation details, and complexity theory.
+
+</div>
+
+<div className="mt-10 flex flex-col sm:flex-row flex-wrap gap-3 not-prose">
+  <a
+    href="/notes/cs217/DSAA.pdf"
+    download="DSAA.pdf"
+    className="inline-flex items-center justify-center rounded-sm border border-[#C4894F] dark:border-[#D9A870] bg-[#C4894F]/10 dark:bg-[#D9A870]/10 px-4 py-1.5 text-sm leading-none font-normal text-[#C4894F] dark:text-[#D9A870] hover:bg-[#C4894F] dark:hover:bg-[#D9A870] hover:text-white dark:hover:text-zinc-900 transition-colors duration-150"
+    style={{ fontFamily: "'Nunito'", fontWeight: 500 }}
+  >
+    Download PDF
+  </a>
+  <a
+    href="/notes/cs217/DSAA.zip"
+    download="DSAA.zip"
+    className="inline-flex items-center justify-center rounded-sm border border-zinc-300 dark:border-zinc-600 px-4 py-1.5 text-sm leading-none font-normal text-zinc-700 dark:text-zinc-300 hover:border-[#C4894F] dark:hover:border-[#D9A870] hover:text-[#C4894F] dark:hover:text-[#D9A870] transition-colors duration-150"
+    style={{ fontFamily: "'Nunito'", fontWeight: 500 }}
+  >
+    Download TeX sources (zip)
+  </a>
+</div>

@@ -1,0 +1,42 @@
+import Link from "next/link";
+
+export const metadata = {
+  title: "Handwritten Notes | MA232 Complex Analysis (H) | Kai Chen",
+  description:
+    "A unique Complex Analysis course based on Introduction to Complex Analysis by Б. В. Шабат (B. V. Shabat). And a lot about complex geometry.",
+};
+
+<div className="mb-5">
+  <Link
+    href="/notes/ma232"
+    style={{ fontFamily: "'Nunito'", fontWeight: 400, fontSize: "0.8rem" }}
+    className="inline-flex items-center gap-1.5 border border-[#C4894F] dark:border-[#D9A870] text-[#C4894F] dark:text-[#D9A870] hover:bg-[#C4894F] dark:hover:bg-[#D9A870] hover:text-white dark:hover:text-zinc-900 rounded-full px-3 py-1 transition-colors duration-150"
+  >
+    <span>←</span>
+    <span>MA232</span>
+  </Link>
+</div>
+
+<div className="mb-8">
+  <h1 style={{ fontFamily: "'Bitter'", fontWeight: 600, fontSize: "1.8rem", lineHeight: 1.2, marginBottom: 0 }} className="text-zinc-900 dark:text-zinc-100">Lecture Notes</h1>
+  <div className="mt-5 w-full h-px bg-zinc-200 dark:bg-zinc-800" />
+</div>
+
+<div style={{ fontFamily: "'Bitter'", fontWeight: 400, fontSize: 16, lineHeight: 1.85 }} className="text-zinc-700 dark:text-zinc-300 max-w-[52rem] [&_p]:mb-4 [&_p:last-child]:mb-0">
+
+These **handwritten** notes are compatible with **MA232 Complex Analysis (H) (Spring 2025)** at SUSTech, and part of the course-notes-and-resources initiative: [SUSTech-Kai-Notes](https://github.com/kaiiiichen/SUSTech-Kai-Notes).
+
+A unique Complex Analysis course based on Introduction to Complex Analysis by Б. В. Шабат (B. V. Shabat). And a lot about complex geometry.
+
+</div>
+
+<div className="mt-10 flex flex-col sm:flex-row flex-wrap gap-3 not-prose">
+  <a
+    href="/notes/ma232/CA.pdf"
+    download="CA.pdf"
+    className="inline-flex items-center justify-center rounded-sm border border-[#C4894F] dark:border-[#D9A870] bg-[#C4894F]/10 dark:bg-[#D9A870]/10 px-4 py-1.5 text-sm leading-none font-normal text-[#C4894F] dark:text-[#D9A870] hover:bg-[#C4894F] dark:hover:bg-[#D9A870] hover:text-white dark:hover:text-zinc-900 transition-colors duration-150"
+    style={{ fontFamily: "'Nunito'", fontWeight: 500 }}
+  >
+    Download PDF
+  </a>
+</div>
