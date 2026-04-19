@@ -3,41 +3,11 @@ import ListeningLine from "./components/listening-line";
 import ListeningCard from "./components/listening-card";
 import WeatherCard from "./components/weather-card";
 import ProjectStars from "./components/project-stars";
+import { getPinnedProjects } from "./lib/github-pinned";
 import { getSubstackPosts } from "./lib/substack";
 
-const PROJECTS = [
-  {
-    name: "kaichen.dev",
-    desc: "Personal website and digital identity system.",
-    href: "https://github.com/kaiiiichen/kaichen.dev",
-    repo: "kaiiiichen/kaichen.dev",
-    stack: ["Next.js", "TypeScript", "Tailwind"],
-  },
-  {
-    name: "SUSTech Kai Notes",
-    desc: "Open lecture notes for 20+ math and CS courses.",
-    href: "https://github.com/kaiiiichen/SUSTech-Kai-Notes",
-    repo: "kaiiiichen/SUSTech-Kai-Notes",
-    stack: ["LaTeX"],
-  },
-  {
-    name: "SudoSodoku",
-    desc: "Terminal-style Sudoku for iOS. Minimalist, focus-driven.",
-    href: "https://github.com/kaiiiichen/SudoSodoku",
-    repo: "kaiiiichen/SudoSodoku",
-    stack: ["Swift", "SwiftUI"],
-  },
-  {
-    name: "kai-chen.xyz",
-    desc: "Previous personal website, v1. Static.",
-    href: "https://github.com/kaiiiichen/kai-chen.xyz",
-    repo: "kaiiiichen/kai-chen.xyz",
-    stack: ["HTML", "CSS"],
-  },
-];
-
 export default async function Home() {
-  const substackPosts = await getSubstackPosts();
+  const [substackPosts, projects] = await Promise.all([getSubstackPosts(), getPinnedProjects()]);
   return (
     <div className="max-w-[1180px] mx-auto px-4 md:px-12 py-16 space-y-14">
 
@@ -198,20 +168,26 @@ export default async function Home() {
         </div>
       </div>
 
-      {/* ── Layer 3: Projects | Notes + Blog ───────────────────── */}
-      {/* Desktop: 2-col grid, Projects spans both rows on the left */}
+      {/* ── Layer 3: Projects | Blog ─────────────────────────────── */}
       <div
-        className="grid grid-cols-1 md:grid-cols-2 md:grid-rows-[auto_auto] gap-6 fade-up"
+        className="grid grid-cols-1 md:grid-cols-2 gap-6 fade-up"
         style={{ animationDelay: "120ms" }}
       >
 
-        {/* Projects — left column, spans 2 rows on desktop */}
-        <div className="mag-card md:row-span-2">
+        <div className="mag-card">
           <div className="mag-label">Projects</div>
           <div>
-            {PROJECTS.map(({ name, desc, href, repo, stack }) => (
+            {projects.length === 0 ? (
+              <p
+                style={{ fontFamily: "'Bitter'", fontWeight: 400, fontSize: 14 }}
+                className="text-zinc-400 dark:text-zinc-600 py-2"
+              >
+                Pin repositories on your GitHub profile to show them here.
+              </p>
+            ) : (
+              projects.map(({ name, desc, href, repo, stack }) => (
               <a
-                key={name}
+                key={repo}
                 href={href}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -229,12 +205,15 @@ export default async function Home() {
                   </p>
                   <ProjectStars repo={repo} />
                 </div>
-                <p
-                  style={{ fontFamily: "'Bitter'", fontWeight: 400, fontSize: 11 }}
-                  className="text-zinc-400 dark:text-zinc-500 mt-0.5 leading-snug pl-4"
-                >
-                  {desc}
-                </p>
+                {desc ? (
+                  <p
+                    style={{ fontFamily: "'Bitter'", fontWeight: 400, fontSize: 11 }}
+                    className="text-zinc-400 dark:text-zinc-500 mt-0.5 leading-snug pl-4"
+                  >
+                    {desc}
+                  </p>
+                ) : null}
+                {stack.length > 0 ? (
                 <div className="flex flex-wrap gap-1 mt-1.5 pl-4">
                   {stack.map((tag) => (
                     <span
@@ -246,39 +225,14 @@ export default async function Home() {
                     </span>
                   ))}
                 </div>
+                ) : null}
               </a>
-            ))}
+              ))
+            )}
           </div>
         </div>
 
-        {/* Notes — right column, top */}
-        <div className="mag-card">
-          <div className="mag-label">Notes</div>
-          <a href="/notes/cs61a" className="group flex items-start justify-between gap-4 py-3 -mx-2 px-2 rounded-sm hover:bg-zinc-50 dark:hover:bg-zinc-800/60 transition-all duration-150 cursor-pointer no-underline" style={{ textDecoration: "none" }}>
-            <div>
-              <p
-                style={{ fontFamily: "'Bitter'", fontWeight: 600, fontSize: 15, fontStyle: "italic" }}
-                className="text-zinc-800 dark:text-zinc-200 group-hover:text-[#C4894F] dark:group-hover:text-[#D9A870] transition-colors duration-150"
-              >
-                CS61A
-              </p>
-              <p
-                style={{ fontFamily: "'Bitter'", fontWeight: 400, fontSize: 12, lineHeight: 1.6 }}
-                className="text-zinc-400 dark:text-zinc-600 mt-0.5"
-              >
-                Structure and Interpretation of Computer Programs
-              </p>
-            </div>
-            <span
-              style={{ fontFamily: "'Nunito'", fontWeight: 400, fontSize: 11 }}
-              className="text-zinc-300 dark:text-zinc-700 group-hover:text-[#C4894F] dark:group-hover:text-[#D9A870] shrink-0 transition-colors"
-            >
-              1 note →
-            </span>
-          </a>
-        </div>
-
-        {/* Blog — right column, bottom */}
+        {/* Blog */}
         <div className="mag-card">
           <div className="mag-label">Blog</div>
           {substackPosts.length === 0 ? (

@@ -205,7 +205,7 @@ export default function Gallery() {
       {/* Admin entry — bottom, minimal icon */}
       <div className="flex justify-center mt-16">
         <Link
-          href="/admin"
+          href="/admin?next=/admin"
           aria-label="Admin"
           className="text-zinc-400 dark:text-zinc-600 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors duration-200"
         >

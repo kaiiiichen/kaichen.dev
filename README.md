@@ -83,9 +83,9 @@ This repository is a **[Next.js 16](https://nextjs.org/)** application using the
 
 The site combines:
 
-- A **marketing-style home page** (identity, listening status, weather, projects, Substack headlines).
-- **Dynamic data** from Last.fm, GitHub, Open-Meteo, and optional Supabase-backed gallery and listening history.
-- **MDX-powered notes** under `/notes` with math (KaTeX), GitHub-flavored Markdown, and syntax-highlighted code blocks.
+- A **marketing-style home page** (identity, listening status, weather, **GitHub pinned repositories** via GraphQL with a static fallback, Substack headlines, and links to **news.kaichen.dev** and the **Berkeley library hours** page).
+- **Dynamic data** from Last.fm, GitHub, Open-Meteo, optional Supabase-backed gallery and listening history, and **UC Berkeley library hours** scraped from the official hours page (cached, JSON API available).
+- **MDX-powered notes** under `/notes` with math (KaTeX), GitHub-flavored Markdown, and syntax-highlighted code blocks — multiple course segments (UC Berkeley and SUSTech); see [MDX lecture notes](#mdx-lecture-notes).
 - **Optional observability** via Sentry (client, server, edge) and Vercel Analytics / Speed Insights.
 
 There is **no** `middleware.ts` in this repo; auth for admin flows uses Supabase OAuth and route handlers under `app/auth/`.
@@ -162,15 +162,17 @@ kaichen.dev/
 │   ├── notes/                    # Notes index, course pages, MDX note routes
 │   ├── gallery/                  # Public gallery + OG
 │   ├── admin/                    # Supabase-auth gallery admin; /admin/gallery → redirect /admin
-│   ├── api/                      # Route handlers (Last.fm, GitHub, weather, guestbook)
+│   ├── api/                      # Route handlers (Last.fm, GitHub, weather, guestbook, UCB libraries)
+│   ├── berkeley-libraries/       # UC Berkeley library hours (HTML from lib.berkeley.edu)
 │   ├── auth/callback/            # Supabase OAuth exchange → redirect
 │   ├── components/               # UI: nav, cards, theme, weather, listening, GitHub heatmap, …
 │   ├── hooks/                    # e.g. use-now-playing.ts
-│   └── lib/                      # og.tsx, substack RSS helpers
+│   └── lib/                      # og.tsx, substack RSS, GitHub pinned repos (GraphQL)
 ├── components/notes/             # MDX shortcodes: Theorem, Proof, Definition, Example, NoteBlock
 ├── lib/                          # Shared server-oriented helpers + Vitest tests
 │   ├── supabase.ts               # Lazy anon Supabase client (getSupabaseAnon)
 │   ├── now-playing.ts            # Types for Last.fm payload
+│   ├── ucb-library-hours.ts      # Fetch + parse lib.berkeley.edu/hours (Cheerio)
 │   ├── weather-open-meteo.ts
 │   └── *.test.ts
 ├── mdx-components.tsx            # MDX element mapping + shortcode registration
@@ -205,6 +207,7 @@ kaichen.dev/
 | Framework | Next.js **16.2** (App Router), React **19**, TypeScript **5** |
 | Styling | Tailwind CSS **4** (`@tailwindcss/postcss`), custom CSS in `app/globals.css` |
 | Content | **MDX** via `@mdx-js/loader` + `remark-gfm`, `remark-math`, `rehype-katex`, `rehype-highlight` |
+| Scraping | **cheerio** — parses UC Berkeley library hours HTML server-side |
 | Fonts | `@fontsource/*` (Nunito, Bitter, JetBrains Mono), `geist` (sans/mono CSS variables) |
 | Auth / data | Supabase (`@supabase/supabase-js`, `@supabase/ssr`) for OAuth, gallery, optional listening DB writes |
 | Monitoring | `@sentry/nextjs` (optional DSN), Vercel Analytics + Speed Insights |
@@ -218,16 +221,17 @@ Pinned versions are in [`package.json`](package.json).
 
 | Route | What it does |
 | --- | --- |
-| `/` | Identity block, Last.fm line + card, Berkeley weather, project list with live GitHub stars, Substack RSS snippets |
+| `/` | Identity block, Last.fm line + card, Berkeley weather, **pinned GitHub repos** (GraphQL + fallback list), Substack RSS snippets, links to **news.kaichen.dev** and **`/berkeley-libraries`** |
 | `/about` | Education, experience, courses, volunteering |
 | `/projects` | Project cards + **GitHub contribution calendar** (client component, data from `/api/github/contributions`) |
-| `/notes` | Index of courses / note collections |
-| `/notes/...` | Nested segments; individual notes are often `page.mdx` (e.g. CS61A Scheme topics) |
+| `/notes` | Index of courses (see [MDX lecture notes](#mdx-lecture-notes)); links to external [SUSTech-Kai-Notes](https://github.com/kaiiiichen/SUSTech-Kai-Notes) for broader collections |
+| `/notes/...` | Nested segments per course (e.g. `cs61a`, `data100`, `cs217`, `ma121`–`ma337`); individual notes are `page.mdx` |
+| `/berkeley-libraries` | UC Berkeley library **open/closed** status and hours, parsed from [lib.berkeley.edu/hours](https://www.lib.berkeley.edu/hours); data revalidates every **15 minutes** |
 | `/gallery` | Photo grid + lightbox; data from Supabase `gallery_photos` + Storage |
 | `/admin` | Google OAuth via Supabase; **restricted to an allowlisted email** in client code — **you must enforce the same rules in Supabase RLS** for production safety |
 | `/admin/gallery` | Redirects to `/admin` |
 
-The main nav **Blog** link points to external [Substack](https://substack.com/@kaiiiichen); there is no `/blog` route in-app.
+**External nav (no in-app route):** the main nav includes **News** → [news.kaichen.dev](https://news.kaichen.dev) and **Blog** → [Substack](https://kaiiiichen.substack.com/); there is no `/blog` or `/news` route in this repo.
 
 **Open Graph:** several routes ship `opengraph-image` route handlers for social previews. Set [`metadataBase`](https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase) in `app/layout.tsx` if you see build warnings about resolving OG image URLs.
 
@@ -243,9 +247,12 @@ All handlers live under `app/api/`.
 | `GET /api/github/contributions` | GraphQL contribution calendar + REST search for latest commit + REST repo metadata for star counts | `dynamic = force-dynamic`; `Cache-Control: no-store`; requires `GITHUB_TOKEN` |
 | `GET /api/github/stars?repo=owner/name` | Returns `stargazers_count` and `archived` for a repo | `revalidate = 3600`; optional `GITHUB_TOKEN` for rate limits |
 | `GET /api/weather` | Open-Meteo forecast for fixed Berkeley coordinates | `fetch` with `next.revalidate = 600` |
+| `GET /api/ucb-libraries` | Same payload as `/berkeley-libraries`: JSON with `libraries`, `fetchedAt`, `sourceUrl`, or `ok: false` + `error` | Uses `getUCBLibraryHours()`; upstream fetch `revalidate: 900` (15 minutes) |
 | `POST /api/guestbook` | JSON body `{ email, message }` → insert into Supabase `guestbook` via anon client | No auth; relies on **Supabase RLS** and sensible limits in the database |
 
 **Guestbook** is only referenced from API + docs; ensure any front-end or future form respects abuse concerns (rate limits, validation) at the edge or in Supabase policies.
+
+**Berkeley libraries:** parsing depends on the HTML structure of lib.berkeley.edu. If the upstream page changes, [`lib/ucb-library-hours.ts`](lib/ucb-library-hours.ts) may need updates (see error responses when zero libraries parse).
 
 ---
 
@@ -262,7 +269,8 @@ Copy [`.env.example`](.env.example) to `.env.local`. **Never commit** real secre
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous key (browser + server routes using `getSupabaseAnon()`). |
 | `SUPABASE_SERVICE_ROLE_KEY` | **Server-only.** Used by `/api/lastfm/now-playing` for DB writes and any server path that must bypass RLS — keep off the client bundle. |
 | `LASTFM_API_KEY` | Last.fm API. If unset, the now-playing API returns a graceful “not playing” / DB fallback without calling Last.fm. |
-| `GITHUB_TOKEN` | Fine-grained or classic PAT for GitHub API (contributions + stars). If missing, some features error or return empty data. |
+| `GITHUB_TOKEN` | Fine-grained or classic PAT for GitHub API (contributions + stars + **pinned repos** on the home page). If missing, contribution/stars features may error or return empty data; pinned projects fall back to a **static list** in [`app/lib/github-pinned.ts`](app/lib/github-pinned.ts). |
+| `GITHUB_LOGIN` | Optional. GitHub username for **pinned repositories** and related API calls (defaults to `kaiiiichen` if unset). Set when forking so the home page shows your pins. |
 
 ### Sentry (optional)
 
@@ -288,12 +296,14 @@ That path is gitignored — do not commit it.
 ## MDX lecture notes
 
 - Notes are **route segments** with `page.mdx` files (e.g. `app/notes/cs61a/scheme-quote/page.mdx`), not a separate `content/` directory.
+- The index at [`/notes`](app/notes/page.tsx) lists courses by code (examples: **CS61A**, **Data 100**, **CS217**, **MA121**–**MA337**). Each course has a `page.tsx` hub and nested folders for individual notes.
 - Shared layout: [`app/notes/layout.tsx`](app/notes/layout.tsx) (imports KaTeX CSS, width/padding).
 - MDX components and typography are centralized in [`mdx-components.tsx`](mdx-components.tsx).
 - Custom shortcodes (Theorem, Definition, Proof, Example, NoteBlock) live in [`components/notes/`](components/notes/) and are registered globally for MDX.
 - Metadata in MDX files often uses `export const metadata = { title, description }` (Next.js metadata), not always YAML frontmatter.
+- Large PDFs or archives for a course may live under `public/notes/...` and be linked from MDX; keep binary paths in sync if you move files.
 
-To add a new note: create a folder + `page.mdx` under `app/notes/`, match existing note headers (breadcrumb, title block) for visual consistency, and run `npm run build` to validate the MDX pipeline.
+To add a new course: add a card on the notes index, create `app/notes/<slug>/page.tsx` plus note folders with `page.mdx`, match existing note headers (breadcrumb, title block) for visual consistency, and run `npm run build` to validate the MDX pipeline.
 
 ---
 
@@ -308,6 +318,7 @@ To add a new note: create a folder + `page.mdx` under `app/notes/`, match existi
 | **Open-Meteo** | Weather (no API key) |
 | **Supabase** | Auth, gallery tables + storage, guestbook insert, listening history (optional) |
 | **Substack RSS** | Home page “latest posts” (`app/lib/substack.ts`) |
+| **lib.berkeley.edu** | Library hours HTML (scraped server-side; not an official API) |
 
 ---
 
@@ -422,7 +433,8 @@ Replace at minimum:
 | --- | --- |
 | Copy, links, projects list | `app/page.tsx`, `app/projects/page.tsx`, `app/about/page.tsx` |
 | Last.fm username | `app/api/lastfm/now-playing/route.ts` |
-| GitHub login / repos | `app/api/github/contributions/route.ts`, `app/components/project-stars.tsx`, home page `PROJECTS` |
+| GitHub login / repos / pins | `app/api/github/contributions/route.ts`, `app/components/project-stars.tsx`, [`app/lib/github-pinned.ts`](app/lib/github-pinned.ts), env `GITHUB_LOGIN` |
+| Berkeley library page | `lib/ucb-library-hours.ts`, `app/berkeley-libraries/page.tsx`, `app/api/ucb-libraries/route.ts` |
 | Supabase project + admin allowlist | `lib/supabase.ts`, `app/admin/page.tsx`, Supabase dashboard (RLS, Storage) |
 | Substack feeds | `app/lib/substack.ts` |
 | Weather location | `app/api/weather/route.ts`, weather UI components |

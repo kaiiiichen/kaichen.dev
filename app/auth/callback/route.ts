@@ -2,10 +2,17 @@ import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
+/** OAuth may pass `next=` empty; `?? "/admin"` does not catch "", which redirects to site root. */
+function safeNextPath(raw: string | null): string {
+  if (raw == null || raw === "") return "/admin";
+  if (!raw.startsWith("/") || raw.startsWith("//")) return "/admin";
+  return raw;
+}
+
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
-  const next = searchParams.get("next") ?? "/admin";
+  const next = safeNextPath(searchParams.get("next"));
 
   // On Vercel, request.url uses localhost internally — use x-forwarded-host for the real domain
   const forwardedHost = request.headers.get("x-forwarded-host");

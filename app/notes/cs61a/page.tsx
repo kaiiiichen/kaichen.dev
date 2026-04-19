@@ -67,6 +67,13 @@ export default function CS61APage() {
           Big ideas of computing — abstraction, recursion, and the interplay between programs and the data they manipulate.
         </p>
 
+        <p
+          style={{ fontFamily: "'Nunito'", fontWeight: 500, fontSize: 12, letterSpacing: "0.06em" }}
+          className="text-zinc-500 dark:text-zinc-500 mt-3 uppercase"
+        >
+          Under construction
+        </p>
+
         <div className="mt-6 w-full h-px bg-zinc-200 dark:bg-zinc-800" />
       </div>
 

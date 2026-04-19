@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getPinnedProjects, GITHUB_PROFILE_LOGIN } from "@/app/lib/github-pinned";
 
 export const dynamic = "force-dynamic";
 
@@ -38,12 +39,8 @@ export async function GET() {
   const from = new Date(now);
   from.setFullYear(now.getFullYear() - 1);
 
-  const STAR_REPOS = [
-    "kaiiiichen/kaichen-dev",
-    "kaiiiichen/SUSTech-Kai-Notes",
-    "kaiiiichen/SudoSodoku",
-    "kaiiiichen/kai-chen.xyz",
-  ];
+  const pinned = await getPinnedProjects();
+  const STAR_REPOS = pinned.map((p) => p.repo);
 
   const [graphqlRes, commitsRes, ...starResults] = await Promise.all([
     fetch("https://api.github.com/graphql", {
@@ -56,14 +53,14 @@ export async function GET() {
       body: JSON.stringify({
         query: QUERY,
         variables: {
-          login: "kaiiiichen",
+          login: GITHUB_PROFILE_LOGIN,
           from: from.toISOString(),
           to: now.toISOString(),
         },
       }),
     }),
     fetch(
-      "https://api.github.com/search/commits?q=author:kaiiiichen&sort=author-date&order=desc&per_page=1",
+      `https://api.github.com/search/commits?q=author:${GITHUB_PROFILE_LOGIN}&sort=author-date&order=desc&per_page=1`,
       {
         cache: "no-store",
         headers: {
