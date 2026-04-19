@@ -95,6 +95,24 @@ export default async function Home() {
             <p className="mt-1"><ListeningLine /></p>
           </div>
 
+          <div style={{ width: 40, height: 1, margin: "0" }} className="bg-zinc-200 dark:bg-zinc-700" />
+
+          <div style={{ fontFamily: "'Bitter'", fontWeight: 400, fontSize: 15, lineHeight: 1.9 }} className="text-zinc-700 dark:text-zinc-300">
+            <p>Want a daily digest from my Ginger Cat bot?</p>
+            <p className="mt-1">
+              It’s on{" "}
+              <a
+                href="https://news.kaichen.dev"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline underline-offset-2 decoration-zinc-300 dark:decoration-zinc-600 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors duration-150"
+              >
+                news.kaichen.dev
+              </a>
+              .
+            </p>
+          </div>
+
           {/* Social links — icon row, pinned to bottom */}
           <div className="flex items-center gap-4 mt-auto">
             <a
