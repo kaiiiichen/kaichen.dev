@@ -2,20 +2,41 @@
 
 import Link from "next/link";
 import ThemeToggle from "./theme-toggle";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { createPortal } from "react-dom";
+
+const WAVE_SVG = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='4'%3E%3Cpath d='M0 3 Q5 0 10 3 Q15 6 20 3' stroke='%23C4894F' stroke-width='1.5' fill='none'/%3E%3C/svg%3E")`;
 
 const NAV_LINKS = [
   { href: "/about", label: "About", external: false },
   { href: "/projects", label: "Projects", external: false },
   { href: "/notes", label: "Notes", external: false },
   { href: "https://news.kaichen.dev", label: "News", external: true },
-  { href: "https://substack.com/@kaiiiichen", label: "Blog", external: true },
+  { href: "https://kaiiiichen.substack.com/", label: "Blog", external: true },
   { href: "/gallery", label: "Gallery", external: false },
 ];
 
 export default function Nav() {
   const [isOpen, setIsOpen] = useState(false);
   const navRef = useRef<HTMLElement>(null);
+  const [waveRect, setWaveRect] = useState<{ left: number; width: number; top: number } | null>(null);
+  const waveLeaveFrame = useRef(0);
+
+  const onWaveEnter = useCallback((e: React.MouseEvent<HTMLElement>) => {
+    const el = e.currentTarget;
+    const r = el.getBoundingClientRect();
+    cancelAnimationFrame(waveLeaveFrame.current);
+    setWaveRect({ left: r.left, width: r.width, top: r.bottom + 2 });
+  }, []);
+
+  const onWaveLeave = useCallback(() => {
+    waveLeaveFrame.current = requestAnimationFrame(() => setWaveRect(null));
+  }, []);
+
+  const waveProps = {
+    onMouseEnter: onWaveEnter,
+    onMouseLeave: onWaveLeave,
+  };
 
   useEffect(() => {
     if (!isOpen) return;
@@ -29,6 +50,7 @@ export default function Nav() {
   }, [isOpen]);
 
   return (
+    <>
     <nav ref={navRef} className="fixed top-0 left-0 right-0 z-50 border-b border-zinc-200 dark:border-zinc-800 bg-[var(--background)]">
       <div className="max-w-[1180px] mx-auto px-4 md:px-8 py-4 flex items-center justify-between">
         <Link
@@ -50,7 +72,8 @@ export default function Nav() {
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{ fontFamily: "'Nunito'", fontWeight: 400 }}
-                  className="nav-wave text-sm text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors duration-150"
+                  className="text-sm text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors duration-150"
+                  {...waveProps}
                 >
                   {label}
                 </a>
@@ -59,7 +82,8 @@ export default function Nav() {
                   key={label}
                   href={href}
                   style={{ fontFamily: "'Nunito'", fontWeight: 400 }}
-                  className="nav-wave text-sm text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors duration-150"
+                  className="text-sm text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors duration-150"
+                  {...waveProps}
                 >
                   {label}
                 </Link>
@@ -133,5 +157,29 @@ export default function Nav() {
         </div>
       </div>
     </nav>
+    {typeof document !== "undefined"
+      ? createPortal(
+          <div
+            style={{
+              position: "fixed",
+              left: waveRect?.left ?? 0,
+              top: waveRect?.top ?? 0,
+              width: waveRect?.width ?? 0,
+              height: 4,
+              backgroundImage: WAVE_SVG,
+              backgroundRepeat: "repeat-x",
+              backgroundSize: "20px 4px",
+              opacity: waveRect ? 1 : 0,
+              transition: "opacity 0.15s ease",
+              zIndex: 99999,
+              pointerEvents: "none",
+              animation: "nav-wave-flow 0.6s linear infinite",
+              animationPlayState: waveRect ? "running" : "paused",
+            }}
+          />,
+          document.body
+        )
+      : null}
+    </>
   );
 }

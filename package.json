@@ -33,6 +33,7 @@
     "@supabase/supabase-js": "^2.100.1",
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",
+    "cheerio": "^1.2.0",
     "geist": "^1.7.0",
     "katex": "^0.16.45",
     "next": "16.2.4",

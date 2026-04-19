@@ -85,7 +85,6 @@ export default async function Home() {
             <p className="mt-1">Pledged to give 10% of my lifetime income — because some decisions are worth making early.</p>
           </div>
 
-          {/* Divider */}
           <div style={{ width: 40, height: 1, margin: "0" }} className="bg-zinc-200 dark:bg-zinc-700" />
 
           {/* Personality / side */}
@@ -100,7 +99,7 @@ export default async function Home() {
           <div style={{ fontFamily: "'Bitter'", fontWeight: 400, fontSize: 15, lineHeight: 1.9 }} className="text-zinc-700 dark:text-zinc-300">
             <p>Want a daily digest from my Ginger Cat bot?</p>
             <p className="mt-1">
-              It’s on{" "}
+              It&apos;s on{" "}
               <a
                 href="https://news.kaichen.dev"
                 target="_blank"
@@ -108,6 +107,17 @@ export default async function Home() {
                 className="underline underline-offset-2 decoration-zinc-300 dark:decoration-zinc-600 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors duration-150"
               >
                 news.kaichen.dev
+              </a>
+              .
+            </p>
+            <p className="mt-3">Want to check the availability of all libraries at Berkeley?</p>
+            <p className="mt-1">
+              See{" "}
+              <a
+                href="/berkeley-libraries"
+                className="underline underline-offset-2 decoration-zinc-300 dark:decoration-zinc-600 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors duration-150"
+              >
+                here
               </a>
               .
             </p>
