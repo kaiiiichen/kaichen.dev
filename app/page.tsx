@@ -69,7 +69,7 @@ export default async function Home() {
           <div style={{ fontFamily: "'Bitter'", fontWeight: 400, fontSize: 15, lineHeight: 1.9 }} className="text-zinc-700 dark:text-zinc-300">
             <p>Want a daily digest from my Ginger Cat bot?</p>
             <p className="mt-1">
-              It&apos;s on{" "}
+              It&apos;s now on{" "}
               <a
                 href="https://news.kaichen.dev"
                 target="_blank"
@@ -78,18 +78,18 @@ export default async function Home() {
               >
                 news.kaichen.dev
               </a>
-              .
+              !
             </p>
-            <p className="mt-3">Want to check the availability of all libraries at Berkeley?</p>
+            <p className="mt-3">Wondering which library is still open right now at Berkeley?</p>
             <p className="mt-1">
-              See{" "}
+              Check{" "}
               <a
                 href="/berkeley-libraries"
                 className="underline underline-offset-2 decoration-zinc-300 dark:decoration-zinc-600 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors duration-150"
               >
                 here
               </a>
-              .
+              !
             </p>
           </div>
 
@@ -186,47 +186,47 @@ export default async function Home() {
               </p>
             ) : (
               projects.map(({ name, desc, href, repo, stack }) => (
-              <a
-                key={repo}
-                href={href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group block py-3 -mx-2 px-2 rounded-sm hover:bg-zinc-50 dark:hover:bg-zinc-800/60 transition-all duration-150"
-              >
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="opacity-0 group-hover:opacity-100 text-[#C4894F] -translate-x-1 group-hover:translate-x-0 transition-all duration-150 text-xs shrink-0">
-                    ↗
-                  </span>
-                  <p
-                    style={{ fontFamily: "'Bitter'", fontWeight: 600, fontSize: 20, fontStyle: "italic" }}
-                    className="text-zinc-800 dark:text-zinc-200 group-hover:text-[#C4894F] dark:group-hover:text-[#D9A870] transition-colors duration-150"
-                  >
-                    {name}
-                  </p>
-                  <ProjectStars repo={repo} />
-                </div>
-                {desc ? (
-                  <p
-                    style={{ fontFamily: "'Bitter'", fontWeight: 400, fontSize: 11 }}
-                    className="text-zinc-400 dark:text-zinc-500 mt-0.5 leading-snug pl-4"
-                  >
-                    {desc}
-                  </p>
-                ) : null}
-                {stack.length > 0 ? (
-                <div className="flex flex-wrap gap-1 mt-1.5 pl-4">
-                  {stack.map((tag) => (
-                    <span
-                      key={tag}
-                      style={{ fontFamily: "'Nunito'", fontWeight: 400, fontSize: 10 }}
-                      className="px-1.5 py-0.5 rounded-sm bg-zinc-100 dark:bg-zinc-800/80 text-zinc-500 dark:text-zinc-400"
-                    >
-                      {tag}
+                <a
+                  key={repo}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group block py-3 -mx-2 px-2 rounded-sm hover:bg-zinc-50 dark:hover:bg-zinc-800/60 transition-all duration-150"
+                >
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="opacity-0 group-hover:opacity-100 text-[#C4894F] -translate-x-1 group-hover:translate-x-0 transition-all duration-150 text-xs shrink-0">
+                      ↗
                     </span>
-                  ))}
-                </div>
-                ) : null}
-              </a>
+                    <p
+                      style={{ fontFamily: "'Bitter'", fontWeight: 600, fontSize: 20, fontStyle: "italic" }}
+                      className="text-zinc-800 dark:text-zinc-200 group-hover:text-[#C4894F] dark:group-hover:text-[#D9A870] transition-colors duration-150"
+                    >
+                      {name}
+                    </p>
+                    <ProjectStars repo={repo} />
+                  </div>
+                  {desc ? (
+                    <p
+                      style={{ fontFamily: "'Bitter'", fontWeight: 400, fontSize: 11 }}
+                      className="text-zinc-400 dark:text-zinc-500 mt-0.5 leading-snug pl-4"
+                    >
+                      {desc}
+                    </p>
+                  ) : null}
+                  {stack.length > 0 ? (
+                    <div className="flex flex-wrap gap-1 mt-1.5 pl-4">
+                      {stack.map((tag) => (
+                        <span
+                          key={tag}
+                          style={{ fontFamily: "'Nunito'", fontWeight: 400, fontSize: 10 }}
+                          className="px-1.5 py-0.5 rounded-sm bg-zinc-100 dark:bg-zinc-800/80 text-zinc-500 dark:text-zinc-400"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  ) : null}
+                </a>
               ))
             )}
           </div>
