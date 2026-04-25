@@ -89,7 +89,7 @@ export default async function Home() {
               >
                 here
               </a>
-              !
+              ! (You may need to refresh the page to see the latest data:D)
             </p>
           </div>
 
@@ -118,7 +118,7 @@ export default async function Home() {
               </svg>
             </a>
             <a
-              href="https://x.com/kaiiiichen37"
+              href="https://x.com/kaichen37"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="X"
@@ -139,16 +139,15 @@ export default async function Home() {
               </svg>
             </a>
             <a
-              href="https://signal.me/#p/kaiiiichen.37"
+              href="https://t.me/kaiiiichen"
               target="_blank"
               rel="noopener noreferrer"
-              aria-label="Signal"
+              aria-label="Telegram"
+              className="text-zinc-700 dark:text-zinc-300 opacity-35 hover:opacity-100 transition-opacity duration-300 ease-out"
             >
-              <img
-                src="/Signal-Logo-Black.svg"
-                alt="Signal"
-                className="w-5 h-5 opacity-35 hover:opacity-100 transition-opacity duration-300 ease-out"
-              />
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.022c.242-.213-.054-.334-.373-.121l-6.87 4.326-2.96-.924c-.64-.203-.66-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.939z" />
+              </svg>
             </a>
           </div>
         </div>
