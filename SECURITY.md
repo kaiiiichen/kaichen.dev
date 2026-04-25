@@ -10,7 +10,7 @@ We care about vulnerabilities that affect:
 
 - **Production** behavior at `kaichen.dev` (including Vercel-hosted Next.js routes and static assets).
 - **Repository automation** (GitHub Actions workflows, Dependabot-related automation) when they could lead to secret exfiltration or unauthorized repository changes.
-- **User data** processed through **Supabase** (auth sessions, gallery metadata, guestbook rows, listening history) when issues stem from **this application’s** code or documented deployment practices.
+- **User data** processed through **Supabase** (guestbook rows, listening history) when issues stem from **this application’s** code or documented deployment practices.
 
 We do **not** provide a formal bug bounty program. Reports are handled **best-effort**.
 

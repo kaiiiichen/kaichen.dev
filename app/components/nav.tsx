@@ -13,7 +13,6 @@ const NAV_LINKS = [
   { href: "/notes", label: "Notes", external: false },
   { href: "https://news.kaichen.dev", label: "News", external: true },
   { href: "https://kaiiiichen.substack.com/", label: "Blog", external: true },
-  { href: "/gallery", label: "Gallery", external: false },
 ];
 
 export default function Nav() {

@@ -20,7 +20,7 @@ Canonical documentation: **[README.md](README.md)** (setup, routes, APIs, env, C
 | **Client polling** | `app/hooks/use-now-playing.ts` — polls every **10s**; `Cache-Control` on API allows short CDN cache |
 | **GitHub** | `GET /api/github/contributions` — GraphQL calendar + REST; `GET /api/github/stars` — star counts |
 | **Weather** | `GET /api/weather` — Open-Meteo, fixed coordinates (Berkeley), revalidated fetch |
-| **Gallery** | Supabase Storage + `gallery_photos`; admin at `/admin` (OAuth + allowlisted email in app — **RLS must match in Supabase**) |
+| **Guestbook** | `POST /api/guestbook` — Supabase anon insert via `getSupabaseAnon()`; rate limiting / abuse handled at the Supabase RLS layer |
 | **Notes** | MDX under `app/notes/**/page.mdx`; pipeline in `next.config.ts` (Webpack + `@mdx-js/loader`); components in `mdx-components.tsx` and `components/notes/` |
 | **Observability** | Sentry via `instrumentation*.ts` + `sentry.*.config.ts` (DSN optional); Vercel Analytics / Speed Insights in root layout |
 | **Theme** | `app/components/theme-provider.tsx` + inline script in `app/layout.tsx` — default **light** when unset |

@@ -9,11 +9,6 @@ on:
 jobs:
   ci:
     runs-on: ubuntu-latest
-    env:
-      # `next build` prerenders pages that call `createBrowserClient` at module scope (`/admin`, `/gallery`).
-      # Real secrets are not required for compile; placeholders satisfy the client constructor.
-      NEXT_PUBLIC_SUPABASE_URL: https://ci-build-placeholder.supabase.co
-      NEXT_PUBLIC_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiJ9.ci-build-placeholder
     steps:
       - uses: actions/checkout@v6
 

@@ -84,11 +84,11 @@ This repository is a **[Next.js 16](https://nextjs.org/)** application using the
 The site combines:
 
 - A **marketing-style home page** (identity, listening status, weather, **GitHub pinned repositories** via GraphQL with a static fallback, Substack headlines, and links to **news.kaichen.dev** and the **Berkeley library hours** page).
-- **Dynamic data** from Last.fm, GitHub, Open-Meteo, optional Supabase-backed gallery and listening history, and **UC Berkeley library hours** scraped from the official hours page (cached, JSON API available).
+- **Dynamic data** from Last.fm, GitHub, Open-Meteo, optional Supabase-backed listening history, and **UC Berkeley library hours** scraped from the official hours page (cached, JSON API available).
 - **MDX-powered notes** under `/notes` with math (KaTeX), GitHub-flavored Markdown, and syntax-highlighted code blocks — multiple course segments (UC Berkeley and SUSTech); see [MDX lecture notes](#mdx-lecture-notes).
 - **Optional observability** via Sentry (client, server, edge) and Vercel Analytics / Speed Insights.
 
-There is **no** `middleware.ts` in this repo; auth for admin flows uses Supabase OAuth and route handlers under `app/auth/`.
+There is **no** `middleware.ts` (or `proxy.ts`) in this repo — every route is publicly accessible and rendered by the App Router directly.
 
 ---
 
@@ -160,11 +160,8 @@ kaichen.dev/
 │   ├── about/                    # Bio / CV-style page + OG
 │   ├── projects/                 # Projects + GitHub heatmap + OG
 │   ├── notes/                    # Notes index, course pages, MDX note routes
-│   ├── gallery/                  # Public gallery + OG
-│   ├── admin/                    # Supabase-auth gallery admin; /admin/gallery → redirect /admin
 │   ├── api/                      # Route handlers (Last.fm, GitHub, weather, guestbook, UCB libraries)
 │   ├── berkeley-libraries/       # UC Berkeley library hours (HTML from lib.berkeley.edu)
-│   ├── auth/callback/            # Supabase OAuth exchange → redirect
 │   ├── components/               # UI: nav, cards, theme, weather, listening, GitHub heatmap, …
 │   ├── hooks/                    # e.g. use-now-playing.ts
 │   └── lib/                      # og.tsx, substack RSS, GitHub pinned repos (GraphQL)
@@ -209,7 +206,7 @@ kaichen.dev/
 | Content | **MDX** via `@mdx-js/loader` + `remark-gfm`, `remark-math`, `rehype-katex`, `rehype-highlight` |
 | Scraping | **cheerio** — parses UC Berkeley library hours HTML server-side |
 | Fonts | `@fontsource/*` (Nunito, Bitter, JetBrains Mono), `geist` (sans/mono CSS variables) |
-| Auth / data | Supabase (`@supabase/supabase-js`, `@supabase/ssr`) for OAuth, gallery, optional listening DB writes |
+| Data | Supabase (`@supabase/supabase-js`) — guestbook anon insert + optional listening history DB writes (service role) |
 | Monitoring | `@sentry/nextjs` (optional DSN), Vercel Analytics + Speed Insights |
 | Testing | Vitest **3** |
 
@@ -227,9 +224,6 @@ Pinned versions are in [`package.json`](package.json).
 | `/notes` | Index of courses (see [MDX lecture notes](#mdx-lecture-notes)); links to external [SUSTech-Kai-Notes](https://github.com/kaiiiichen/SUSTech-Kai-Notes) for broader collections |
 | `/notes/...` | Nested segments per course (e.g. `cs61a`, `data100`, `cs217`, `ma121`–`ma337`); individual notes are `page.mdx` |
 | `/berkeley-libraries` | UC Berkeley library **open/closed** status and hours, parsed from [lib.berkeley.edu/hours](https://www.lib.berkeley.edu/hours); data revalidates every **15 minutes** |
-| `/gallery` | Photo grid + lightbox; data from Supabase `gallery_photos` + Storage |
-| `/admin` | Google OAuth via Supabase; **restricted to an allowlisted email** in client code — **you must enforce the same rules in Supabase RLS** for production safety |
-| `/admin/gallery` | Redirects to `/admin` |
 
 **External nav (no in-app route):** the main nav includes **News** → [news.kaichen.dev](https://news.kaichen.dev) and **Blog** → [Substack](https://kaiiiichen.substack.com/); there is no `/blog` or `/news` route in this repo.
 
@@ -264,10 +258,9 @@ Copy [`.env.example`](.env.example) to `.env.local`. **Never commit** real secre
 
 | Variable | Role |
 | --- | --- |
-| `NEXT_PUBLIC_SITE_URL` | Canonical site origin; used for Supabase OAuth `redirectTo` (set production URL on Vercel). |
-| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL. |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous key (browser + server routes using `getSupabaseAnon()`). |
-| `SUPABASE_SERVICE_ROLE_KEY` | **Server-only.** Used by `/api/lastfm/now-playing` for DB writes and any server path that must bypass RLS — keep off the client bundle. |
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL. Used by `getSupabaseAnon()` (guestbook) and the lastfm route (paired with the service role key). |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous key. Used by `getSupabaseAnon()` for the `POST /api/guestbook` insert. |
+| `SUPABASE_SERVICE_ROLE_KEY` | **Server-only.** Used by `/api/lastfm/now-playing` for DB writes/reads against `listening_history` / `listening_stats` — keep off the client bundle. |
 | `LASTFM_API_KEY` | Last.fm API. If unset, the now-playing API returns a graceful “not playing” / DB fallback without calling Last.fm. |
 | `GITHUB_TOKEN` | Fine-grained or classic PAT for GitHub API (contributions + stars + **pinned repos** on the home page). If missing, contribution/stars features may error or return empty data; pinned projects fall back to a **static list** in [`app/lib/github-pinned.ts`](app/lib/github-pinned.ts). |
 | `GITHUB_LOGIN` | Optional. GitHub username for **pinned repositories** and related API calls (defaults to `kaiiiichen` if unset). Set when forking so the home page shows your pins. |
@@ -287,9 +280,9 @@ vercel env pull .env.vercel.check
 
 That path is gitignored — do not commit it.
 
-### CI placeholders
+### CI
 
-[`.github/workflows/ci.yml`](.github/workflows/ci.yml) sets dummy `NEXT_PUBLIC_SUPABASE_*` values so `next build` can prerender pages that call `createBrowserClient` at module scope (e.g. `/admin`). These are **not** real credentials.
+CI does not need any real Supabase keys to build — every Supabase client in this repo is constructed lazily inside a function body, so `next build` succeeds without `NEXT_PUBLIC_SUPABASE_*` set. See [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
 
 ---
 
@@ -316,7 +309,7 @@ To add a new course: add a card on the notes index, create `app/notes/<slug>/pag
 | **GitHub GraphQL** | Contribution calendar |
 | **GitHub REST** | Repo stars, commit search |
 | **Open-Meteo** | Weather (no API key) |
-| **Supabase** | Auth, gallery tables + storage, guestbook insert, listening history (optional) |
+| **Supabase** | `guestbook` insert (anon) + optional `listening_history` / `listening_stats` writes (service role) for the now-playing route |
 | **Substack RSS** | Home page “latest posts” (`app/lib/substack.ts`) |
 | **lib.berkeley.edu** | Library hours HTML (scraped server-side; not an official API) |
 
@@ -326,7 +319,7 @@ To add a new course: add a card on the notes index, create `app/notes/<slug>/pag
 
 - **Node 20**, **npm install** then **`npm run dev`**.
 - If MDX fails to compile, confirm you did not remove the `--webpack` flag from scripts.
-- **Supabase:** for full gallery/admin behavior, configure a project and env vars; for static pages only, you can omit keys where the build allows (see CI placeholders for build-time behavior).
+- **Supabase:** only the guestbook insert (anon key) and the now-playing route (service role) talk to Supabase. The site builds and serves every page without any Supabase env set; those features just degrade or no-op.
 
 ### Common issues
 
@@ -334,7 +327,7 @@ To add a new course: add a card on the notes index, create `app/notes/<slug>/pag
 | --- | --- |
 | MDX differs between dev and prod | Ensure both use Webpack (`--webpack`). |
 | GitHub widgets empty | `GITHUB_TOKEN` set and not expired; API rate limits. |
-| OAuth redirect wrong host | `NEXT_PUBLIC_SITE_URL` and Supabase redirect URLs match Vercel domain. |
+| Guestbook insert fails | `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` set; RLS allows anonymous inserts on `guestbook`. |
 | Sentry noisy locally | DSN unset disables reporting; or lower sample rate in `instrumentation-client.ts`. |
 
 ---
@@ -348,7 +341,7 @@ npm run test
 npm run test:watch
 ```
 
-There are currently **no** Playwright/E2E tests in this repo; manual browser checks matter for layout and OAuth flows.
+There are currently **no** Playwright/E2E tests in this repo; manual browser checks matter for layout and visual polish.
 
 ---
 
@@ -397,7 +390,7 @@ to non-merge commits via `git interpret-trailers` (idempotent). Automation that 
 ## Deployment
 
 1. Connect the GitHub repository to **Vercel**.
-2. Set environment variables in the Vercel project (production + preview as needed), especially `NEXT_PUBLIC_SITE_URL` and Supabase URLs for OAuth.
+2. Set environment variables in the Vercel project (production + preview as needed), especially `GITHUB_TOKEN`, `LASTFM_API_KEY`, and the Supabase keys if you want guestbook + listening history persistence.
 3. Pushes to `main` typically deploy production; preview deployments use PR branches.
 
 Manual CLI (after `vercel link`):
@@ -435,7 +428,7 @@ Replace at minimum:
 | Last.fm username | `app/api/lastfm/now-playing/route.ts` |
 | GitHub login / repos / pins | `app/api/github/contributions/route.ts`, `app/components/project-stars.tsx`, [`app/lib/github-pinned.ts`](app/lib/github-pinned.ts), env `GITHUB_LOGIN` |
 | Berkeley library page | `lib/ucb-library-hours.ts`, `app/berkeley-libraries/page.tsx`, `app/api/ucb-libraries/route.ts` |
-| Supabase project + admin allowlist | `lib/supabase.ts`, `app/admin/page.tsx`, Supabase dashboard (RLS, Storage) |
+| Supabase tables | `lib/supabase.ts`, `app/api/guestbook/route.ts`, `app/api/lastfm/now-playing/route.ts`, Supabase dashboard (RLS for `guestbook`, `listening_history`, `listening_stats`) |
 | Substack feeds | `app/lib/substack.ts` |
 | Weather location | `app/api/weather/route.ts`, weather UI components |
 | Theme / fonts | `app/layout.tsx`, `app/globals.css`, `app/components/theme-provider.tsx` |
