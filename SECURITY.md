@@ -10,7 +10,7 @@ We care about vulnerabilities that affect:
 
 - **Production** behavior at `kaichen.dev` (including Vercel-hosted Next.js routes and static assets).
 - **Repository automation** (GitHub Actions workflows, Dependabot-related automation) when they could lead to secret exfiltration or unauthorized repository changes.
-- **User data** processed through **Supabase** (guestbook rows, listening history) when issues stem from **this application’s** code or documented deployment practices.
+- **User data** processed through **Supabase** (listening history) when issues stem from **this application’s** code or documented deployment practices.
 
 We do **not** provide a formal bug bounty program. Reports are handled **best-effort**.
 
@@ -64,7 +64,6 @@ Reports may be **declined** or redirected when they concern:
 - Third-party services’ policies (Last.fm, GitHub, Vercel, Supabase product bugs) — use their official channels.
 - **Social engineering** or account takeover of maintainer accounts outside this codebase.
 - **Theoretical** issues without a plausible attack path against deployed configuration.
-- Content **spam** on optional features (e.g. guestbook) unless tied to a clear application defect; operational mitigations (rate limits, RLS) may be tracked separately.
 
 ---
 

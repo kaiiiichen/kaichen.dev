@@ -160,15 +160,15 @@ kaichen.dev/
 │   ├── about/                    # Bio / CV-style page + OG
 │   ├── projects/                 # Projects + GitHub heatmap + OG
 │   ├── notes/                    # Notes index, course pages, MDX note routes
-│   ├── api/                      # Route handlers (Last.fm, GitHub, weather, guestbook, UCB libraries)
+│   ├── api/                      # Route handlers (Last.fm, GitHub, weather, UCB libraries)
 │   ├── berkeley-libraries/       # UC Berkeley library hours (HTML from lib.berkeley.edu)
 │   ├── components/               # UI: nav, cards, theme, weather, listening, GitHub heatmap, …
 │   ├── hooks/                    # e.g. use-now-playing.ts
 │   └── lib/                      # og.tsx, substack RSS, GitHub pinned repos (GraphQL)
 ├── components/notes/             # MDX shortcodes: Theorem, Proof, Definition, Example, NoteBlock
 ├── lib/                          # Shared server-oriented helpers + Vitest tests
-│   ├── supabase.ts               # Lazy anon Supabase client (getSupabaseAnon)
 │   ├── now-playing.ts            # Types for Last.fm payload
+│   ├── lastfm-now-playing-helpers.ts
 │   ├── ucb-library-hours.ts      # Fetch + parse lib.berkeley.edu/hours (Cheerio)
 │   ├── weather-open-meteo.ts
 │   └── *.test.ts
@@ -206,7 +206,7 @@ kaichen.dev/
 | Content | **MDX** via `@mdx-js/loader` + `remark-gfm`, `remark-math`, `rehype-katex`, `rehype-highlight` |
 | Scraping | **cheerio** — parses UC Berkeley library hours HTML server-side |
 | Fonts | `@fontsource/*` (Nunito, Bitter, JetBrains Mono), `geist` (sans/mono CSS variables) |
-| Data | Supabase (`@supabase/supabase-js`) — guestbook anon insert + optional listening history DB writes (service role) |
+| Data | Supabase (`@supabase/supabase-js`) — optional listening history DB writes (service role) for `/api/lastfm/now-playing` |
 | Monitoring | `@sentry/nextjs` (optional DSN), Vercel Analytics + Speed Insights |
 | Testing | Vitest **3** |
 
@@ -242,9 +242,6 @@ All handlers live under `app/api/`.
 | `GET /api/github/stars?repo=owner/name` | Returns `stargazers_count` and `archived` for a repo | `revalidate = 3600`; optional `GITHUB_TOKEN` for rate limits |
 | `GET /api/weather` | Open-Meteo forecast for fixed Berkeley coordinates | `fetch` with `next.revalidate = 600` |
 | `GET /api/ucb-libraries` | Same payload as `/berkeley-libraries`: JSON with `libraries`, `fetchedAt`, `sourceUrl`, or `ok: false` + `error` | Uses `getUCBLibraryHours()`; upstream fetch `revalidate: 900` (15 minutes) |
-| `POST /api/guestbook` | JSON body `{ email, message }` → insert into Supabase `guestbook` via anon client | No auth; relies on **Supabase RLS** and sensible limits in the database |
-
-**Guestbook** is only referenced from API + docs; ensure any front-end or future form respects abuse concerns (rate limits, validation) at the edge or in Supabase policies.
 
 **Berkeley libraries:** parsing depends on the HTML structure of lib.berkeley.edu. If the upstream page changes, [`lib/ucb-library-hours.ts`](lib/ucb-library-hours.ts) may need updates (see error responses when zero libraries parse).
 
@@ -258,8 +255,7 @@ Copy [`.env.example`](.env.example) to `.env.local`. **Never commit** real secre
 
 | Variable | Role |
 | --- | --- |
-| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL. Used by `getSupabaseAnon()` (guestbook) and the lastfm route (paired with the service role key). |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous key. Used by `getSupabaseAnon()` for the `POST /api/guestbook` insert. |
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL. Paired with `SUPABASE_SERVICE_ROLE_KEY` inside `/api/lastfm/now-playing` for the optional listening history. |
 | `SUPABASE_SERVICE_ROLE_KEY` | **Server-only.** Used by `/api/lastfm/now-playing` for DB writes/reads against `listening_history` / `listening_stats` — keep off the client bundle. |
 | `LASTFM_API_KEY` | Last.fm API. If unset, the now-playing API returns a graceful “not playing” / DB fallback without calling Last.fm. |
 | `GITHUB_TOKEN` | Fine-grained or classic PAT for GitHub API (contributions + stars + **pinned repos** on the home page). If missing, contribution/stars features may error or return empty data; pinned projects fall back to a **static list** in [`app/lib/github-pinned.ts`](app/lib/github-pinned.ts). |
@@ -309,7 +305,7 @@ To add a new course: add a card on the notes index, create `app/notes/<slug>/pag
 | **GitHub GraphQL** | Contribution calendar |
 | **GitHub REST** | Repo stars, commit search |
 | **Open-Meteo** | Weather (no API key) |
-| **Supabase** | `guestbook` insert (anon) + optional `listening_history` / `listening_stats` writes (service role) for the now-playing route |
+| **Supabase** | Optional `listening_history` / `listening_stats` writes (service role) for the now-playing route |
 | **Substack RSS** | Home page “latest posts” (`app/lib/substack.ts`) |
 | **lib.berkeley.edu** | Library hours HTML (scraped server-side; not an official API) |
 
@@ -319,7 +315,7 @@ To add a new course: add a card on the notes index, create `app/notes/<slug>/pag
 
 - **Node 20**, **npm install** then **`npm run dev`**.
 - If MDX fails to compile, confirm you did not remove the `--webpack` flag from scripts.
-- **Supabase:** only the guestbook insert (anon key) and the now-playing route (service role) talk to Supabase. The site builds and serves every page without any Supabase env set; those features just degrade or no-op.
+- **Supabase:** only `/api/lastfm/now-playing` uses Supabase (service role) for the optional listening history. The site builds and serves every page without any Supabase env set; the route just falls back to live Last.fm + in-memory cache when the DB is unreachable.
 
 ### Common issues
 
@@ -327,7 +323,7 @@ To add a new course: add a card on the notes index, create `app/notes/<slug>/pag
 | --- | --- |
 | MDX differs between dev and prod | Ensure both use Webpack (`--webpack`). |
 | GitHub widgets empty | `GITHUB_TOKEN` set and not expired; API rate limits. |
-| Guestbook insert fails | `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` set; RLS allows anonymous inserts on `guestbook`. |
+| "Recently played" never persists across deploys | `NEXT_PUBLIC_SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` set; tables `listening_history` / `listening_stats` exist with the expected columns. |
 | Sentry noisy locally | DSN unset disables reporting; or lower sample rate in `instrumentation-client.ts`. |
 
 ---
@@ -390,7 +386,7 @@ to non-merge commits via `git interpret-trailers` (idempotent). Automation that 
 ## Deployment
 
 1. Connect the GitHub repository to **Vercel**.
-2. Set environment variables in the Vercel project (production + preview as needed), especially `GITHUB_TOKEN`, `LASTFM_API_KEY`, and the Supabase keys if you want guestbook + listening history persistence.
+2. Set environment variables in the Vercel project (production + preview as needed), especially `GITHUB_TOKEN`, `LASTFM_API_KEY`, and the Supabase keys if you want listening history persistence.
 3. Pushes to `main` typically deploy production; preview deployments use PR branches.
 
 Manual CLI (after `vercel link`):
@@ -428,7 +424,7 @@ Replace at minimum:
 | Last.fm username | `app/api/lastfm/now-playing/route.ts` |
 | GitHub login / repos / pins | `app/api/github/contributions/route.ts`, `app/components/project-stars.tsx`, [`app/lib/github-pinned.ts`](app/lib/github-pinned.ts), env `GITHUB_LOGIN` |
 | Berkeley library page | `lib/ucb-library-hours.ts`, `app/berkeley-libraries/page.tsx`, `app/api/ucb-libraries/route.ts` |
-| Supabase tables | `lib/supabase.ts`, `app/api/guestbook/route.ts`, `app/api/lastfm/now-playing/route.ts`, Supabase dashboard (RLS for `guestbook`, `listening_history`, `listening_stats`) |
+| Supabase tables | `app/api/lastfm/now-playing/route.ts`, Supabase dashboard (`listening_history`, `listening_stats`) |
 | Substack feeds | `app/lib/substack.ts` |
 | Weather location | `app/api/weather/route.ts`, weather UI components |
 | Theme / fonts | `app/layout.tsx`, `app/globals.css`, `app/components/theme-provider.tsx` |

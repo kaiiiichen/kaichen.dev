@@ -20,7 +20,6 @@ Canonical documentation: **[README.md](README.md)** (setup, routes, APIs, env, C
 | **Client polling** | `app/hooks/use-now-playing.ts` — polls every **10s**; `Cache-Control` on API allows short CDN cache |
 | **GitHub** | `GET /api/github/contributions` — GraphQL calendar + REST; `GET /api/github/stars` — star counts |
 | **Weather** | `GET /api/weather` — Open-Meteo, fixed coordinates (Berkeley), revalidated fetch |
-| **Guestbook** | `POST /api/guestbook` — Supabase anon insert via `getSupabaseAnon()`; rate limiting / abuse handled at the Supabase RLS layer |
 | **Notes** | MDX under `app/notes/**/page.mdx`; pipeline in `next.config.ts` (Webpack + `@mdx-js/loader`); components in `mdx-components.tsx` and `components/notes/` |
 | **Observability** | Sentry via `instrumentation*.ts` + `sentry.*.config.ts` (DSN optional); Vercel Analytics / Speed Insights in root layout |
 | **Theme** | `app/components/theme-provider.tsx` + inline script in `app/layout.tsx` — default **light** when unset |
@@ -39,8 +38,8 @@ npm run lint && npm run typecheck && npm run test && npm run build
 
 ## Important paths
 
-- [`lib/supabase.ts`](lib/supabase.ts) — `getSupabaseAnon()` lazy singleton
 - [`lib/now-playing.ts`](lib/now-playing.ts) — types for Last.fm payload
+- [`lib/lastfm-now-playing-helpers.ts`](lib/lastfm-now-playing-helpers.ts) — pure helpers used by the now-playing route (tested)
 - [`app/lib/substack.ts`](app/lib/substack.ts) — RSS fetch + parse (tested)
 - [`next.config.ts`](next.config.ts) — MDX webpack rule, `withSentryConfig`
 
