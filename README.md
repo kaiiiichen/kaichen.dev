@@ -88,12 +88,7 @@ The site combines:
 - **MDX-powered notes** under `/notes` with math (KaTeX), GitHub-flavored Markdown, and syntax-highlighted code blocks — multiple course segments (UC Berkeley and SUSTech); see [MDX lecture notes](#mdx-lecture-notes).
 - **Optional observability** via Sentry (client, server, edge) and Vercel Analytics / Speed Insights.
 
-A single `proxy.ts` (the Next.js 16 successor to `middleware.ts`) lives at the repo root. It does two things:
-
-1. Refreshes the Supabase auth cookie on every request (required for `/clip` server components).
-2. Rewrites the `clip.kaichen.dev` subdomain into the `/clip/*` path tree so one project serves both `kaichen.dev/clip` and `clip.kaichen.dev`.
-
-Public marketing routes are unaffected.
+There is **no** `middleware.ts` (or `proxy.ts`) in this repo — every route is publicly accessible and rendered by the App Router directly.
 
 ---
 
@@ -229,11 +224,6 @@ Pinned versions are in [`package.json`](package.json).
 | `/notes` | Index of courses (see [MDX lecture notes](#mdx-lecture-notes)); links to external [SUSTech-Kai-Notes](https://github.com/kaiiiichen/SUSTech-Kai-Notes) for broader collections |
 | `/notes/...` | Nested segments per course (e.g. `cs61a`, `data100`, `cs217`, `ma121`–`ma337`); individual notes are `page.mdx` |
 | `/berkeley-libraries` | UC Berkeley library **open/closed** status and hours, parsed from [lib.berkeley.edu/hours](https://www.lib.berkeley.edu/hours); data revalidates every **15 minutes** |
-| `/clip` | **Clipboard Sync** — Google sign-in (Supabase Auth), lists rooms the user belongs to. Also reachable as the root of `clip.kaichen.dev` via middleware rewrite. |
-| `/clip/board/[id]` | Single clipboard room: history list on the left, editor + selected entry on the right. Live-syncs new entries via Supabase Realtime (`postgres_changes` on `clipboard_entries`). |
-| `/clip/admin` | Admin panel (only emails in `ADMIN_EMAILS`): list signed-up users, create/delete rooms, add/remove members with `read` / `write` roles. |
-| `GET /auth/callback` | Supabase OAuth code exchange — set `https://clip.kaichen.dev/auth/callback` (and `https://kaichen.dev/auth/callback`) as redirect URLs in Supabase Auth. |
-| `POST /auth/sign-out` | Server-side sign-out for Clipboard Sync. |
 
 **External nav (no in-app route):** the main nav includes **News** → [news.kaichen.dev](https://news.kaichen.dev) and **Blog** → [Substack](https://kaiiiichen.substack.com/); there is no `/blog` or `/news` route in this repo.
 
@@ -265,10 +255,8 @@ Copy [`.env.example`](.env.example) to `.env.local`. **Never commit** real secre
 
 | Variable | Role |
 | --- | --- |
-| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL. Used by `/api/lastfm/now-playing` (service-role writes) and Clipboard Sync (`/clip`). |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Public anon key for cookie-based auth + RLS-scoped reads/writes from `/clip`. Required for Clipboard Sync; safe to expose. |
-| `SUPABASE_SERVICE_ROLE_KEY` | **Server-only.** Used by `/api/lastfm/now-playing` and the `/clip/admin` panel (creating rooms, listing users, managing members). Keep off the client bundle. |
-| `ADMIN_EMAILS` | Comma-separated emails allowed to use `/clip/admin` (case-insensitive). Compared against the signed-in Supabase session email. |
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL. Paired with `SUPABASE_SERVICE_ROLE_KEY` inside `/api/lastfm/now-playing` for the optional listening history. |
+| `SUPABASE_SERVICE_ROLE_KEY` | **Server-only.** Used by `/api/lastfm/now-playing` for DB writes/reads against `listening_history` / `listening_stats` — keep off the client bundle. |
 | `LASTFM_API_KEY` | Last.fm API. If unset, the now-playing API returns a graceful “not playing” / DB fallback without calling Last.fm. |
 | `GITHUB_TOKEN` | Fine-grained or classic PAT for GitHub API (contributions + stars + **pinned repos** on the home page). If missing, contribution/stars features may error or return empty data; pinned projects fall back to a **static list** in [`app/lib/github-pinned.ts`](app/lib/github-pinned.ts). |
 | `GITHUB_LOGIN` | Optional. GitHub username for **pinned repositories** and related API calls (defaults to `kaiiiichen` if unset). Set when forking so the home page shows your pins. |
@@ -290,7 +278,7 @@ That path is gitignored — do not commit it.
 
 ### CI
 
-CI does not need any real Supabase keys to build — every Supabase client in this repo is constructed lazily inside a function body, so `next build` succeeds without `NEXT_PUBLIC_SUPABASE_*` set. See [`.github/workflows/ci.yml`](.github/workflows/ci.yml). The `/clip` routes are `force-dynamic`, so they aren't statically pre-rendered at build time either.
+CI does not need any real Supabase keys to build — every Supabase client in this repo is constructed lazily inside a function body, so `next build` succeeds without `NEXT_PUBLIC_SUPABASE_*` set. See [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
 
 ---
 
@@ -320,8 +308,6 @@ To add a new course: add a card on the notes index, create `app/notes/<slug>/pag
 | **Supabase** | Optional `listening_history` / `listening_stats` writes (service role) for the now-playing route |
 | **Substack RSS** | Home page “latest posts” (`app/lib/substack.ts`) |
 | **lib.berkeley.edu** | Library hours HTML (scraped server-side; not an official API) |
-| **Supabase Auth (Google)** | Sign-in for `/clip` Clipboard Sync (cookie-based session via `@supabase/ssr`) |
-| **Supabase Realtime** | `clipboard_entries` `INSERT` events broadcast to room subscribers in `/clip/board/[id]` |
 
 ---
 
@@ -400,16 +386,8 @@ to non-merge commits via `git interpret-trailers` (idempotent). Automation that 
 ## Deployment
 
 1. Connect the GitHub repository to **Vercel**.
-2. Set environment variables in the Vercel project (production + preview as needed), especially `GITHUB_TOKEN`, `LASTFM_API_KEY`, the Supabase keys (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`), and `ADMIN_EMAILS` for Clipboard Sync.
+2. Set environment variables in the Vercel project (production + preview as needed), especially `GITHUB_TOKEN`, `LASTFM_API_KEY`, and the Supabase keys if you want listening history persistence.
 3. Pushes to `main` typically deploy production; preview deployments use PR branches.
-
-### Clipboard Sync (`clip.kaichen.dev`)
-
-Once the env vars above are set:
-
-1. **Vercel:** add `clip.kaichen.dev` as a domain on the same project. The middleware rewrites `clip.kaichen.dev` → `/clip` so no extra routing is needed.
-2. **Supabase Auth → URL configuration:** add both `https://kaichen.dev/auth/callback` and `https://clip.kaichen.dev/auth/callback` (plus `http://localhost:3000/auth/callback` for dev) to the redirect URL allowlist; enable the **Google** provider.
-3. **Supabase tables:** the schema (`clipboards`, `clipboard_members`, `clipboard_entries`) is created manually — see the project brief / migrations. Enable **Realtime** on `clipboard_entries` and configure RLS so users can only see rooms they belong to (the app relies on RLS for `SELECT`/`INSERT` from the browser).
 
 Manual CLI (after `vercel link`):
 
